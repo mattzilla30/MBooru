@@ -55,7 +55,7 @@ class TraceMoeViewModel(private val traceMoeApi: TraceMoeApi) : androidx.lifecyc
                         val response = traceMoeApi.fetch(imageBlob)
                         NetResult.Success(response)
                     } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+                        if (e is kotlinx.coroutines.CancellationException) throw e
                         NetResult.Error(e.safeNetworkMessage())
                     }
                 }

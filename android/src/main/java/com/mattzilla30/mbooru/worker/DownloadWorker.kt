@@ -210,14 +210,14 @@ class DownloadWorker(
         }
         queue.state(key, "running")
         return try {
-            val result = when (inputData.getString(TYPE_KEY)) {
+            val succeeded = when (inputData.getString(TYPE_KEY)) {
                 TYPE_POST -> downloadPost()
                 TYPE_POOL -> downloadPool()
-                else -> Result.failure()
+                else -> false
             }
-            queue.state(key, if (result is Result.Success) "completed" else "failed",
-                if (result is Result.Success) null else "transfer_failed")
-            result
+            queue.state(key, if (succeeded) "completed" else "failed",
+                if (succeeded) null else "transfer_failed")
+            if (succeeded) Result.success() else Result.failure()
         } catch (cancelled: CancellationException) {
             withContext(NonCancellable) { queue.state(key, "cancelled", "interrupted") }
             throw cancelled
@@ -233,13 +233,13 @@ class DownloadWorker(
         }
     }
 
-    private suspend fun downloadPost(): Result {
+    private suspend fun downloadPost(): Boolean {
         val url = inputData.getString(URL_KEY)
         val id = inputData.getInt(POST_ID_KEY, -1)
         val host = inputData.getString(HOST_KEY)
         val docId =  inputData.getString(DOC_ID_KEY)
-        if (url == null || id < 0 || host == null || docId == null) return Result.failure()
-        val desUri = applicationContext.contentResolver.getFileUriByDocId(docId) ?: return Result.failure()
+        if (url == null || id < 0 || host == null || docId == null) return false
+        val desUri = applicationContext.contentResolver.getFileUriByDocId(docId) ?: return false
         val channelId = applicationContext.packageName + ".download"
         val notificationManager = getNotificationManager(
             channelId,
@@ -264,19 +264,19 @@ class DownloadWorker(
             } else transfer(url, desUri)
             notifyDownload(notificationManager, id + 1000000,
                 getDownloadedNotification(title, channelId, desUri))
-            return Result.success()
+            return true
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: IOException) {
             notifyDownload(notificationManager, id + 1000000, getDownloadErrorNotification(title, channelId))
-            return Result.failure()
+            return false
         } finally {
             ProgressInterceptor.removeListener(url)
             snapshot?.closeQuietly()
         }
     }
 
-    private suspend fun downloadPool(): Result {
+    private suspend fun downloadPool(): Boolean {
         val id = inputData.getInt(POOL_ID_KEY, -1)
         val scheme = inputData.getString(SCHEME_KEY)
         val host = inputData.getString(HOST_KEY)
@@ -292,7 +292,7 @@ class DownloadWorker(
         if (id < 0 || scheme.isNullOrEmpty() ||
             host.isNullOrEmpty() || username.isNullOrEmpty() ||
             passwordHash.isNullOrEmpty() || docId == null)
-            return Result.failure()
+            return false
         var url = when (type) {
             POOL_DOWNLOAD_TYPE_JPGS -> {
                 applicationContext.getString(R.string.pool_download_jpgs_url_format, scheme, host, id)
@@ -302,7 +302,7 @@ class DownloadWorker(
             }
         }
         url = "$url&login=$username&password_hash=$passwordHash"
-        val desUri = applicationContext.contentResolver.getFileUriByDocId(docId) ?: return Result.failure()
+        val desUri = applicationContext.contentResolver.getFileUriByDocId(docId) ?: return false
         val channelId = applicationContext.packageName + ".download_pool"
         val notificationManager = getNotificationManager(
             channelId,
@@ -316,12 +316,12 @@ class DownloadWorker(
             transfer(url, desUri)
             notifyDownload(notificationManager, id + 1000000,
                 getDownloadedNotification(title, channelId, desUri))
-            return Result.success()
+            return true
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: IOException) {
             notifyDownload(notificationManager, id + 1000000, getDownloadErrorNotification(title, channelId))
-            return Result.failure()
+            return false
         } finally {
             ProgressInterceptor.removeListener(url)
         }

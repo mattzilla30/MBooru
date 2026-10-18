@@ -38,37 +38,37 @@ import androidx.compose.ui.platform.LocalContext
 fun AboutScreen() {
     val context = LocalContext.current
     fun getString(id: Int) = context.getString(id)
-        Surface(color = MaterialTheme.colorScheme.background) {
-            LazyColumn {
-                item { AboutSection(R.string.about_app) }
-                item { AboutRow(R.string.about_app_version, BuildConfig.VERSION_NAME) }
-                item { AboutSection(R.string.about_author) }
-                item { AboutRow(R.string.about_author_email, stringResource(R.string.about_email_address)) {
-                    val intent = Intent(Intent.ACTION_SENDTO, getString(R.string.about_email_address).let { "mailto:$it" }.toUri())
-                    context.startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
-                } }
-                item { AboutSection(R.string.about_feedback) }
-                item { AboutRow(R.string.about_feedback_discord, stringResource(R.string.about_discord_username)) {
-                    context.copyText(getString(R.string.about_discord_username))
-                } }
-                item { AboutRow(R.string.about_feedback_github, "https://github.com/mattzilla30/MBooru/issues") {
-                    context.launchUrl("https://github.com/mattzilla30/MBooru/issues")
-                } }
-                item { AboutSection(R.string.about_copyright_and_licenses) }
-                item { AboutRow(R.string.about_copyright, stringResource(R.string.about_owner_copyright)) {
-                    context.let { context.startActivity(Intent(it, CopyrightActivity::class.java)) }
-                } }
-                item { AboutRow(R.string.about_upstream_project, stringResource(R.string.about_upstream_credit)) {
-                    context.launchUrl("https://github.com/flexbooru/flexbooru")
-                } }
-                item { AboutRow(R.string.about_licenses, stringResource(R.string.about_open_source_licenses)) {
-                    context.let {
-                        OssLicensesMenuActivity.setActivityTitle(getString(R.string.about_open_source_licenses))
-                        context.startActivity(Intent(it, OssLicensesMenuActivity::class.java))
-                    }
-                } }
-            }
+    Surface(color = MaterialTheme.colorScheme.background) {
+        LazyColumn {
+            item { AboutSection(R.string.about_app) }
+            item { AboutRow(R.string.about_app_version, BuildConfig.VERSION_NAME) }
+            item { AboutSection(R.string.about_author) }
+            item { AboutRow(R.string.about_author_email, stringResource(R.string.about_email_address)) {
+                val intent = Intent(Intent.ACTION_SENDTO, getString(R.string.about_email_address).let { "mailto:$it" }.toUri())
+                context.startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
+            } }
+            item { AboutSection(R.string.about_feedback) }
+            item { AboutRow(R.string.about_feedback_discord, stringResource(R.string.about_discord_username)) {
+                context.copyText(getString(R.string.about_discord_username))
+            } }
+            item { AboutRow(R.string.about_feedback_github, "https://github.com/mattzilla30/MBooru/issues") {
+                context.launchUrl("https://github.com/mattzilla30/MBooru/issues")
+            } }
+            item { AboutSection(R.string.about_copyright_and_licenses) }
+            item { AboutRow(R.string.about_copyright, stringResource(R.string.about_owner_copyright)) {
+                context.let { context.startActivity(Intent(it, CopyrightActivity::class.java)) }
+            } }
+            item { AboutRow(R.string.about_upstream_project, stringResource(R.string.about_upstream_credit)) {
+                context.launchUrl("https://github.com/flexbooru/flexbooru")
+            } }
+            item { AboutRow(R.string.about_licenses, stringResource(R.string.about_open_source_licenses)) {
+                context.let {
+                    OssLicensesMenuActivity.setActivityTitle(getString(R.string.about_open_source_licenses))
+                    context.startActivity(Intent(it, OssLicensesMenuActivity::class.java))
+                }
+            } }
         }
+    }
 }
 
 @Composable

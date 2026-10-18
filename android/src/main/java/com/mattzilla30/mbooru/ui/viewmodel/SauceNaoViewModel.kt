@@ -55,7 +55,7 @@ class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : androidx.lifecyc
                         val response = sauceNaoApi.searchByUrl(imageUrl, apiKey)
                         NetResult.Success(response)
                     } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+                        if (e is kotlinx.coroutines.CancellationException) throw e
                         NetResult.Error(e.safeNetworkMessage())
                     }
                 }
@@ -83,7 +83,7 @@ class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : androidx.lifecyc
                         val response = sauceNaoApi.searchByImage(apiKey, byteArray, fileExt)
                         NetResult.Success(response)
                     } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+                        if (e is kotlinx.coroutines.CancellationException) throw e
                         NetResult.Error(e.safeNetworkMessage())
                     }
                 }

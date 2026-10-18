@@ -55,7 +55,7 @@ class PostRemoteMediator(
                 try {
                     fetchPosts(0, null)
                 } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     return MediatorResult.Error(e)
                 }
             }
@@ -70,7 +70,7 @@ class PostRemoteMediator(
                 try {
                     fetchPosts(index, nextSankakuKey())
                 } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     return MediatorResult.Error(e)
                 }
             }
@@ -83,7 +83,7 @@ class PostRemoteMediator(
                 postDao.insert(posts)
             }
         } catch (failure: Exception) {
-                if (failure is kotlinx.coroutines.CancellationException) throw failure
+            if (failure is kotlinx.coroutines.CancellationException) throw failure
             return MediatorResult.Error(failure)
         }
         return MediatorResult.Success(endOfPaginationReached = !hasMore())
