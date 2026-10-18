@@ -54,11 +54,13 @@ class SearchResultsTest {
         ActivityScenario.launch<SearchActivity>(intent).use {
             val empty = context.getString(R.string.browse_empty)
             compose.waitUntil(10000) {
-                context.requests.any { it.queryParameter("tags") == "muscular rating:safe" } &&
+                val visible =
                     compose
                         .onAllNodesWithText(empty)
                         .fetchSemanticsNodes(atLeastOneRootRequired = false)
                         .isNotEmpty()
+                visible &&
+                    context.requests.any { it.queryParameter("tags") == "muscular rating:safe" }
             }
             compose.onNodeWithText(empty).assertIsDisplayed()
             compose.onNodeWithText(context.getString(R.string.action_retry)).assertDoesNotExist()
