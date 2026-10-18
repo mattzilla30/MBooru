@@ -21,6 +21,7 @@ import android.webkit.WebView
 import androidx.core.content.ContextCompat
 import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -30,7 +31,7 @@ import java.util.concurrent.CountDownLatch
 
 
 //https://github.com/tachiyomiorg/tachiyomi/blob/master/core/src/main/java/eu/kanade/tachiyomi/network/interceptor/CloudflareInterceptor.kt
-class CloudflareInterceptor(private val context: Context) : WebViewInterceptor(context) {
+class CloudflareInterceptor(private val context: Context, private val cookies: AndroidCookieJar) : WebViewInterceptor(context) {
 
     private val executor = ContextCompat.getMainExecutor(context)
 
@@ -43,12 +44,14 @@ class CloudflareInterceptor(private val context: Context) : WebViewInterceptor(c
         request: Request,
         response: Response
     ): Response {
+        // A challenge is a failed response, not permission to replay an account write.
+        if (request.method != "GET" && request.method != "HEAD") return response
         try {
             response.close()
-            AndroidCookieJar.remove(request.url, COOKIE_NAMES, 0)
-            val oldCookie = AndroidCookieJar.get(request.url)
+            cookies.remove(request.url, COOKIE_NAMES, 0)
+            val oldCookie = cookies.get(request.url)
                 .firstOrNull { it.name == "cf_clearance" }
-            resolveWithWebView(request, oldCookie)
+            resolveWithWebView(request, oldCookie) { chain.call().isCanceled() }
             return chain.proceed(request)
         } catch (e: CloudflareBypassException) {
             throw IOException(context.getString(R.string.msg_cloudflare_challenges))
@@ -58,7 +61,7 @@ class CloudflareInterceptor(private val context: Context) : WebViewInterceptor(c
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun resolveWithWebView(originalRequest: Request, oldCookie: Cookie?) {
+    private fun resolveWithWebView(originalRequest: Request, oldCookie: Cookie?, cancelled: () -> Boolean) {
         // We need to lock this thread until the WebView finds the challenge solution url, because
         // OkHttp doesn't support asynchronous interceptors.
         val latch = CountDownLatch(1)
@@ -68,17 +71,32 @@ class CloudflareInterceptor(private val context: Context) : WebViewInterceptor(c
         var challengeFound = false
         var cloudflareBypassed = false
 
-        val origRequestUrl = originalRequest.url.toString()
+        val origin = originalRequest.url
+        val challengeUrl = origin.newBuilder().apply {
+            listOf("api_key", "password", "password_hash", "access_token", "refresh_token", "token", "api_token", "login", "user_id").forEach(::removeAllQueryParameters)
+            username(""); password(""); fragment(null)
+        }.build()
+        val origRequestUrl = challengeUrl.toString()
+        val closed = java.util.concurrent.atomic.AtomicBoolean(false)
         val headers = parseHeaders(originalRequest.headers)
 
         executor.execute {
+            if (closed.get() || cancelled()) { latch.countDown(); return@execute }
             webview = createWebView(originalRequest)
 
             webview?.webViewClient = object : WebViewClientCompat() {
+                private fun outsideOrigin(url: String): Boolean {
+                    val target = url.toHttpUrlOrNull() ?: return true
+                    if (target.scheme == "https" && target.host == "challenges.cloudflare.com") return false
+                    return target.scheme != origin.scheme || target.host != origin.host || target.port != origin.port
+                }
+                override fun shouldOverrideUrlCompat(view: WebView, url: String) = outsideOrigin(url)
+
                 override fun onPageFinished(view: WebView, url: String) {
+                    if (closed.get()) return
 
                     fun isCloudFlareBypassed(): Boolean {
-                        return AndroidCookieJar.get(origRequestUrl.toHttpUrl())
+                        return cookies.get(origRequestUrl.toHttpUrl())
                             .firstOrNull { it.name == "cf_clearance" }
                             .let { it != null && it != oldCookie }
                     }
@@ -116,13 +134,16 @@ class CloudflareInterceptor(private val context: Context) : WebViewInterceptor(c
             webview?.loadUrl(origRequestUrl, headers)
         }
 
-        latch.awaitFor30Seconds()
-
-        executor.execute {
-            webview?.run {
-                stopLoading()
-                destroy()
+        try {
+            val deadline = android.os.SystemClock.elapsedRealtime() + 30_000
+            while (!latch.await(100, java.util.concurrent.TimeUnit.MILLISECONDS)) {
+                if (cancelled()) throw java.io.InterruptedIOException("Request cancelled")
+                if (android.os.SystemClock.elapsedRealtime() >= deadline) break
             }
+            if (cancelled()) throw java.io.InterruptedIOException("Request cancelled")
+        } finally {
+            closed.set(true)
+            executor.execute { webview?.run { stopLoading(); destroy() } }
         }
 
         // Throw exception if we failed to bypass Cloudflare

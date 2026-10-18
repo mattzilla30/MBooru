@@ -7,6 +7,7 @@ import java.io.IOException
 /** Do not show exception messages: they can contain authenticated URLs or response bodies. */
 fun Throwable.safeNetworkMessage(): String {
     val failure = when (this) {
+        is com.mattzilla30.mbooru.okhttp.ApiResponseTooLargeException -> NetworkFailure.InvalidResponse
         is HttpException -> NetworkFailure.http(code(), response()?.headers()?.get("Retry-After"))
         is IOException -> NetworkFailure.Connection
         else -> NetworkFailure.InvalidResponse

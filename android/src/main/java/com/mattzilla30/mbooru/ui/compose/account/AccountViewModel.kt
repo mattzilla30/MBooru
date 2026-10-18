@@ -32,8 +32,6 @@ class AccountViewModel(private val repository: UserRepository, private val booru
         viewModelScope.launch {
             try {
             withContext(Dispatchers.IO) { check(booruManager.updateBooru(booru.copy(user = null, auth = null))) }
-            com.mattzilla30.mbooru.okhttp.AndroidCookieJar.remove(
-                okhttp3.HttpUrl.Builder().scheme(booru.scheme).host(booru.host).build())
             removed.send(Unit)
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) { message.value = "Unable to remove this account. Please retry." }

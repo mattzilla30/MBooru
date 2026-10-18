@@ -61,7 +61,7 @@ class VoteRepositoryImpl(
     private suspend fun addGelFav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                AndroidCookieJar.set(
+                booruApis.cookies.set(
                     action.getGelRemoveFavUrl().toString(), // NOTICE: Here is GelRemoveFavUrl, GelAddFavUrl is in subdir
                     arrayListOf("user_id=${action.booru.user!!.id}", "pass_hash=${action.booru.user!!.token}")
                 )
@@ -98,7 +98,7 @@ class VoteRepositoryImpl(
     private suspend fun removeGelFav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                AndroidCookieJar.set(
+                booruApis.cookies.set(
                     action.getGelRemoveFavUrl().toString(),
                     arrayListOf("user_id=${action.booru.user!!.id}", "pass_hash=${action.booru.user!!.token}")
                 )
@@ -121,7 +121,7 @@ class VoteRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 if (action.booru.host == "lolibooru.moe") {
-                    AndroidCookieJar.set(
+                    booruApis.cookies.set(
                         action.getMoeVoteUrl(),
                         arrayListOf("login=${action.booru.user!!.name}", "pass_hash=${action.booru.user!!.token}")
                     )

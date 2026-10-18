@@ -1,6 +1,7 @@
 package com.mattzilla30.mbooru.ui.compose.account
 
 
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mattzilla30.mbooru.R
@@ -52,7 +53,7 @@ class AccountConfigViewModel(private val repository: UserRepository, private val
                     is NetResult.Error -> mutable.update { it.copy(error = result.errorMsg) }
                 }
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (error: Exception) { mutable.update { it.copy(error = error.message.orEmpty()) } }
+            catch (error: Exception) { mutable.update { it.copy(error = error.safeNetworkMessage()) } }
             finally { mutable.update { it.copy(busy = false) } }
         }
     }

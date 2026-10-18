@@ -18,7 +18,7 @@ package com.mattzilla30.mbooru.extension
 sealed class NetResult<out T : Any> {
     data class Success<out T : Any>(val data: T) : NetResult<T>()
     data class Error(val errorMsg: String): NetResult<Nothing>()
-    override fun toString(): String {
+    final override fun toString(): String {
         return when (this) {
             is Success<*> -> "Success"
             is Error -> "Error[exception=$errorMsg]"

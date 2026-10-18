@@ -43,7 +43,7 @@ private fun PostMediaContent(post: Post, booru: Booru, size: String, active: Boo
         var startJob: kotlinx.coroutines.Job? = null
         fun start() {
             if (!active || startJob?.isActive == true || !holder.playerIsNull()) return
-            startJob = playbackScope.launch {
+            startJob = playbackScope.launch(Dispatchers.Main.immediate) {
                 holder.resources.prepare()
                 if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return@launch
                 renderer?.playerView?.takeIf { active }?.let {

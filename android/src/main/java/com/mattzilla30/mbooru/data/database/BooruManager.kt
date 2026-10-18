@@ -21,7 +21,7 @@ import com.mattzilla30.mbooru.data.model.common.Booru
 import java.io.IOException
 import java.sql.SQLException
 
-class BooruManager(private val booruDao: BooruDao, private val credentials: com.mattzilla30.mbooru.data.credentials.CredentialRepository) {
+class BooruManager(private val booruDao: BooruDao, private val credentials: com.mattzilla30.mbooru.data.credentials.CredentialRepository, private val cookies: com.mattzilla30.mbooru.okhttp.AndroidCookieJar) {
 
     @Throws(SQLException::class)
     suspend fun createBooru(booru: Booru): Booru {
@@ -48,6 +48,7 @@ class BooruManager(private val booruDao: BooruDao, private val credentials: com.
             credentials.remove(previous)
         }
         if (updated && previousAuth != null && previousAuth != booru.auth?.credentialReference && booruDao.credentialReferences(previousAuth) == 0) credentials.remove(previousAuth)
+        if (updated && (before?.user != null || before?.auth != null) && booru.user == null && booru.auth == null) cookies.remove(okhttp3.HttpUrl.Builder().scheme(booru.scheme).host(booru.host).build())
         return updated
     }
 

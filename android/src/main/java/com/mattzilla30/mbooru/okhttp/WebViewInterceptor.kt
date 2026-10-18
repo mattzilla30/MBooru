@@ -1,5 +1,7 @@
 package com.mattzilla30.mbooru.okhttp
 
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
@@ -62,10 +64,16 @@ abstract class WebViewInterceptor(private val context: Context) : Interceptor {
         return headers
             // Keeping unsafe header makes webview throw [net::ERR_INVALID_ARGUMENT]
             .filter { (name, value) ->
-                isRequestHeaderSafe(name, value)
+                name.lowercase(Locale.ROOT) in setOf("user-agent", "accept", "accept-language", "referer", "origin") &&
+                    isRequestHeaderSafe(name, value)
             }
             .groupBy(keySelector = { (name, _) -> name }) { (_, value) -> value }
-            .mapValues { it.value.getOrNull(0).orEmpty() }
+            .mapValues { (name, values) ->
+                val value = values.getOrNull(0).orEmpty()
+                if (name.equals("referer", ignoreCase = true)) value.toHttpUrlOrNull()?.newBuilder()
+                    ?.query(null)?.fragment(null)?.username("")?.password("")?.build()?.toString().orEmpty()
+                else value
+            }
     }
 
     fun CountDownLatch.awaitFor30Seconds() {
@@ -97,7 +105,9 @@ fun WebView.setDefaultSettings() {
     with(settings) {
         javaScriptEnabled = true
         domStorageEnabled = true
-        databaseEnabled = true
+        allowFileAccess = false
+        allowContentAccess = false
+        mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
         useWideViewPort = true
         loadWithOverviewMode = true
         cacheMode = WebSettings.LOAD_DEFAULT

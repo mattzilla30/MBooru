@@ -80,7 +80,8 @@ class ComposeMigrationSmokeTest {
             // endpoints can remain below it on dense emulators and never start a pinch.
             val start = Offset(center.x * .4f, 0f)
             val end = Offset(center.x * .84f, 0f)
-            pinch(center - start, center + start, center - end, center + end, 500)
+            pinch(start0 = center - start, end0 = center - end,
+                start1 = center + start, end1 = center + end, durationMillis = 500)
         }
         compose.runOnIdle {
             val photo = checkNotNull(compose.activity.window.decorView.find<PhotoView>())

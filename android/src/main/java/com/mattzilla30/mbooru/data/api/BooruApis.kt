@@ -16,6 +16,7 @@
 package com.mattzilla30.mbooru.data.api
 
 class BooruApis(private val transport: HttpTransport) {
+    val cookies get() = transport.cookies
     val loginClient get() = transport.apiClient(false)
     val danApi by lazy { createApi<DanbooruApi>(transport.apiClient(false)) }
     val dan1Api by lazy { createApi<Danbooru1Api>(transport.apiClient(false)) }
