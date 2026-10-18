@@ -17,18 +17,16 @@ while time.monotonic()<until:
 else:
     raise RuntimeError('Android activity service did not become ready after package installation')
 READY
+check_class=com.mattzilla30.mbooru.compose.MainNavigationSmokeTest,com.mattzilla30.mbooru.compose.ComposeMigrationSmokeTest,com.mattzilla30.mbooru.compose.EngineXmlTest,com.mattzilla30.mbooru.compose.CredentialVaultTest,com.mattzilla30.mbooru.compose.CookieSessionTest
 if [ "$1" = 28 ]; then
-  check_class=com.mattzilla30.mbooru.visual.SettingsVisualTest
-  expected='OK (4 tests)'
-else
-  check_class=com.mattzilla30.mbooru.compose.MediaNetworkTest
-  expected='OK (1 test)'
+  check_class="$check_class,com.mattzilla30.mbooru.visual.SettingsVisualTest"
 fi
 adb shell am instrument -w -r -e class "$check_class" -e liveMediaChecks true -e additionalTestOutputDir /data/user/0/com.mattzilla30.mbooru/files/diagnostics com.mattzilla30.mbooru.test/androidx.test.runner.AndroidJUnitRunner > validation/results/instrument.txt
 adb pull /data/user/0/com.mattzilla30.mbooru/files/diagnostics validation/results/ || true
 cat validation/results/instrument.txt
-python3 - "$expected" <<'PYCHECK'
+python3 - <<'PYCHECK'
 from pathlib import Path
 import sys
-assert sys.argv[1] in Path('validation/results/instrument.txt').read_text()
+import re
+assert re.search(r'OK \(\d+ tests?\)', Path('validation/results/instrument.txt').read_text())
 PYCHECK

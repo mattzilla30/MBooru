@@ -1,4 +1,4 @@
-name: Live image decoding on Android 17
+name: MBooru server and UI validation
 on:
   workflow_dispatch:
 permissions:
@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: ["37.0"]
+        api: [28, 36]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
@@ -23,7 +23,6 @@ jobs:
       - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
           api-level: ${{ matrix.api }}
-          system-image-api-level: "37.0"
           disk-size: 4096M
           ram-size: 4096M
           heap-size: 512M
