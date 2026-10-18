@@ -2,6 +2,8 @@
 
 Prepared 2026-10-17 for mattzilla30 <mattzilla30@gmail.com>.
 
+Status: started 2026-10-18 with phase 0. Track executed checks and remaining evidence in [modernization progress](modernization-progress.md).
+
 This is the next implementation plan, not a claim that these migrations have already shipped. The current appearance, colors, typography, navigation choices, app ID, signing identity, six site presets and free feature access remain product requirements. Modernization should preserve those choices and users' accounts, history, filters and saved configuration.
 
 ## Starting point
