@@ -1,4 +1,4 @@
-name: Signed release browsing on Android 17
+name: Live image decoding on Android 17
 on:
   workflow_dispatch:
 permissions:
@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [37]
+        api: ["37.0"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
@@ -28,7 +28,7 @@ jobs:
           target: google_apis
           profile: pixel_2
           disable-animations: true
-          script: python3 validation/release-media-diagnostic.py validation/media-release.apk --sha256 f7950924bd920d29ad83a26a74cdc15f9308e0de657bde72fecb88d602f50870 --out validation/results/release-media
+          script: bash validation/run-media-diagnostic.sh ${{ matrix.api }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
