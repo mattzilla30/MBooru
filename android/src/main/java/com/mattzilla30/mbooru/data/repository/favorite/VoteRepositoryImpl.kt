@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.data.repository.favorite
 
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.mattzilla30.mbooru.app.App
@@ -87,7 +89,8 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -108,7 +111,8 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -136,6 +140,7 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException) {
                     val code = e.code()
                     if (code == 403) {
@@ -143,7 +148,7 @@ class VoteRepositoryImpl(
                     } else {
                         NetResult.Error("code: $code")
                     }
-                } else NetResult.Error(e.message.toString())
+                } else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -164,13 +169,14 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException) {
                     val code = e.code()
                     if (code == 500) {
                         postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = true)
                         NetResult.Success(true)
                     } else NetResult.Error("code: ${e.code()}")
-                } else NetResult.Error(e.message.toString())
+                } else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -186,10 +192,11 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException)
                     NetResult.Error("code: ${e.code()}")
                 else
-                    NetResult.Error(e.message.toString())
+                    NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -210,10 +217,11 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException)
                     NetResult.Error("code: ${e.code()}")
                 else
-                    NetResult.Error(e.message.toString())
+                    NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -234,10 +242,11 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException)
                     NetResult.Error("code: ${e.code()}")
                 else
-                    NetResult.Error(e.message.toString())
+                    NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -256,10 +265,11 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException)
                     NetResult.Error("code: ${e.code()}")
                 else
-                    NetResult.Error(e.message.toString())
+                    NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -278,10 +288,11 @@ class VoteRepositoryImpl(
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is HttpException)
                     NetResult.Error("code: ${e.code()}")
                 else
-                    NetResult.Error(e.message.toString())
+                    NetResult.Error(e.safeNetworkMessage())
             }
         }
     }

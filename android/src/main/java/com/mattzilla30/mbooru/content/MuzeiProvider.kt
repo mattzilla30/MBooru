@@ -34,7 +34,7 @@ import java.io.InputStream
 class MuzeiProvider : MuzeiArtProvider() {
 
     override fun onLoadRequested(initial: Boolean) {
-        MuzeiArtWorker.enqueueLoad()
+        context?.let { MuzeiArtWorker.enqueueLoad(it) }
     }
 
     @Throws(IOException::class)

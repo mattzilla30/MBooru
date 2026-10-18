@@ -16,19 +16,15 @@
 package com.mattzilla30.mbooru.data.database
 
 import android.database.sqlite.SQLiteCantOpenDatabaseException
-import com.mattzilla30.mbooru.app.App
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.data.model.common.Booru
-import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.sql.SQLException
 
-object BooruManager {
-
-    private val booruDao by App.app.inject<BooruDao>()
+class BooruManager(private val booruDao: BooruDao, private val credentials: com.mattzilla30.mbooru.data.credentials.CredentialRepository) {
 
     @Throws(SQLException::class)
-    fun createBooru(booru: Booru): Booru {
+    suspend fun createBooru(booru: Booru): Booru {
         booru.uid = 0
         val uid = booruDao.insert(booru)
         if (uid >= 0) {
@@ -38,15 +34,25 @@ object BooruManager {
     }
 
     @Throws(SQLException::class)
-    fun createBoorus(boorus: List<Booru>) {
+    suspend fun createBoorus(boorus: List<Booru>) {
         booruDao.insert(boorus)
     }
 
     @Throws(SQLException::class)
-    fun updateBooru(booru: Booru): Boolean = booruDao.update(booru) == 1
+    suspend fun updateBooru(booru: Booru): Boolean {
+        val before = booruDao.getBooruByUid(booru.uid)
+        val previous = before?.user?.credentialReference
+        val previousAuth = before?.auth?.credentialReference
+        val updated = booruDao.update(booru) == 1
+        if (updated && previous != null && previous != booru.user?.credentialReference && booruDao.credentialReferences(previous) == 0) {
+            credentials.remove(previous)
+        }
+        if (updated && previousAuth != null && previousAuth != booru.auth?.credentialReference && booruDao.credentialReferences(previousAuth) == 0) credentials.remove(previousAuth)
+        return updated
+    }
 
     @Throws(IOException::class)
-    fun getBooru(scheme: String, host: String): Booru? = try {
+    suspend fun getBooru(scheme: String, host: String): Booru? = try {
         booruDao[scheme, host]
     } catch (ex: SQLiteCantOpenDatabaseException) {
         throw IOException(ex)
@@ -55,7 +61,7 @@ object BooruManager {
     }
 
     @Throws(IOException::class)
-    fun getBooruByUid(uid: Long): Booru? = try {
+    suspend fun getBooruByUid(uid: Long): Booru? = try {
         booruDao.getBooruByUid(uid)
     } catch (ex: SQLiteCantOpenDatabaseException) {
         throw IOException(ex)
@@ -64,17 +70,17 @@ object BooruManager {
     }
 
     @Throws(SQLException::class)
-    fun deleteBooru(uid: Long) = booruDao.delete(uid) == 1
+    suspend fun deleteBooru(uid: Long) = booruDao.delete(uid) == 1
 
     @Throws(SQLException::class)
-    fun deleteAll() = booruDao.deleteAll()
+    suspend fun deleteAll() = booruDao.deleteAll()
 
 
     /**
      * return [Boolean]
      * */
     @Throws(IOException::class)
-    fun isNotEmpty(): Boolean = try {
+    suspend fun isNotEmpty(): Boolean = try {
         booruDao.isNotEmpty()
     } catch (ex: SQLiteCantOpenDatabaseException) {
         throw IOException(ex)
@@ -86,7 +92,7 @@ object BooruManager {
      * return [Booru] list
      * */
     @Throws(IOException::class)
-    fun getAllBoorus(): MutableList<Booru>? = try {
+    suspend fun getAllBoorus(): MutableList<Booru>? = try {
         booruDao.getAll()
     } catch (ex: SQLiteCantOpenDatabaseException) {
         throw IOException(ex)

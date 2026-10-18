@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.mattzilla30.mbooru.benchmark"
-    compileSdk = 35
+    compileSdk = 36
     targetProjectPath = ":android"
     experimentalProperties["android.experimental.self-instrumenting"] = true
     defaultConfig {
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {

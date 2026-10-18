@@ -15,14 +15,14 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.lifecycle.ViewModel
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.data.model.common.Post
 
 class ShortcutViewModel(private val postDao: PostDao) : ViewModel() {
 
-    fun loadPost(booruUid: Long, postId: Int): LiveData<Post?> {
-        return postDao.getFirstPostLiveData(booruUid, postId)
+    fun loadPost(booruUid: Long, postId: Int): Flow<Post?> {
+        return postDao.observeFirstPost(booruUid, postId)
     }
 }

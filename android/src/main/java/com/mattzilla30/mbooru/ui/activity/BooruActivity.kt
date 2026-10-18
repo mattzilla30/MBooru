@@ -21,6 +21,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.Lifecycle
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -68,8 +70,10 @@ class BooruActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setScreenTitle(R.string.title_manage_boorus)
         booruViewModel = getBooruViewModel(booruDao)
-        BooruPresets.installOnce(booruDao, preferences)
-        booruViewModel.loadBoorus().observe(this) { boorus ->
+        lifecycleScope.launch { BooruPresets.installOnce(booruDao, preferences) }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                booruViewModel.loadBoorus().collect { boorus ->
             if (boorus.isNullOrEmpty()) {
                 activatedBooruUid = -1L
             } else {
@@ -79,6 +83,8 @@ class BooruActivity : BaseActivity() {
                 }
             }
             booruViewModel.select(activatedBooruUid)
+        }
+            }
         }
         booruViewModel.select(activatedBooruUid)
         setComposeContent {
@@ -184,9 +190,11 @@ class BooruActivity : BaseActivity() {
         AlertDialog.Builder(this)
             .setTitle(R.string.booru_add_featured)
             .setItems(presets.map { "${it.name} (${it.host})" }.toTypedArray()) { _, index ->
+                lifecycleScope.launch {
                 val uid = BooruPresets.add(booruDao, presets[index])
                 activatedBooruUid = uid
                 booruViewModel.select(uid)
+                }
             }
             .setNegativeButton(R.string.dialog_cancel, null)
             .show()
@@ -227,7 +235,7 @@ class BooruActivity : BaseActivity() {
                 val outputStream = contentResolver.openOutputStream(uri) ?: return@withContext false
                 var inputStream: InputStream? = null
                 try {
-                    inputStream = json.encodeToString(boorus).byteInputStream()
+                    inputStream = com.mattzilla30.mbooru.data.backup.SiteBackups.encode(boorus).byteInputStream()
                     inputStream.copyTo(outputStream)
                 } catch (_:IOException) {
                     return@withContext false
@@ -246,18 +254,18 @@ class BooruActivity : BaseActivity() {
     }
 
     private fun openFile(uri: Uri) {
-        val inputStream = contentResolver.openInputStream(uri) ?: return
-        var boorus: List<Booru>? = null
-        try {
-            val jsonString = inputStream.readBytes().toString(Charsets.UTF_8)
-            boorus = json.decodeFromString(jsonString)
-        } catch (_: Exception) {
-
-        } finally {
-            inputStream.close()
-        }
-        boorus?.let {
-            booruViewModel.createBoorus(it)
+        lifecycleScope.launch {
+            try {
+                val sites = withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(uri)?.use {
+                        com.mattzilla30.mbooru.data.backup.SiteBackups.decode(it)
+                    } ?: throw IOException("Backup is unavailable")
+                }
+                booruDao.importSites(sites)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                Snackbar.make(findViewById(android.R.id.content), R.string.booru_add_error, Snackbar.LENGTH_LONG).show()
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionPool
 import com.mattzilla30.mbooru.data.repository.pool.PoolRepository
 
-class PoolViewModel(private val repository: PoolRepository) : ScopeViewModel() {
+class PoolViewModel(private val repository: PoolRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionPool?>(null)
     val state = actions.asStateFlow()
     val pools = actions.flatMapLatest { action ->

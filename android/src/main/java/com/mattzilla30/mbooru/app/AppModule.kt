@@ -24,12 +24,24 @@ import org.koin.dsl.module
 
 val appModules = module {
     single { androidApplication().getSharedPreferences("${androidApplication().packageName}_preferences", Context.MODE_PRIVATE) }
-    single { MyDatabase(androidApplication()) }
+    single<com.mattzilla30.mbooru.data.credentials.CredentialRepository> {
+        com.mattzilla30.mbooru.data.credentials.DeviceCredentialRepository(androidApplication(),
+            com.mattzilla30.mbooru.data.credentials.AndroidCredentialCipher(androidApplication()))
+    }
+    single { MyDatabase.create(androidApplication(), get()) }
     single { get<MyDatabase>().booruDao() }
+    single { get<MyDatabase>().downloadDao() }
     single { get<MyDatabase>().postDao() }
     single { get<MyDatabase>().tagFilterDao() }
     single { get<MyDatabase>().muzeiDao() }
     single { get<MyDatabase>().historyDao() }
     single { get<MyDatabase>().nextDao() }
     single { BooruApis() }
+    single { com.mattzilla30.mbooru.data.repository.download.DownloadQueueRepository(androidApplication(), get()) }
+    single { com.mattzilla30.mbooru.data.database.BooruManager(get(), get()) }
+    single { com.mattzilla30.mbooru.data.database.HistoryManager(get()) }
+    single { com.mattzilla30.mbooru.data.database.MuzeiManager(get()) }
+    single { com.mattzilla30.mbooru.data.database.TagFilterManager(get()) }
+    single { com.mattzilla30.mbooru.data.database.NextManager(get()) }
+
 }

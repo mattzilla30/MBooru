@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionPost
 import com.mattzilla30.mbooru.data.repository.post.PostRepository
 
-class PostViewModel(private val repository: PostRepository) : ScopeViewModel() {
+class PostViewModel(private val repository: PostRepository) : androidx.lifecycle.ViewModel() {
     private val actionState = MutableStateFlow<ActionPost?>(null)
     val action = actionState.asStateFlow()
     val posts = actionState.flatMapLatest { action ->

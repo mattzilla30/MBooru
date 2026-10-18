@@ -15,48 +15,23 @@
 
 package com.mattzilla30.mbooru.common.tracemoe.api
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
-import io.ktor.http.*
-import io.ktor.utils.io.core.*
 import com.mattzilla30.mbooru.common.tracemoe.model.TraceResponse
+import com.mattzilla30.mbooru.common.di.reverseSearchApi
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
 
-class TraceMoeApiService(
-    private val client: HttpClient,
-    private val baseUrl: String
-) : TraceMoeApi {
+internal interface TraceMoeEndpoint {
+    @Multipart @POST("search")
+    suspend fun search(@Part image: MultipartBody.Part): TraceResponse
+}
 
-    override suspend fun fetch(imageBlob: ByteArray): TraceResponse =
-        client.submitForm {
-            val data = MultiPartFormDataContent(
-                formData {
-                    append(FormPart("image", "image.jpg"))
-                    appendInput(
-                        "image",
-                        Headers.build {
-                            append(
-                                HttpHeaders.ContentDisposition,
-                                "filename=image.jpg"
-                            )
-                        }) {
-                        buildPacket { writeFully(imageBlob) }
-                    }
-                }
-            )
-            setBody(data)
-            method = HttpMethod.Post
-            apiUrl(baseUrl, "search")
-        }.body()
-
-    private fun HttpRequestBuilder.apiUrl(
-        baseUrl: String,
-        path: String
-    ) {
-        url {
-            takeFrom(baseUrl)
-            encodedPath = path
-        }
-    }
+class TraceMoeApiService(client: OkHttpClient, baseUrl: String) : TraceMoeApi {
+    private val api = reverseSearchApi<TraceMoeEndpoint>(client, baseUrl)
+    override suspend fun fetch(imageBlob: ByteArray): TraceResponse = api.search(
+        MultipartBody.Part.createFormData("image", "image.jpg", imageBlob.toRequestBody("image/jpeg".toMediaType())))
 }

@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -47,9 +49,11 @@ import com.mattzilla30.mbooru.ui.compose.comments.CommentRow
 import com.mattzilla30.mbooru.ui.viewmodel.getCommentViewModel
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
-class CommentActivity : BaseActivity() {
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+class CommentActivity : BaseActivity() , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     companion object {
         private const val POST_ID_KEY = "post_id"
         private const val QUERY_KEY = "query"
@@ -62,10 +66,17 @@ class CommentActivity : BaseActivity() {
     }
 
     private val apis by inject<BooruApis>()
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
+    private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
     private val model by lazy { getCommentViewModel(CommentRepositoryImpl(apis)) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            initializeContent()
+        }
+    }
+    private fun initializeContent() {
         val site = booru ?: return finish()
         val action = ActionComment(site, limit = when (site.type) {
             Values.BOORU_TYPE_MOE -> 30

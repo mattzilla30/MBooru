@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.data.repository.comment
 
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+
 import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -78,7 +80,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -100,7 +103,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -122,7 +126,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -140,7 +145,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -159,7 +165,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -179,7 +186,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -199,7 +207,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -216,7 +225,8 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }

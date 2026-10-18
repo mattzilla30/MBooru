@@ -15,10 +15,14 @@
 
 package com.mattzilla30.mbooru.ui.compose.browse
 
+import org.koin.core.component.inject
+
 import android.annotation.SuppressLint
 import android.app.SharedElementCallback
 import android.content.*
 import android.os.Build
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -26,7 +30,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -74,8 +77,6 @@ import com.mattzilla30.mbooru.ui.viewmodel.getTagFilterViewModel
 import com.mattzilla30.mbooru.worker.DownloadWorker
 import java.util.*
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
 private const val SCALE_DAY = "day"
 private const val SCALE_WEEK = "week"
@@ -91,7 +92,9 @@ class PostScreenController(
     host: com.mattzilla30.mbooru.ui.base.BaseActivity,
     owner: androidx.navigation.NavBackStackEntry,
     arguments: Bundle = Bundle.EMPTY,
-) : BrowseController(host, owner, arguments) {
+) : BrowseController(host, owner, arguments) , org.koin.core.component.KoinComponent {
+    private val tagFilterManager by inject<com.mattzilla30.mbooru.data.database.TagFilterManager>()
+
     private val db by inject<MyDatabase>()
     private val voteRepository by lazy { VoteRepositoryImpl(booruApis, db.postDao()) }
     private val postViewModel by lazy { getPostViewModel(PostRepositoryImpl(db, booruApis)) }
@@ -253,7 +256,7 @@ class PostScreenController(
         if (uid == null || text.isEmpty()) {
             return
         }
-        TagFilterManager.createTagFilter(TagFilter(booruUid = uid, name = text))
+        lifecycleScope.launch { tagFilterManager.createTagFilter(TagFilter(booruUid = uid, name = text)) }
     }
 
     private fun deleteTagFilter(tag: TagFilter) {
@@ -265,7 +268,7 @@ class PostScreenController(
             .setTitle(activity.getString(R.string.tag_delete_title))
             .setMessage(String.format(getString(R.string.tag_delete_content), tag.name))
             .setPositiveButton(R.string.dialog_yes) { _, _ ->
-                TagFilterManager.deleteTagFilter(tag)
+                lifecycleScope.launch { tagFilterManager.deleteTagFilter(tag) }
             }
             .setNegativeButton(R.string.dialog_no, null)
             .create()

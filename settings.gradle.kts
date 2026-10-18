@@ -21,7 +21,6 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven(url = "https://plugins.gradle.org/m2/")
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
@@ -38,3 +37,5 @@ rootProject.name = "MBooru"
 include(":android")
 
 include(":baselineprofile")
+
+include(":core:model")

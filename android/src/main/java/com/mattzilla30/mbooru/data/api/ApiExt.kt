@@ -53,12 +53,8 @@ fun createHttpClient(isSankaku: Boolean): OkHttpClient {
         builder.addInterceptor(CloudflareInterceptor(App.app))
     }
 
-    if (BuildConfig.DEBUG) {
-        val logger = HttpLoggingInterceptor { message -> Log.d("Api", message) }.apply {
-            level = HttpLoggingInterceptor.Level.BASIC
-        }
-        builder.addInterceptor(logger)
-    }
+    // Even BASIC URL logging exposes API keys carried in engine query parameters.
+    // Transport diagnostics must report status/timing without URLs or credentials.
 
     return builder.build()
 }

@@ -15,7 +15,6 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.util.Properties
 
 plugins {
@@ -49,8 +48,8 @@ object Configs {
     const val APP_VERSION_NAME = "1"
     const val APP_VERSION_CODE = 1374
     const val APP_ID = "com.mattzilla30.mbooru"
-    const val COMPILE_SDK_VERSION = 35
-    const val TARGET_SDK_VERSION = 35
+    const val COMPILE_SDK_VERSION = 36
+    const val TARGET_SDK_VERSION = 36
     const val MIN_SDK_VERSION = 21
 
     val LANGUAGES = listOf(
@@ -84,14 +83,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // AGP 8.9's lint model still reads this list rather than androidResources.localeFilters.
         resourceConfigurations.addAll(Configs.LANGUAGES)
-    }
-    applicationVariants.all {
-        outputs.map {
-            it as BaseVariantOutputImpl
-        }
-            .forEach { output ->
-                output.outputFileName = "MBooru_${defaultConfig.versionName}.apk"
-            }
     }
     buildTypes {
         release {
@@ -152,6 +143,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     baselineProfile(project(":baselineprofile"))
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 
@@ -186,7 +178,6 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.androidx.documentfile)
 
-    implementation(libs.androidx.fragment.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.runtime.ktx)
 
@@ -224,9 +215,6 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.okhttp.dnsoverhttps)
     implementation(libs.okio)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.coil.coil)
     implementation(libs.coil.gif)

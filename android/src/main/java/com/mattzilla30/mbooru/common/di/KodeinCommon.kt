@@ -15,34 +15,27 @@
 
 package com.mattzilla30.mbooru.common.di
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.mattzilla30.mbooru.data.api.createHttpClient
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApiService
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApiService
 import org.koin.dsl.module
 
-private val json get() = Json {
-    isLenient = true
-    ignoreUnknownKeys = true
-    allowSpecialFloatingPointValues = true
-    useArrayPolymorphism = true
-}
-
-private val httpClient get() = HttpClient(OkHttp) {
-    install(ContentNegotiation) {
-        json(json)
-    }
-}
-
-private val sauceNaoApi: SauceNaoApi get() = SauceNaoApiService(httpClient, "https://saucenao.com")
-private val traceMoeApi: TraceMoeApi get() = TraceMoeApiService(httpClient, "https://api.trace.moe")
+internal inline fun <reified T> reverseSearchApi(client: OkHttpClient, baseUrl: String): T = Retrofit.Builder()
+    .baseUrl(baseUrl.trimEnd('/') + "/")
+    .client(client)
+    .addConverterFactory(Json { ignoreUnknownKeys = true; isLenient = true }
+        .asConverterFactory("application/json".toMediaType()))
+    .build().create(T::class.java)
 
 val commonModules = module {
-    single<SauceNaoApi> { sauceNaoApi }
-    single<TraceMoeApi> { traceMoeApi }
+    single<OkHttpClient> { createHttpClient(false) }
+    single<SauceNaoApi> { SauceNaoApiService(get(), "https://saucenao.com") }
+    single<TraceMoeApi> { TraceMoeApiService(get(), "https://api.trace.moe") }
 }

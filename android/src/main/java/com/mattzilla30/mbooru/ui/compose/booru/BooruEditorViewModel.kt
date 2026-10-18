@@ -20,20 +20,35 @@ val booruTypes = linkedMapOf("danbooru" to Values.BOORU_TYPE_DAN, "moebooru" to 
 data class BooruEditorState(val values: Map<String, String>, val busy: Boolean = false, val error: Int? = null)
 
 class BooruEditorViewModel(private val dao: BooruDao, uid: Long, private val saved: SavedStateHandle) : ViewModel() {
-    private val original = dao.getBooruByUid(uid) ?: Booru(name = "", scheme = "https", host = "",
+    private var original = Booru(name = "", scheme = "https", host = "",
         type = Values.BOORU_TYPE_MOE, hashSalt = "--${Values.HASH_SALT_CONTAINED}--")
-    private val mutable = MutableStateFlow(BooruEditorState(saved.get<HashMap<String, String>>("fields") ?: mapOf(
-        "name" to original.name, "scheme" to original.scheme, "host" to original.host,
-        "path" to original.path.orEmpty(), "hashSalt" to original.hashSalt,
-        "type" to (booruTypes.entries.find { it.value == original.type }?.key ?: "moebooru"))))
+    private fun fields(site: Booru) = mapOf(
+        "name" to site.name, "scheme" to site.scheme, "host" to site.host,
+        "path" to site.path.orEmpty(), "hashSalt" to site.hashSalt,
+        "type" to (booruTypes.entries.find { it.value == site.type }?.key ?: "moebooru"))
+    private val mutable = MutableStateFlow(BooruEditorState(fields(original), busy = true))
+    init {
+        viewModelScope.launch {
+            try {
+                val loaded = withContext(Dispatchers.IO) { dao.getBooruByUid(uid) }
+                if (loaded != null) original = loaded
+                mutable.value = BooruEditorState(saved.get<HashMap<String, String>>("fields") ?: fields(original))
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                mutable.update { it.copy(error = R.string.booru_config_save_failed) }
+            }
+        }
+    }
     val state = mutable.asStateFlow()
     private val complete = Channel<Unit>(Channel.BUFFERED)
     val completion = complete.receiveAsFlow()
     fun field(key: String, value: String) {
+        if (mutable.value.busy) return
         mutable.update { it.copy(values = it.values + (key to value), error = null) }
         saved["fields"] = HashMap(mutable.value.values)
     }
     fun save() {
+        if (mutable.value.busy) return
         val values = mutable.value.values
         val type = booruTypes[values["type"]] ?: Values.BOORU_TYPE_MOE
         val error = validateBooru(values, type)
@@ -45,7 +60,7 @@ class BooruEditorViewModel(private val dao: BooruDao, uid: Long, private val sav
         persist { if (updated.uid == 0L) dao.insert(updated) else dao.update(updated) }
     }
     fun delete() = persist { dao.delete(original.uid) }
-    private fun persist(block: () -> Unit) {
+    private fun persist(block: suspend () -> Unit) {
         if (mutable.value.busy) return
         mutable.update { it.copy(busy = true) }
         viewModelScope.launch {

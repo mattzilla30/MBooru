@@ -33,7 +33,7 @@ import org.robolectric.annotation.LooperMode
 class MainHostTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Before fun selectFullCapabilitySite() {
-        compose.runOnUiThread {
+        compose.runOnUiThread { kotlinx.coroutines.runBlocking {
             val dao = org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
             val uid = dao.getAll().firstOrNull { it.type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE }?.uid
                 ?: dao.insert(com.mattzilla30.mbooru.data.model.common.Booru(
@@ -41,7 +41,7 @@ class MainHostTest {
                     type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE))
             com.mattzilla30.mbooru.app.Settings.activatedBooruUid = uid
             compose.activity.forceShowNavBar()
-        }
+        } }
         compose.waitUntil(10000) {
             compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isNotEmpty()
         }
@@ -74,13 +74,13 @@ class MainHostTest {
 
     @Test fun `switching to a posts-only site removes unsupported tabs and restores safely`() {
         compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
-        compose.runOnUiThread {
+        compose.runOnUiThread { kotlinx.coroutines.runBlocking {
             val dao = org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
             val uid = dao.insert(com.mattzilla30.mbooru.data.model.common.Booru(
                 name = "Posts only", scheme = "https", host = "shimmie.invalid",
                 type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE))
             com.mattzilla30.mbooru.app.Settings.activatedBooruUid = uid
-        }
+        } }
         compose.waitUntil(10000) {
             compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isEmpty()
         }
@@ -118,10 +118,10 @@ class MainHostTest {
         compose.onNodeWithText("Safebooru")
             .performSemanticsAction(SemanticsActions.OnClick) { it() }
         compose.waitUntil(10000) {
-            com.mattzilla30.mbooru.app.Settings.activatedBooruUid.let { uid ->
+            kotlinx.coroutines.runBlocking { com.mattzilla30.mbooru.app.Settings.activatedBooruUid.let { uid ->
                 org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
                     .getBooruByUid(uid)?.host == "safebooru.org"
-            }
+            } }
         }
         compose.onNodeWithTag("browse-tab-tags").assertIsDisplayed()
         compose.onNodeWithTag("browse-tab-artists").assertDoesNotExist()

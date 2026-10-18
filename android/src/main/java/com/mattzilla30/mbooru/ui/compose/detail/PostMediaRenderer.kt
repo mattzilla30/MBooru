@@ -132,7 +132,9 @@ class PostMediaRenderer(
                 val loader = if (url.isGifImage()) context.imageLoader.newBuilder().components {
                     if (Build.VERSION.SDK_INT >= 28) add(ImageDecoderDecoder.Factory()) else add(GifDecoder.Factory())
                 }.build().also { ownedLoader = it } else context.imageLoader
-                load(loader, ImageRequest.Builder(context).data(url).target(image)
+                // A target crossfade replaces the drawable at completion, which resets PhotoView's
+                // supplemental matrix and can discard a pinch started while the image appears.
+                load(loader, ImageRequest.Builder(context).data(url).crossfade(false).target(image)
                     .listener(onSuccess = { _, _ -> view.removeView(progress) }, onError = { _, _ -> showError() }).build())
             }
             else -> view.addView(TextView(context).apply {

@@ -1,5 +1,6 @@
 package com.mattzilla30.mbooru.ui.compose.account
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mattzilla30.mbooru.data.database.BooruManager
@@ -11,7 +12,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 
-class AccountViewModel(private val repository: UserRepository, private val booru: Booru, initial: User?) : ViewModel() {
+class AccountViewModel(private val repository: UserRepository, private val booru: Booru, initial: User?, private val booruManager: BooruManager) : ViewModel() {
+
     private val mutable = MutableStateFlow(initial)
     val user = mutable.asStateFlow()
     private val message = MutableStateFlow<String?>(null)
@@ -28,8 +30,13 @@ class AccountViewModel(private val repository: UserRepository, private val booru
     }
     fun remove() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) { BooruManager.updateBooru(booru.copy(user = null)) }
+            try {
+            withContext(Dispatchers.IO) { check(booruManager.updateBooru(booru.copy(user = null, auth = null))) }
+            com.mattzilla30.mbooru.okhttp.AndroidCookieJar.remove(
+                okhttp3.HttpUrl.Builder().scheme(booru.scheme).host(booru.host).build())
             removed.send(Unit)
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { message.value = "Unable to remove this account. Please retry." }
         }
     }
 }

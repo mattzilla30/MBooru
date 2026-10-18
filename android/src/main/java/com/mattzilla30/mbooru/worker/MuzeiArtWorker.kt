@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.worker
 
+import org.koin.core.component.inject
+
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
@@ -37,25 +39,28 @@ import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE
 import com.mattzilla30.mbooru.data.database.BooruManager
 import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.extension.isStillImage
-import org.koin.android.ext.android.inject
 
 
 class MuzeiArtWorker(
     context: Context,
     workerParameters: WorkerParameters
-) : Worker(context, workerParameters) {
+) : CoroutineWorker(context, workerParameters) , org.koin.core.component.KoinComponent {
+    private val muzeiManager by inject<com.mattzilla30.mbooru.data.database.MuzeiManager>()
+
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     companion object {
-        internal fun enqueueLoad() {
-            val workManager = WorkManager.getInstance(App.app)
+        internal fun enqueueLoad(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniqueWork("muzei-publish", ExistingWorkPolicy.REPLACE,
                 OneTimeWorkRequestBuilder<MuzeiArtWorker>().build())
         }
     }
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val uid = activeMuzeiUid
-        val muzei = MuzeiManager.getMuzeiByUid(uid) ?: return Result.failure()
-        val booru = BooruManager.getBooruByUid(muzei.booruUid) ?: return Result.failure()
-        val postDao by App.app.inject<PostDao>()
+        val muzei = muzeiManager.getMuzeiByUid(uid) ?: return Result.failure()
+        val booru = booruManager.getBooruByUid(muzei.booruUid) ?: return Result.failure()
+        val postDao by inject<PostDao>()
         val posts = postDao.getPostsRaw(booruUid = muzei.booruUid, query = muzei.query, limit = muzeiLimit).filter { it.origin.isStillImage() }
         if (posts.isEmpty() || isStopped) return Result.success()
         val providerClient = ProviderContract.getProviderClient(

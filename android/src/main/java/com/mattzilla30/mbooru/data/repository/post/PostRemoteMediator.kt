@@ -33,16 +33,14 @@ class PostRemoteMediator(
     private val isFavored = action.isFavoredQuery()
     private var lastResponseSize = action.limit
     private val postDao = db.postDao()
-    private val nextIndex: Int
-        get() = db.postDao().getNextIndex(action.booru.uid, action.query)
+    private suspend fun nextIndex(): Int = db.postDao().getNextIndex(action.booru.uid, action.query)
     private fun nextPage(nextIndex: Int): Int {
         return when (action.booru.type) {
             in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY) -> nextIndex/action.limit
             else -> nextIndex/action.limit + 1
         }
     }
-    private val nextSankakuKey: String?
-        get() = db.nextDao().getNext(action.booru.uid, action.query)?.next
+    private suspend fun nextSankakuKey(): String? = db.nextDao().getNext(action.booru.uid, action.query)?.next
 
     override suspend fun initialize(): InitializeAction {
         return if (Settings.autoRefresh)
@@ -57,6 +55,7 @@ class PostRemoteMediator(
                 try {
                     fetchPosts(0, null)
                 } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                     return MediatorResult.Error(e)
                 }
             }
@@ -64,13 +63,14 @@ class PostRemoteMediator(
                 return MediatorResult.Success(endOfPaginationReached = true)
             }
             LoadType.APPEND -> {
-                val index = nextIndex
+                val index = nextIndex()
                 if (!hasMore() && index != 0) {
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
                 try {
-                    fetchPosts(index, nextSankakuKey)
+                    fetchPosts(index, nextSankakuKey())
                 } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                     return MediatorResult.Error(e)
                 }
             }
@@ -82,13 +82,16 @@ class PostRemoteMediator(
                 }
                 postDao.insert(posts)
             }
-        } catch (_: Exception) { }
+        } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
+            return MediatorResult.Error(failure)
+        }
         return MediatorResult.Success(endOfPaginationReached = !hasMore())
     }
 
-    private fun hasMore(): Boolean {
+    private suspend fun hasMore(): Boolean {
         return when {
-            action.booru.type == BOORU_TYPE_SANKAKU -> !nextSankakuKey.isNullOrEmpty()
+            action.booru.type == BOORU_TYPE_SANKAKU -> !nextSankakuKey().isNullOrEmpty()
             action.pageType == PAGE_TYPE_POPULAR -> false
             else -> lastResponseSize == action.limit
         }
@@ -315,9 +318,10 @@ class PostRemoteMediator(
                     .body()?.toUser()
                 if (user != null) {
                     action.booru.user = user
-                    BooruManager.updateBooru(action.booru)
+                    db.booruDao().update(action.booru)
                 }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
 
             }
         }

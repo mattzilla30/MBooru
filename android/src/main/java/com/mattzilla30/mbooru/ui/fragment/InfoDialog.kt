@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.fragment
 
+import org.koin.core.component.inject
+
 import android.content.Intent
 import android.os.Bundle
 import android.text.format.Formatter
@@ -51,14 +53,17 @@ import com.mattzilla30.mbooru.ui.compose.common.composeView
 import com.mattzilla30.mbooru.ui.compose.detail.*
 import com.mattzilla30.mbooru.worker.DownloadWorker
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
-class InfoDialog : BaseBottomSheetDialog() {
+class InfoDialog : BaseBottomSheetDialog() , org.koin.core.component.KoinComponent {
+    private val tagFilterManager by inject<com.mattzilla30.mbooru.data.database.TagFilterManager>()
+
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     companion object {
         fun create(postId: Int) = InfoDialog().apply { arguments = Bundle().apply { putInt(Keys.POST_ID, postId) } }
     }
     private val dao by inject<PostDao>()
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
+
     private val model by lazy {
         ViewModelProvider(this, object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -69,7 +74,10 @@ class InfoDialog : BaseBottomSheetDialog() {
 
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = composeView {
-        val site = booru
+        val loadedSite by produceState<com.mattzilla30.mbooru.data.model.common.Booru?>(null) {
+            value = booruManager.getBooruByUid(Settings.activatedBooruUid)
+        }
+        val site = loadedSite
         val post by model.post.collectAsStateWithLifecycle()
         val pager = rememberPagerState(pageCount = { 2 })
         val scope = rememberCoroutineScope()
@@ -100,8 +108,8 @@ class InfoDialog : BaseBottomSheetDialog() {
                             })
                         else PostTags(item, site, search = { SearchActivity.startSearch(requireContext(), it) },
                             copy = { requireContext().copyText(it) }, include = { tag, include ->
-                                TagFilterManager.createTagFilter(TagFilter(booruUid = site.uid,
-                                    name = if (include) tag.name else "-${tag.name}", type = tag.category))
+                                scope.launch { tagFilterManager.createTagFilter(TagFilter(booruUid = site.uid,
+                                    name = if (include) tag.name else "-${tag.name}", type = tag.category)) }
                             })
                     }
                 }

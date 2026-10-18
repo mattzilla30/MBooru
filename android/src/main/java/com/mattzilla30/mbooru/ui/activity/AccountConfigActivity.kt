@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -35,16 +37,25 @@ import com.mattzilla30.mbooru.ui.base.BaseActivity
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.compose.account.*
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
-class AccountConfigActivity : BaseActivity() {
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+class AccountConfigActivity : BaseActivity() , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     private val apis by inject<BooruApis>()
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
+    private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
     private val model by viewModels<AccountConfigViewModel> {
-        viewModelFactory { initializer { AccountConfigViewModel(UserRepositoryImpl(apis), checkNotNull(booru)) } }
+        viewModelFactory { initializer { AccountConfigViewModel(UserRepositoryImpl(apis), checkNotNull(booru), booruManager) } }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            initializeContent()
+        }
+    }
+    private fun initializeContent() {
         val site = booru ?: return finish()
         setComposeContent {
             val state by model.state.collectAsStateWithLifecycle()

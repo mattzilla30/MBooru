@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.data.repository.user
 
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -109,7 +111,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code}")
                 }
             } catch (ex: Exception) {
-                NetResult.Error(ex.message.toString())
+                if (ex is kotlinx.coroutines.CancellationException) throw ex
+                NetResult.Error(ex.safeNetworkMessage())
             }
         }
     }
@@ -151,7 +154,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -172,7 +176,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -195,7 +200,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -216,7 +222,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -237,7 +244,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -260,7 +268,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -280,7 +289,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -296,7 +306,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -320,7 +331,8 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     NetResult.Error(response.message())
                 }
             } catch (e: Exception) {
-                NetResult.Error(e.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                NetResult.Error(e.safeNetworkMessage())
             }
         }
     }

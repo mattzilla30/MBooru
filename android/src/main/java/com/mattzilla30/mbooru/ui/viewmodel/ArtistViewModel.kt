@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionArtist
 import com.mattzilla30.mbooru.data.repository.artist.ArtistRepository
 
-class ArtistViewModel(private val repository: ArtistRepository) : ScopeViewModel() {
+class ArtistViewModel(private val repository: ArtistRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionArtist?>(null)
     val state = actions.asStateFlow()
     val artists = actions.flatMapLatest { action ->

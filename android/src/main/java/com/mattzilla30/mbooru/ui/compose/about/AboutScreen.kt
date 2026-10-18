@@ -14,13 +14,9 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mattzilla30.mbooru.ui.fragment
+package com.mattzilla30.mbooru.ui.compose.about
 
 import android.content.Intent
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,17 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.fragment.app.Fragment
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mattzilla30.mbooru.BuildConfig
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.activity.CopyrightActivity
-import com.mattzilla30.mbooru.ui.compose.common.composeView
+import androidx.compose.ui.platform.LocalContext
 
-class AboutFragment : Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = composeView {
+@Composable
+fun AboutScreen() {
+    val context = LocalContext.current
+    fun getString(id: Int) = context.getString(id)
         Surface(color = MaterialTheme.colorScheme.background) {
             LazyColumn {
                 item { AboutSection(R.string.about_app) }
@@ -48,31 +45,30 @@ class AboutFragment : Fragment() {
                 item { AboutSection(R.string.about_author) }
                 item { AboutRow(R.string.about_author_email, stringResource(R.string.about_email_address)) {
                     val intent = Intent(Intent.ACTION_SENDTO, getString(R.string.about_email_address).let { "mailto:$it" }.toUri())
-                    context?.startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
+                    context.startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
                 } }
                 item { AboutSection(R.string.about_feedback) }
                 item { AboutRow(R.string.about_feedback_discord, stringResource(R.string.about_discord_username)) {
-                    context?.copyText(getString(R.string.about_discord_username))
+                    context.copyText(getString(R.string.about_discord_username))
                 } }
                 item { AboutRow(R.string.about_feedback_github, "https://github.com/mattzilla30/MBooru/issues") {
-                    context?.launchUrl("https://github.com/mattzilla30/MBooru/issues")
+                    context.launchUrl("https://github.com/mattzilla30/MBooru/issues")
                 } }
                 item { AboutSection(R.string.about_copyright_and_licenses) }
                 item { AboutRow(R.string.about_copyright, stringResource(R.string.about_owner_copyright)) {
-                    context?.let { startActivity(Intent(it, CopyrightActivity::class.java)) }
+                    context.let { context.startActivity(Intent(it, CopyrightActivity::class.java)) }
                 } }
                 item { AboutRow(R.string.about_upstream_project, stringResource(R.string.about_upstream_credit)) {
-                    context?.launchUrl("https://github.com/flexbooru/flexbooru")
+                    context.launchUrl("https://github.com/flexbooru/flexbooru")
                 } }
                 item { AboutRow(R.string.about_licenses, stringResource(R.string.about_open_source_licenses)) {
-                    context?.let {
+                    context.let {
                         OssLicensesMenuActivity.setActivityTitle(getString(R.string.about_open_source_licenses))
-                        startActivity(Intent(it, OssLicensesMenuActivity::class.java))
+                        context.startActivity(Intent(it, OssLicensesMenuActivity::class.java))
                     }
                 } }
             }
         }
-    }
 }
 
 @Composable

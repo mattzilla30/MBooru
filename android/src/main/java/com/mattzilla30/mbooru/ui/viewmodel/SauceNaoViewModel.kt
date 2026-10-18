@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CancellationException
@@ -28,7 +30,7 @@ import com.mattzilla30.mbooru.extension.NetResult
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
 import com.mattzilla30.mbooru.common.saucenao.model.SauceNaoResponse
 
-class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : ScopeViewModel() {
+class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : androidx.lifecycle.ViewModel() {
 
     private var retryRequest: (() -> Unit)? = null
     fun retry() { if (!_loading.value) retryRequest?.invoke() }
@@ -53,7 +55,8 @@ class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : ScopeViewModel()
                         val response = sauceNaoApi.searchByUrl(imageUrl, apiKey)
                         NetResult.Success(response)
                     } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                        NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                        NetResult.Error(e.safeNetworkMessage())
                     }
                 }
                 _loading.value = false
@@ -80,7 +83,8 @@ class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : ScopeViewModel()
                         val response = sauceNaoApi.searchByImage(apiKey, byteArray, fileExt)
                         NetResult.Success(response)
                     } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                        NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                        NetResult.Error(e.safeNetworkMessage())
                     }
                 }
                 _loading.value = false

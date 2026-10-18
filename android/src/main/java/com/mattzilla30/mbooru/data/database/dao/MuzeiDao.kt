@@ -15,7 +15,7 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.Muzei
 
@@ -23,20 +23,20 @@ import com.mattzilla30.mbooru.data.model.common.Muzei
 interface MuzeiDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(muzei: Muzei): Long
+    suspend fun insert(muzei: Muzei): Long
 
     @Query("SELECT * FROM `muzei` WHERE `booru_uid` = :booruUid ORDER BY `uid` ASC")
-    fun getMuzeiByBooruUid(booruUid: Long): List<Muzei>?
+    suspend fun getMuzeiByBooruUid(booruUid: Long): List<Muzei>?
 
     @Query("SELECT * FROM `muzei` WHERE `uid` = :uid")
-    fun getMuzeiByUid(uid: Long): Muzei?
+    suspend fun getMuzeiByUid(uid: Long): Muzei?
 
-    @Query("SELECT * FROM `muzei` WHERE `booru_uid` = :booruUid ORDER BY `uid` ASC")
-    fun getMuzeiByBooruUidLiveData(booruUid: Long): LiveData<List<Muzei>>
 
     @Delete
-    fun delete(muzei: Muzei): Int
+    suspend fun delete(muzei: Muzei): Int
 
     @Query("DELETE FROM `muzei` WHERE `uid` = :uid")
-    fun deleteByUid(uid: Long): Int
+    suspend fun deleteByUid(uid: Long): Int
+    @Query("SELECT * FROM `muzei` WHERE `booru_uid` = :booruUid ORDER BY `uid` ASC")
+    fun observeMuzei(booruUid: Long): Flow<List<Muzei>>
 }

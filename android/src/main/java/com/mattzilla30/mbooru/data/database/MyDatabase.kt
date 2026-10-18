@@ -16,6 +16,8 @@
 package com.mattzilla30.mbooru.data.database
 
 import android.content.Context
+import com.mattzilla30.mbooru.data.credentials.CredentialRepository
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -26,10 +28,11 @@ import com.mattzilla30.mbooru.data.database.dao.*
 @Database(
     entities = [
         (Booru::class), (Post::class), (TagFilter::class),
-        (Muzei::class), (History::class), (Next::class)
+        (Muzei::class), (History::class), (Next::class), (DownloadRecord::class)
     ],
-    version = 9,
+    version = 10,
     autoMigrations = [
+        AutoMigration(from = 9, to = 10),
         AutoMigration (
             from = 7,
             to = 8
@@ -45,16 +48,30 @@ import com.mattzilla30.mbooru.data.database.dao.*
 abstract class MyDatabase : RoomDatabase() {
 
     companion object {
-        @Volatile
-        private var instance: MyDatabase? = null
-        private val LOCK = Any()
-        operator fun invoke(context: Context) = instance ?: synchronized(LOCK) {
-            instance ?: buildDatabase(context).also { instance = it }
-        }
-        private fun buildDatabase(context: Context) =
+        fun create(context: Context, credentials: CredentialRepository): MyDatabase =
             Room.databaseBuilder(context, MyDatabase::class.java, DB_FILE_NAME)
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
+                .addTypeConverter(MyConverters(credentials))
+                .addCallback(object : Callback() {
+                    override fun onOpen(db: SupportSQLiteDatabase) {
+                        super.onOpen(db)
+                        // Upgrade plaintext legacy columns atomically before Room reads any account.
+                        db.beginTransaction()
+                        try {
+                            db.query("SELECT uid, user, auth FROM boorus").use { cursor ->
+                                while (cursor.moveToNext()) {
+                                    val uid = cursor.getLong(0)
+                                    val user = if (cursor.isNull(1)) null else cursor.getString(1)
+                                    val auth = if (cursor.isNull(2)) null else cursor.getString(2)
+                                    val userRef = user?.let { if (credentials.isReference(it)) it else credentials.store(it) }
+                                    val authRef = auth?.let { if (credentials.isReference(it)) it else credentials.store(it) }
+                                    if (user != userRef || auth != authRef) db.execSQL(
+                                        "UPDATE boorus SET user = ?, auth = ? WHERE uid = ?", arrayOf(userRef, authRef, uid))
+                                }
+                            }
+                            db.setTransactionSuccessful()
+                        } finally { db.endTransaction() }
+                    }
+                })
                 .addMigrations(
                     MyMigration(1, 2),
                     MyMigration(2, 3),
@@ -68,6 +85,7 @@ abstract class MyDatabase : RoomDatabase() {
                 .build()
     }
 
+    abstract fun downloadDao(): DownloadDao
     abstract fun booruDao(): BooruDao
     abstract fun postDao(): PostDao
 

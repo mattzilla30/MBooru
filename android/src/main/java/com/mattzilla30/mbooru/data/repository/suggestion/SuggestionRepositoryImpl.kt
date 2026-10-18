@@ -44,7 +44,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.danApi.getTags(action.getDanTagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -54,7 +55,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.dan1Api.getTags(action.getDan1TagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -64,7 +66,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.moeApi.getTags(action.getMoeTagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -74,7 +77,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.gelApi.getTags(action.getGelTagsUrl(0)).body()?.tags?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -84,7 +88,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.gelApi.getTagsLegacy(action.getGelTagsUrl(0)).body()?.tags?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -94,7 +99,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.sankakuApi.getTags(action.getSankakuTagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }

@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CancellationException
@@ -28,7 +30,7 @@ import com.mattzilla30.mbooru.extension.NetResult
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
 import com.mattzilla30.mbooru.common.tracemoe.model.TraceResponse
 
-class TraceMoeViewModel(private val traceMoeApi: TraceMoeApi) : ScopeViewModel() {
+class TraceMoeViewModel(private val traceMoeApi: TraceMoeApi) : androidx.lifecycle.ViewModel() {
 
     private var retryRequest: (() -> Unit)? = null
     fun retry() { if (!_loading.value) retryRequest?.invoke() }
@@ -53,7 +55,8 @@ class TraceMoeViewModel(private val traceMoeApi: TraceMoeApi) : ScopeViewModel()
                         val response = traceMoeApi.fetch(imageBlob)
                         NetResult.Success(response)
                     } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                        NetResult.Error(e.message.toString())
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                        NetResult.Error(e.safeNetworkMessage())
                     }
                 }
                 _loading.value = false

@@ -16,42 +16,64 @@
 package com.mattzilla30.mbooru.ui.activity
 
 import android.os.Bundle
-import com.mattzilla30.mbooru.ui.compose.common.setComposeFragmentScreen
-import com.mattzilla30.mbooru.ui.fragment.BooruConfigFragment
-import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.ui.res.stringResource
 import com.mattzilla30.mbooru.R
+import com.mattzilla30.mbooru.data.database.dao.BooruDao
+import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import android.view.Menu
+import com.mattzilla30.mbooru.ui.compose.booru.*
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class BooruConfigActivity : BaseActivity() {
-
-    companion object {
-        const val EXTRA_BOORU_UID = "extra_booru_uid"
+    companion object { const val EXTRA_BOORU_UID = "extra_booru_uid" }
+    private val dao by inject<BooruDao>()
+    private val model by viewModels<BooruEditorViewModel> {
+        val uid = intent.getLongExtra(BooruConfigActivity.EXTRA_BOORU_UID, -1)
+        viewModelFactory { initializer { BooruEditorViewModel(dao, uid, createSavedStateHandle()) } }
     }
-
-    private val menuListener: MenuListener? get() = supportFragmentManager.fragments.filterIsInstance<MenuListener>().firstOrNull()
-
+    private var confirmDelete by mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setComposeFragmentScreen(R.string.title_booru_config, BooruConfigFragment::class.java)
+        confirmDelete = savedInstanceState?.getBoolean("confirmDelete") ?: false
         setScreenTitle(R.string.title_booru_config)
+        setComposeContent {
+            val state by model.state.collectAsStateWithLifecycle()
+            Surface {
+                BooruEditorScreen(state, model::field)
+                if (confirmDelete) AlertDialog(onDismissRequest = { confirmDelete = false },
+                    title = { Text(stringResource(R.string.booru_config_dialog_title_delete)) },
+                    confirmButton = { TextButton(onClick = { confirmDelete = false; model.delete() }) { Text(stringResource(R.string.dialog_yes)) } },
+                    dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.dialog_no)) } })
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) { model.completion.collect { finish() } }
+        }
     }
-
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("confirmDelete", confirmDelete)
+        super.onSaveInstanceState(outState)
+    }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.booru_config, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            onBackPressedDispatcher.onBackPressed()
-            true
-        } else {
-            menuListener?.onMenuItemClick(item) ?: super.onOptionsItemSelected(item)
-        }
-    }
-
-    interface MenuListener {
-        fun onMenuItemClick(item: MenuItem): Boolean
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_booru_config_apply -> { model.save(); true }
+        R.id.action_booru_config_delete -> { confirmDelete = true; true }
+        else -> super.onOptionsItemSelected(item)
     }
 }

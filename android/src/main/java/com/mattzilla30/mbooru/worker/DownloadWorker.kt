@@ -15,6 +15,16 @@
 
 package com.mattzilla30.mbooru.worker
 
+import org.koin.core.component.inject
+
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import com.mattzilla30.mbooru.data.database.dao.DownloadDao
+import com.mattzilla30.mbooru.data.model.common.DownloadRecord
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -62,9 +72,15 @@ import java.io.OutputStream
 class DownloadWorker(
     context: Context,
     workerParameters: WorkerParameters
-) : CoroutineWorker(context, workerParameters) {
+) : CoroutineWorker(context, workerParameters) , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
+
+    private val queue by inject<DownloadDao>()
 
     companion object {
+        const val DOWNLOAD_TAG = "mbooru-download"
+        private val enqueueMutex = Mutex()
         private const val URL_KEY = "url"
         private const val HOST_KEY = "host"
         private const val POST_ID_KEY = "post_id"
@@ -103,7 +119,7 @@ class DownloadWorker(
                 TYPE_KEY to TYPE_POST,
                 DOC_ID_KEY to docId
             )
-            runWork(data)
+            activity.lifecycleScope.launch { runWork(activity, data) }
         }
 
         fun download(url: String, postId: Int, host: String, activity: PathActivity) {
@@ -119,7 +135,7 @@ class DownloadWorker(
                 TYPE_KEY to TYPE_POST,
                 DOC_ID_KEY to docId
             )
-            runWork(data)
+            activity.lifecycleScope.launch { runWork(activity, data) }
         }
 
         fun downloadPool(
@@ -149,34 +165,70 @@ class DownloadWorker(
                 BOORU_UID_KEY to booru.uid,
                 DOC_ID_KEY to docId
             )
-            runWork(data)
+            activity.lifecycleScope.launch { runWork(activity, data) }
         }
-        fun runWork(data: Data) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val work = OneTimeWorkRequestBuilder<DownloadWorker>()
-                .setInputData(data)
-                .setConstraints(constraints)
-                .build()
-            WorkManager.getInstance(App.app).enqueueUniqueWork(
-                "download:${data.getString(DOC_ID_KEY)}", ExistingWorkPolicy.KEEP, work)
+        suspend fun runWork(context: Context, data: Data, previous: DownloadRecord? = null) = withContext(Dispatchers.IO) {
+            enqueueMutex.withLock {
+                val manager = WorkManager.getInstance(context)
+                val unique = "download:${data.getString(DOC_ID_KEY)}"
+                if (manager.getWorkInfosForUniqueWork(unique).get().any { !it.state.isFinished }) return@withLock
+                val safeData = Data.Builder().putAll(data.keyValueMap.filterKeys {
+                    it != USERNAME_KEY && it != PASSWORD_HASH_KEY
+                }).build()
+                val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                val work = OneTimeWorkRequestBuilder<DownloadWorker>()
+                    .setInputData(safeData).setConstraints(constraints).addTag(DOWNLOAD_TAG)
+                    .keepResultsForAtLeast(7, java.util.concurrent.TimeUnit.DAYS).build()
+                val dao = org.koin.core.context.GlobalContext.get().get<DownloadDao>()
+                val record = previous?.copy(workId = work.id.toString(), state = "queued", error = null,
+                    createdAt = System.currentTimeMillis()) ?: DownloadRecord(work.id.toString(),
+                    safeData.getString(DOC_ID_KEY).orEmpty(),
+                    "${safeData.getString(HOST_KEY).orEmpty()} - ${safeData.getInt(POST_ID_KEY, safeData.getInt(POOL_ID_KEY, -1))}",
+                    safeData.toByteArray(), System.currentTimeMillis())
+                // Finish this short local transaction/enqueue even if the originating screen closes.
+                withContext(NonCancellable) {
+                    dao.insert(record)
+                    try {
+                        manager.enqueueUniqueWork(unique, ExistingWorkPolicy.KEEP, work).result.get()
+                        if (previous != null) dao.state(previous.workId, "replaced")
+                    } catch (failure: Exception) {
+                        dao.state(record.workId, "failed", "enqueue_failed")
+                        throw failure
+                    }
+                }
+            }
         }
     }
 
     override suspend fun doWork(): Result {
+        val key = id.toString()
+        if (queue.get(key) == null) {
+            val safe = Data.Builder().putAll(inputData.keyValueMap.filterKeys { it != USERNAME_KEY && it != PASSWORD_HASH_KEY }).build()
+            queue.insert(DownloadRecord(key, inputData.getString(DOC_ID_KEY).orEmpty(),
+                "${inputData.getString(HOST_KEY).orEmpty()} - ${inputData.getInt(POST_ID_KEY, inputData.getInt(POOL_ID_KEY, -1))}",
+                safe.toByteArray(), System.currentTimeMillis()))
+        }
+        queue.state(key, "running")
         return try {
-            when (inputData.getString(TYPE_KEY)) {
+            val result = when (inputData.getString(TYPE_KEY)) {
                 TYPE_POST -> downloadPost()
                 TYPE_POOL -> downloadPool()
                 else -> Result.failure()
             }
+            queue.state(key, if (result is Result.Success) "completed" else "failed",
+                if (result is Result.Success) null else "transfer_failed")
+            result
         } catch (cancelled: CancellationException) {
+            withContext(NonCancellable) { queue.state(key, "cancelled", "interrupted") }
             throw cancelled
-        } catch (_: IllegalStateException) {
-            // A background restart can be denied foreground-service access. Let the user retry.
-            Result.failure()
         } catch (_: SecurityException) {
+            queue.state(key, "failed", "storage_permission")
+            Result.failure()
+        } catch (_: IllegalStateException) {
+            queue.state(key, "failed", "background_limit")
+            Result.failure()
+        } catch (_: IOException) {
+            queue.state(key, "failed", "transfer_failed")
             Result.failure()
         }
     }
@@ -232,7 +284,7 @@ class DownloadWorker(
             POOL_DOWNLOAD_TYPE_KEY,
             POOL_DOWNLOAD_TYPE_JPGS
         )
-        val selectedSite = com.mattzilla30.mbooru.data.database.BooruManager.getBooruByUid(
+        val selectedSite = booruManager.getBooruByUid(
             inputData.getLong(BOORU_UID_KEY, -1))?.takeIf { it.host == host && it.scheme == scheme }
         val username = selectedSite?.user?.name ?: inputData.getString(USERNAME_KEY)
         val passwordHash = selectedSite?.user?.token ?: inputData.getString(PASSWORD_HASH_KEY)
@@ -275,21 +327,8 @@ class DownloadWorker(
         }
     }
 
-    private suspend fun transfer(url: String, destination: Uri) = runInterruptible(Dispatchers.IO) {
-        // Streaming directly to SAF also supports files larger than the image-cache budget.
-        val downloader = OkHttp3Downloader(applicationContext, useDiskCache = false)
-        try {
-            downloader.load(url).use { response ->
-                if (!response.isSuccessful) throw IOException("Download failed: ${response.code}")
-                val body = response.body ?: throw IOException("Empty download response")
-                body.byteStream().use { input ->
-                    val output = applicationContext.contentResolver.openOutputStream(destination, "wt")
-                        ?: throw IOException("Download destination is unavailable")
-                    output.use { copyDownload(input, it) }
-                }
-            }
-        } finally { downloader.shutdown() }
-    }
+    private suspend fun transfer(url: String, destination: Uri) =
+        transferDownload(applicationContext, queue, id.toString(), url, destination)
 
     private fun notifyDownload(manager: NotificationManager, id: Int, notification: Notification) {
         // Permission denial must not turn an otherwise successful download into a failed worker.

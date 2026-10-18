@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
 import android.Manifest
 import android.content.pm.ShortcutManager
 import android.os.Build
@@ -51,7 +53,9 @@ import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.ui.base.BaseActivity
 
 //https://github.com/shadowsocks/shadowsocks-android/blob/master/mobile/src/main/java/com/github/shadowsocks/ScannerActivity.kt
-class ScannerActivity : BaseActivity(), ImageAnalysis.Analyzer {
+class ScannerActivity : BaseActivity(), ImageAnalysis.Analyzer , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
 
     private lateinit var previewView: PreviewView
 
@@ -143,7 +147,7 @@ class ScannerActivity : BaseActivity(), ImageAnalysis.Analyzer {
         val barcodes = withContext(Dispatchers.Default) { scanner.process(image()).await() }
         var result = false
         barcodes.mapNotNull { it.rawValue }.forEach { url ->
-            Booru.url2Booru(url)?.let(BooruManager::createBooru)
+            Booru.url2Booru(url)?.let { booruManager.createBooru(it) }
             result = true
         }
         return result

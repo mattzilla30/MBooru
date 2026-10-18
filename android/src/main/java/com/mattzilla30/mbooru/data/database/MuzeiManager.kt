@@ -15,24 +15,20 @@
 
 package com.mattzilla30.mbooru.data.database
 
-import com.mattzilla30.mbooru.app.App
 import com.mattzilla30.mbooru.data.database.dao.MuzeiDao
 import com.mattzilla30.mbooru.data.model.common.Muzei
-import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.sql.SQLException
 
 /**
  * Manage [Muzei] table
  * */
-object MuzeiManager {
-
-    private val muzeiDao by App.app.inject<MuzeiDao>()
+class MuzeiManager(private val muzeiDao: MuzeiDao) {
     /**
      * Create a [Muzei]
      * */
     @Throws(SQLException::class)
-    fun createMuzei(muzei: Muzei): Muzei {
+    suspend fun createMuzei(muzei: Muzei): Muzei {
         muzei.uid = 0L
         muzei.uid = muzeiDao.insert(muzei)
         return muzei
@@ -41,19 +37,19 @@ object MuzeiManager {
      * Delete a [Muzei]
      * */
     @Throws(SQLException::class)
-    fun deleteMuzei(muzei: Muzei) {
+    suspend fun deleteMuzei(muzei: Muzei) {
         muzeiDao.delete(muzei)
     }
     /**
      * return [Muzei] list by booru uid
      * */
     @Throws(IOException::class)
-    fun getMuzeiByBooruUid(booruUid: Long): List<Muzei>? {
+    suspend fun getMuzeiByBooruUid(booruUid: Long): List<Muzei>? {
         return muzeiDao.getMuzeiByBooruUid(booruUid)
     }
 
     @Throws(IOException::class)
-    fun getMuzeiByUid(uid: Long): Muzei? {
+    suspend fun getMuzeiByUid(uid: Long): Muzei? {
         return muzeiDao.getMuzeiByUid(uid)
     }
 }

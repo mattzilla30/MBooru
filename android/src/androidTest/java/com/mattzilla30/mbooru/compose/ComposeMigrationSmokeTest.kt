@@ -79,7 +79,12 @@ class ComposeMigrationSmokeTest {
             pinch(center - Offset(50f, 0f), center + Offset(50f, 0f),
                 center - Offset(220f, 0f), center + Offset(220f, 0f), 500)
         }
-        compose.runOnIdle { assertTrue("Native zoom should disable paging/dismiss gestures", zoomed) }
+        compose.runOnIdle {
+            val photo = checkNotNull(compose.activity.window.decorView.find<PhotoView>())
+            assertTrue("Native zoom should disable paging/dismiss gestures (scale=${photo.scale}, min=${photo.minimumScale}, size=${photo.width}x${photo.height})", zoomed)
+            photo.setScale(photo.minimumScale, false)
+            assertFalse("Resetting zoom should restore paging/dismiss gestures", zoomed)
+        }
     }
 
     @Test fun fullResolutionLocalImageUsesTiledDecoder() {

@@ -24,7 +24,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 
-class DetailViewModel(postDao: PostDao, booruUid: Long, query: String) : ScopeViewModel() {
+class DetailViewModel(postDao: PostDao, booruUid: Long, query: String) : androidx.lifecycle.ViewModel() {
 
     val posts = Pager(
         config = PagingConfig(

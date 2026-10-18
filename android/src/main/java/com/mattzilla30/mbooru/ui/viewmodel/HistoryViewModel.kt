@@ -15,11 +15,7 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.asFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
+import kotlinx.coroutines.flow.*
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,29 +26,21 @@ import com.mattzilla30.mbooru.data.model.common.History
 
 class HistoryViewModel(
     private val historyDao: HistoryDao,
-    private val postDao: PostDao) : ScopeViewModel() {
+    private val postDao: PostDao) : androidx.lifecycle.ViewModel() {
 
-    private val _historyOutcome: MediatorLiveData<List<History>> = MediatorLiveData()
+    private val siteUid = MutableStateFlow(-1L)
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val history = siteUid.flatMapLatest { historyDao.observeHistory(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val history = _historyOutcome.asFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    fun loadHistory(booruUid: Long): LiveData<List<History>> {
-        viewModelScope.launch{
-            val data = withContext(Dispatchers.IO) {
-                historyDao.getHistoryByBooruUidLiveData(booruUid)
-            }
-            _historyOutcome.addSource(data) {
-                _historyOutcome.postValue(it ?: listOf())
-            }
-        }
-        return _historyOutcome
-    }
+    fun loadHistory(booruUid: Long) { siteUid.value = booruUid }
 
     fun create(history: History) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 historyDao.insert(history)
-            } catch (_: Exception) {}
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure}
         }
     }
 
@@ -61,7 +49,8 @@ class HistoryViewModel(
             try {
                 historyDao.delete(history)
                 postDao.deletePosts(booruUid = history.booruUid, query = history.query)
-            } catch (_: Exception) {}
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure}
         }
     }
 
@@ -70,7 +59,8 @@ class HistoryViewModel(
             try {
                 historyDao.deleteByBooruUid(booruUid)
                 postDao.deletePosts(booruUid = booruUid)
-            } catch (_: Exception) {}
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure}
         }
     }
 }

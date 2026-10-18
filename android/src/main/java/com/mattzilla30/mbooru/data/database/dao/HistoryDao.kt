@@ -15,7 +15,7 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.History
 
@@ -23,23 +23,23 @@ import com.mattzilla30.mbooru.data.model.common.History
 interface HistoryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(history: History): Long
+    suspend fun insert(history: History): Long
 
     @Query("SELECT * FROM `history` WHERE `booru_uid` = :booruUid ORDER BY `uid` DESC")
-    fun getHistoryByBooruUid(booruUid: Long): List<History>?
+    suspend fun getHistoryByBooruUid(booruUid: Long): List<History>?
 
     @Query("SELECT * FROM `history` WHERE `uid` = :uid")
-    fun getHistoryByUid(uid: Long): History?
+    suspend fun getHistoryByUid(uid: Long): History?
 
-    @Query("SELECT * FROM `history` WHERE `booru_uid` = :booruUid ORDER BY `uid` DESC")
-    fun getHistoryByBooruUidLiveData(booruUid: Long): LiveData<List<History>>
 
     @Delete
-    fun delete(history: History): Int
+    suspend fun delete(history: History): Int
 
     @Query("DELETE FROM `history` WHERE `uid` = :uid")
-    fun deleteByUid(uid: Long): Int
+    suspend fun deleteByUid(uid: Long): Int
 
     @Query("DELETE FROM `history` WHERE `booru_uid` = :booruUid")
-    fun deleteByBooruUid(booruUid: Long): Int
+    suspend fun deleteByBooruUid(booruUid: Long): Int
+    @Query("SELECT * FROM `history` WHERE `booru_uid` = :booruUid ORDER BY `uid` DESC")
+    fun observeHistory(booruUid: Long): Flow<List<History>>
 }

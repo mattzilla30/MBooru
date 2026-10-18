@@ -16,8 +16,8 @@
 package com.mattzilla30.mbooru.ui.activity
 
 import android.os.Bundle
-import com.mattzilla30.mbooru.ui.compose.common.setComposeFragmentScreen
-import com.mattzilla30.mbooru.ui.fragment.AboutFragment
+import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
+import com.mattzilla30.mbooru.ui.compose.about.AboutScreen
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.ui.base.BaseActivity
 
@@ -25,6 +25,7 @@ class AboutActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setComposeFragmentScreen(R.string.title_about, AboutFragment::class.java)
+        setScreenTitle(R.string.title_about)
+        setComposeContent { AboutScreen() }
     }
 }

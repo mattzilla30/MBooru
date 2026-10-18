@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.repository.tag.TagRepository
 
-class TagViewModel(private val repository: TagRepository) : ScopeViewModel() {
+class TagViewModel(private val repository: TagRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionTag?>(null)
     val state = actions.asStateFlow()
     val tags = actions.flatMapLatest { action ->

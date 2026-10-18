@@ -15,71 +15,28 @@
 
 package com.mattzilla30.mbooru.common.saucenao.api
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
-import io.ktor.http.*
 import com.mattzilla30.mbooru.common.saucenao.model.SauceNaoResponse
+import com.mattzilla30.mbooru.common.di.reverseSearchApi
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.http.*
 
-class SauceNaoApiService(
-    private val client: HttpClient,
-    private val baseUrl: String) : SauceNaoApi {
+internal interface SauceNaoEndpoint {
+    @GET("search.php?db=999&output_type=2")
+    suspend fun searchUrl(@Query("url") url: String, @Query("api_key") apiKey: String): SauceNaoResponse
+    @Multipart @POST("search.php?db=999&output_type=2")
+    suspend fun searchImage(@Query("api_key") apiKey: String, @Part file: MultipartBody.Part): SauceNaoResponse
+}
 
-    override suspend fun searchByUrl(
-        url: String,
-        apiKey: String): SauceNaoResponse =
-        client.get{
-            apiUrl(
-                baseUrl = baseUrl,
-                path = "search.php",
-                apiKey = apiKey,
-                url = url
-            )
-        }.body()
-
-    override suspend fun searchByImage(
-        apiKey: String,
-        byteArray: ByteArray,
-        fileExt: String
-    ): SauceNaoResponse =
-        client.submitForm {
-            val data = MultiPartFormDataContent(
-                formData {
-                    append(
-                        "file",
-                        byteArray,
-                        Headers.build {
-                            append(HttpHeaders.ContentType, "image/$fileExt")
-                            append(HttpHeaders.ContentDisposition, "filename=image.$fileExt")
-                        }
-                    )
-                }
-            )
-            setBody(data)
-            method = HttpMethod.Post
-            apiUrl(
-                baseUrl = baseUrl,
-                path = "search.php",
-                apiKey = apiKey
-            )
-        }.body()
-
-    private fun HttpRequestBuilder.apiUrl(
-        baseUrl: String,
-        path: String,
-        apiKey: String,
-        url: String? = null
-    ) {
-        url {
-            takeFrom(baseUrl)
-            encodedPath = path
-            parameter("db", 999)
-            parameter("output_type", 2)
-            parameter("api_key", apiKey)
-            if (!url.isNullOrEmpty()) {
-                parameter("url", url)
-            }
-        }
+class SauceNaoApiService(client: OkHttpClient, baseUrl: String) : SauceNaoApi {
+    private val api = reverseSearchApi<SauceNaoEndpoint>(client, baseUrl)
+    override suspend fun searchByUrl(url: String, apiKey: String) = api.searchUrl(url, apiKey)
+    override suspend fun searchByImage(apiKey: String, byteArray: ByteArray, fileExt: String): SauceNaoResponse {
+        val extension = fileExt.lowercase().takeIf { it in setOf("jpg", "jpeg", "png", "gif", "webp") } ?: "jpg"
+        val mime = if (extension == "jpg") "jpeg" else extension
+        return api.searchImage(apiKey, MultipartBody.Part.createFormData("file", "image.$extension",
+            byteArray.toRequestBody("image/$mime".toMediaType())))
     }
 }

@@ -1,5 +1,6 @@
 package com.mattzilla30.mbooru.ui.compose.account
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mattzilla30.mbooru.R
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.*
 data class AccountConfigState(val username: String = "", val token: String = "",
     val busy: Boolean = false, val error: String? = null, val errorResource: Int? = null)
 
-class AccountConfigViewModel(private val repository: UserRepository, private val booru: Booru) : ViewModel() {
+class AccountConfigViewModel(private val repository: UserRepository, private val booru: Booru, private val booruManager: BooruManager) : ViewModel() {
+
     private val mutable = MutableStateFlow(AccountConfigState())
     val state = mutable.asStateFlow()
     private val completed = Channel<Unit>(Channel.BUFFERED)
@@ -44,7 +46,7 @@ class AccountConfigViewModel(private val repository: UserRepository, private val
                     is NetResult.Success -> {
                         val user = result.data
                         if (booru.type in arrayOf(Values.BOORU_TYPE_DAN, Values.BOORU_TYPE_DAN1)) user.token = token
-                        withContext(Dispatchers.IO) { BooruManager.updateBooru(booru.copy(user = user)) }
+                        withContext(Dispatchers.IO) { booruManager.updateBooru(booru.copy(user = user)) }
                         completed.send(Unit)
                     }
                     is NetResult.Error -> mutable.update { it.copy(error = result.errorMsg) }

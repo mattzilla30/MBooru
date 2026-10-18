@@ -18,6 +18,8 @@ package com.mattzilla30.mbooru.ui.activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.Lifecycle
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -61,12 +63,16 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        BooruPresets.installOnce(booruDao, preferences)
+        lifecycleScope.launch { BooruPresets.installOnce(booruDao, preferences) }
         preferences.registerOnSharedPreferenceChangeListener(this)
-        boorus.loadBoorus().observe(this) { list ->
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                boorus.loadBoorus().collect { list ->
             val available = list
             if (available.none { it.uid == Settings.activatedBooruUid }) {
                 Settings.activatedBooruUid = available.firstOrNull()?.uid ?: -1
+            }
+        }
             }
         }
         boorus.loadBooru(Settings.activatedBooruUid)
@@ -133,6 +139,7 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
             "tracemoe" -> WhatAnimeActivity::class.java
             "settings" -> SettingsActivity::class.java
             "about" -> AboutActivity::class.java
+            "downloads" -> DownloadsActivity::class.java
             else -> return
         }
         startActivity(Intent(this, destination))

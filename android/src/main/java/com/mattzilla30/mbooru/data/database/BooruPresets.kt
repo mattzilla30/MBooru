@@ -23,7 +23,7 @@ object BooruPresets {
     )
 
     /** Runs on first launch after installing/updating; never replaces saved site credentials. */
-    fun installOnce(dao: BooruDao, preferences: SharedPreferences) {
+    suspend fun installOnce(dao: BooruDao, preferences: SharedPreferences) {
         // Run even after presets were installed by an earlier MBooru release.
         dao.removeLegacySample()
         if (preferences.getBoolean(INSTALLED_KEY, false)) return
@@ -33,7 +33,7 @@ object BooruPresets {
     }
 
     /** Also restores individually deleted presets, leaving an existing configuration untouched. */
-    fun add(dao: BooruDao, preset: Booru): Long {
+    suspend fun add(dao: BooruDao, preset: Booru): Long {
         dao.insertMissing(listOf(preset.copy(uid = 0)))
         return checkNotNull(dao[preset.scheme, preset.host]).uid
     }

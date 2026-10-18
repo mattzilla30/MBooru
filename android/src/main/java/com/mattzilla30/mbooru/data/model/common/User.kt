@@ -35,6 +35,11 @@ data class User(
     @SerialName("token_type")
     val tokenType: String = ""
 ) {
+    @kotlinx.serialization.Transient
+    var credentialReference: String? = null
+
+    override fun toString(): String = "User(id=$id)"
+
     val getAuth: String
         get() = "Bearer $accessToken"
 }

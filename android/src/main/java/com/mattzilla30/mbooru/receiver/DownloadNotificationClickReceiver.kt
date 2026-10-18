@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.receiver
 
+import kotlinx.coroutines.launch
+
 import android.content.*
 import android.net.Uri
 import androidx.work.Data
@@ -31,7 +33,13 @@ class DownloadNotificationClickReceiver : BroadcastReceiver() {
         val data = intent.getByteArrayExtra(DownloadWorker.INPUT_DATA_KEY)
         when {
             uri != null -> openUri(context, uri)
-            data != null -> DownloadWorker.runWork(Data.fromByteArray(data))
+            data != null -> {
+                val pending = goAsync()
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO).launch {
+                    try { DownloadWorker.runWork(context, Data.fromByteArray(data)) }
+                    finally { pending.finish() }
+                }
+            }
         }
     }
 

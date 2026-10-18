@@ -15,6 +15,10 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -48,18 +52,27 @@ import com.mattzilla30.mbooru.ui.base.BaseActivity
 import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.viewmodel.*
 import com.mattzilla30.mbooru.worker.MuzeiArtWorker
-import org.koin.android.ext.android.inject
 
-class MuzeiActivity : BaseActivity() {
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     private val dao by inject<MuzeiDao>()
     private val apis by inject<BooruApis>()
     private val model by lazy { getMuzeiViewModel(dao) }
     private val suggestions by lazy { getSuggestionViewModel(SuggestionRepositoryImpl(apis)) }
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
+    private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            initializeContent()
+        }
+    }
+    private fun initializeContent() {
         val site = booru ?: return finish()
         setScreenTitle(R.string.title_muzei)
         model.loadMuzei(site.uid)
@@ -200,7 +213,7 @@ class MuzeiActivity : BaseActivity() {
                 true
             }
             R.id.action_muzei_fetch -> {
-                MuzeiArtWorker.enqueueLoad()
+                MuzeiArtWorker.enqueueLoad(this)
                 true
             }
             else -> super.onOptionsItemSelected(item)

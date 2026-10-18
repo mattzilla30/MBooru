@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SuggestionViewModel(private val repo: SuggestionRepository) : ScopeViewModel() {
+class SuggestionViewModel(private val repo: SuggestionRepository) : androidx.lifecycle.ViewModel() {
     private val mutable = MutableStateFlow<List<String>>(emptyList())
     val suggestionState = mutable.asStateFlow()
     private var request: Job? = null

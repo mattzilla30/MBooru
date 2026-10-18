@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -49,9 +51,11 @@ import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.account.AccountViewModel
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
-class AccountActivity : PathActivity() {
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     companion object {
         const val USER_ID_KEY = "user_id"
         const val USER_NAME_KEY = "user_name"
@@ -59,7 +63,7 @@ class AccountActivity : PathActivity() {
     }
 
     private val apis by inject<BooruApis>()
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
+    private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
     private var confirmRemoval by mutableStateOf(false)
     private val model by
         viewModels<AccountViewModel> {
@@ -74,12 +78,19 @@ class AccountActivity : PathActivity() {
                     )
                 else site.user
             viewModelFactory {
-                initializer { AccountViewModel(UserRepositoryImpl(apis), site, user) }
+                initializer { AccountViewModel(UserRepositoryImpl(apis), site, user, booruManager) }
             }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            initializeContent()
+        }
+    }
+    private fun initializeContent() {
         val site = booru ?: return finish()
         screenTitle = getString(R.string.title_account_and_booru, site.name)
         setComposeContent {

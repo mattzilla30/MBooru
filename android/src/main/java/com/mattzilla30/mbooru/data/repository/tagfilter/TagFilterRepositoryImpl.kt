@@ -15,14 +15,14 @@
 
 package com.mattzilla30.mbooru.data.repository.tagfilter
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.database.dao.TagFilterDao
 import com.mattzilla30.mbooru.data.model.common.TagFilter
 
 //tags filter data source
 class TagFilterRepositoryImpl(private val dao: TagFilterDao) : TagFilterRepository {
 
-    override fun loadTagsFilter(): LiveData<List<TagFilter>> {
-        return dao.getAllLiveData()
+    override fun loadTagsFilter(): Flow<List<TagFilter>> {
+        return dao.observeTagFilter()
     }
 }

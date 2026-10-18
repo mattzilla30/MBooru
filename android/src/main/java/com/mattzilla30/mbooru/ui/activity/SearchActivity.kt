@@ -15,8 +15,12 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
 import android.content.Context
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import androidx.navigation.compose.rememberNavController
@@ -30,12 +34,12 @@ import com.mattzilla30.mbooru.data.database.HistoryManager
 import com.mattzilla30.mbooru.data.model.common.History
 import com.mattzilla30.mbooru.ui.base.PathActivity
 
-class SearchActivity : PathActivity() {
+class SearchActivity : PathActivity() , org.koin.core.component.KoinComponent {
+    private val historyManager by inject<com.mattzilla30.mbooru.data.database.HistoryManager>()
+
 
     companion object {
         fun startSearch(context: Context, query: String) {
-            HistoryManager.createHistory(
-                History(booruUid = activatedBooruUid, query = query))
             context.startActivity(Intent(context, SearchActivity::class.java)
                 .putExtra(POST_QUERY, query))
         }
@@ -43,6 +47,7 @@ class SearchActivity : PathActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch { historyManager.createHistory(History(booruUid = activatedBooruUid, query = intent.getStringExtra(POST_QUERY).orEmpty())) }
         setComposeContent { MainBrowseNavHost(rememberNavController(), browseTabs(BOORU_TYPE_SHIMMIE)) }
     }
 }

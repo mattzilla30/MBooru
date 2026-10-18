@@ -29,7 +29,7 @@ import com.mattzilla30.mbooru.extension.NetResult
 
 data class CommentReply(val postId: Int, val text: String)
 
-class CommentViewModel(private val repository: CommentRepository) : ScopeViewModel() {
+class CommentViewModel(private val repository: CommentRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionComment?>(null)
     val action = actions.asStateFlow()
     private val refresh = MutableStateFlow(0)

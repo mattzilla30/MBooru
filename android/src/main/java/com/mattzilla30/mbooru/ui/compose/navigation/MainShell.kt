@@ -40,11 +40,13 @@ fun browseTabs(type: Int): List<BrowseTab> {
     val pools = BrowseTab(R.id.nav_pools, R.string.title_pools, R.drawable.ic_photo_album_outline_24dp, R.drawable.ic_photo_album_24dp)
     val tags = BrowseTab(R.id.nav_tags, R.string.title_tags, R.drawable.ic_bookmark_border_24dp, R.drawable.ic_bookmark_24dp)
     val artists = BrowseTab(R.id.nav_artists, R.string.title_artists, R.drawable.ic_people_outline_24dp, R.drawable.ic_people_24dp)
-    return when (type) {
-        Values.BOORU_TYPE_SHIMMIE -> listOf(posts)
-        Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY -> listOf(posts, tags)
-        Values.BOORU_TYPE_SANKAKU -> listOf(posts, popular, pools, tags)
-        else -> listOf(posts, popular, pools, tags, artists)
+    val capabilities = com.mattzilla30.mbooru.core.model.BooruEngine.fromLegacyId(type).capabilities
+    return buildList {
+        add(posts)
+        if (capabilities.popular) add(popular)
+        if (capabilities.pools) add(pools)
+        if (capabilities.tags) add(tags)
+        if (capabilities.artists) add(artists)
     }
 }
 
@@ -73,6 +75,7 @@ fun MainShell(
     LaunchedEffect(drawerRequests) { drawerRequests.collect { drawer.open() } }
     BackHandler(drawer.isOpen) { scope.launch { drawer.close() } }
     val actions = listOf(
+        DrawerAction(R.string.title_downloads, R.drawable.ic_file_download_24dp, "downloads"),
         DrawerAction(R.string.title_account, R.drawable.ic_account_circle_outline_24dp, "account"),
         DrawerAction(R.string.title_comments, R.drawable.ic_comment_outline_24dp, "comments"),
         DrawerAction(R.string.title_history, R.drawable.ic_history_24dp, "history"),
@@ -135,16 +138,41 @@ fun MainShell(
             Spacer(Modifier.navigationBarsPadding())
         }
     }) {
-        Box(Modifier.fillMaxSize()) {
-            content()
-            AnimatedVisibility(navigationVisible, modifier = Modifier.align(Alignment.BottomCenter),
-                enter = slideInVertically { it }, exit = slideOutVertically { it }) {
-                NavigationBar(modifier = Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)), containerColor = MaterialTheme.colorScheme.background) {
-                    tabs.forEach { tab ->
-                        val selected = tab.id == currentTab
-                        NavigationBarItem(modifier = Modifier.testTag("browse-tab-${browseRoute(tab.id)}"), selected = selected, onClick = { onTab(tab.id) },
-                            label = { Text(stringResource(tab.title)) },
-                            icon = { Icon(painterResource(if (selected) tab.selectedIcon else tab.icon), null) })
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val wide = maxWidth >= 600.dp
+            Row(Modifier.fillMaxSize()) {
+                if (wide && navigationVisible) {
+                    NavigationRail(containerColor = MaterialTheme.colorScheme.background) {
+                        Spacer(Modifier.weight(1f))
+                        tabs.forEach { tab ->
+                            val selected = tab.id == currentTab
+                            NavigationRailItem(
+                                modifier = Modifier.testTag("browse-tab-${browseRoute(tab.id)}"),
+                                selected = selected, onClick = { onTab(tab.id) },
+                                label = { Text(stringResource(tab.title)) },
+                                icon = { Icon(painterResource(if (selected) tab.selectedIcon else tab.icon), null) },
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                    if (boorus.isEmpty()) {
+                        Column(Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(stringResource(R.string.booru_empty_message), style = MaterialTheme.typography.bodyLarge)
+                            Button(onClick = { onAction("boorus") }) { Text(stringResource(R.string.title_manage_boorus)) }
+                        }
+                    } else content()
+                    if (!wide) androidx.compose.animation.AnimatedVisibility(navigationVisible, modifier = Modifier.align(Alignment.BottomCenter),
+                        enter = slideInVertically { it }, exit = slideOutVertically { it }) {
+                        NavigationBar(modifier = Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)), containerColor = MaterialTheme.colorScheme.background) {
+                            tabs.forEach { tab ->
+                                val selected = tab.id == currentTab
+                                NavigationBarItem(modifier = Modifier.testTag("browse-tab-${browseRoute(tab.id)}"), selected = selected, onClick = { onTab(tab.id) },
+                                    label = { Text(stringResource(tab.title)) },
+                                    icon = { Icon(painterResource(if (selected) tab.selectedIcon else tab.icon), null) })
+                            }
+                        }
                     }
                 }
             }

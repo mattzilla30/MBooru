@@ -1,8 +1,13 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
+import org.koin.core.component.inject
+
 import android.content.ComponentCallbacks
 import android.content.Intent
 import android.content.SharedPreferences
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.compose.runtime.*
@@ -24,7 +29,6 @@ import com.mattzilla30.mbooru.data.repository.suggestion.SuggestionRepositoryImp
 import com.mattzilla30.mbooru.ui.activity.MainActivity
 import com.mattzilla30.mbooru.ui.base.BaseActivity
 import com.mattzilla30.mbooru.ui.viewmodel.*
-import org.koin.android.ext.android.inject
 
 /** Activity-bound actions with models owned by the Compose destination, never a fragment. */
 abstract class BrowseController(
@@ -38,7 +42,9 @@ abstract class BrowseController(
     HasDefaultViewModelProviderFactory by owner,
     SavedStateRegistryOwner by owner,
     BrowseNavigation,
-    SharedPreferences.OnSharedPreferenceChangeListener {
+    SharedPreferences.OnSharedPreferenceChangeListener , org.koin.core.component.KoinComponent {
+    private val muzeiManager by inject<com.mattzilla30.mbooru.data.database.MuzeiManager>()
+
     override val lifecycle: Lifecycle
         get() = owner.lifecycle
 
@@ -106,11 +112,13 @@ abstract class BrowseController(
 
     @Composable
     fun Content() {
+        LaunchedEffect(this) {
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) { boorus.booruState.collect(::onBooruLoaded) }
+        }
         DisposableEffect(this) {
             saved.setSavedStateProvider("browse_request_state") {
                 Bundle().apply(::onSaveInstanceState)
             }
-            boorus.booru.observe(owner, ::onBooruLoaded)
             boorus.loadBooru(Settings.activatedBooruUid)
             preferences.registerOnSharedPreferenceChangeListener(this@BrowseController)
             (host as? MainActivity)?.activeBrowse = this@BrowseController
@@ -127,7 +135,6 @@ abstract class BrowseController(
                 owner.lifecycle.removeObserver(observer)
                 // Removing an observer does not deliver stop to a still-started destination.
                 if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) onStop()
-                boorus.booru.removeObservers(owner)
                 preferences.unregisterOnSharedPreferenceChangeListener(this@BrowseController)
                 if ((host as? MainActivity)?.activeBrowse === this@BrowseController)
                     host.activeBrowse = null
@@ -168,12 +175,14 @@ abstract class BrowseController(
             onNavigate = { (host as? MainActivity)?.openDrawer() ?: host.finish() },
             onMenu = ::onMenuItemClick,
             onAddToMuzei = { query ->
-                com.mattzilla30.mbooru.data.database.MuzeiManager.createMuzei(
+                owner.lifecycleScope.launch {
+                muzeiManager.createMuzei(
                     com.mattzilla30.mbooru.data.model.common.Muzei(
                         booruUid = Settings.activatedBooruUid,
                         query = query,
                     )
                 )
+                }
             },
             bottomPadding = host is MainActivity,
             filters = { Filters() },

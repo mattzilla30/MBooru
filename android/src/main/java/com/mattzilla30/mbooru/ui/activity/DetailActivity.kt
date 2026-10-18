@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import org.koin.core.component.inject
+
 import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -84,7 +86,6 @@ import com.mattzilla30.mbooru.ui.viewmodel.DetailViewModel
 import com.mattzilla30.mbooru.ui.viewmodel.getDetailViewModel
 import com.mattzilla30.mbooru.widget.DismissFrameLayout
 import com.mattzilla30.mbooru.worker.DownloadWorker
-import org.koin.android.ext.android.inject
 import java.io.*
 
 private const val ALPHA_MAX = 0xFF
@@ -95,7 +96,9 @@ private const val ACTION_SAVE_AS = 12
 private const val ACTION_SET_AS = 13
 private const val ACTION_SEND = 14
 
-class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissFrameLayout.OnDismissListener {
+class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissFrameLayout.OnDismissListener , org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     companion object {
         const val ACTION_DETAIL_POST_POSITION = "detail_post_position"
 
@@ -132,7 +135,16 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val site = BooruManager.getBooruByUid(activatedBooruUid) ?: return finish()
+        createFileObserver = CreateFileLifecycleObserver(activityResultRegistry, ::saveFile)
+        lifecycle.addObserver(createFileObserver)
+        lifecycleScope.launch {
+            val site = booruManager.getBooruByUid(activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            if (site == null) { finish(); return@launch }
+            initializeContent(site)
+        }
+    }
+    private fun initializeContent(site: Booru) {
         booru = site
         query = intent.getStringExtra(POST_QUERY).orEmpty()
         actionVote = ActionVote(booru, -1)
@@ -140,8 +152,6 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
         if (detailViewModel.currentPosition < 0) detailViewModel.currentPosition = intent.getIntExtra(POST_POSITION, 0)
         if (Build.VERSION.SDK_INT > 21) postponeEnterTransition()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        createFileObserver = CreateFileLifecycleObserver(activityResultRegistry, ::saveFile)
-        lifecycle.addObserver(createFileObserver)
         val selectedSize = detailSize
         setContent {
             MBooruTheme {

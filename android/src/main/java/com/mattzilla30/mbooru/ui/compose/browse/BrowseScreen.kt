@@ -130,9 +130,9 @@ fun BrowseScreen(
                 }
             }
             if (state.mode == 2) Box(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()
-                .padding(bottom = if (bottomPadding) 80.dp else 0.dp)) { filters() }
+                .padding(bottom = if (bottomPadding && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600) 80.dp else 0.dp)) { filters() }
             else content(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()
-                .padding(bottom = if (bottomPadding && !com.mattzilla30.mbooru.app.Settings.autoHideBottomBar) 80.dp else 0.dp))
+                .padding(bottom = if (bottomPadding && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600 && !com.mattzilla30.mbooru.app.Settings.autoHideBottomBar) 80.dp else 0.dp))
         }
     }
 }
