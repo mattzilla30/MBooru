@@ -12,13 +12,22 @@ import com.mattzilla30.mbooru.data.model.common.Booru
 object BooruPresets {
     private const val INSTALLED_KEY = "featured_boorus_v1_installed"
 
+    private const val ADDITIONAL_INSTALLED_KEY = "featured_boorus_v2_installed"
+
+    private fun additional(): List<Booru> =
+        listOf(
+            Booru(name = "e926", host = "e926.net", type = Values.BOORU_TYPE_DAN),
+            Booru(name = "e621", host = "e621.net", type = Values.BOORU_TYPE_DAN),
+            Booru(name = "Paheal", host = "rule34.paheal.net", type = Values.BOORU_TYPE_SHIMMIE),
+        )
+
     // Return fresh instances: Booru contains mutable settings and database IDs.
     fun featured(): List<Booru> =
         listOf(
             Booru(name = "Yande.re", host = "yande.re", type = Values.BOORU_TYPE_MOE),
             Booru(name = "Konachan", host = "konachan.com", type = Values.BOORU_TYPE_MOE),
             Booru(name = "Safebooru", host = "safebooru.org", type = Values.BOORU_TYPE_GEL_LEGACY),
-        )
+        ) + additional()
 
     fun isRetiredHost(host: String): Boolean {
         val name = host.lowercase().removePrefix("www.")
@@ -41,10 +50,21 @@ object BooruPresets {
         dao.getAll().orEmpty().filter { isRetiredHost(it.host) }.forEach { remove(it.uid) }
         // Run even after presets were installed by an earlier MBooru release.
         dao.removeLegacySample()
-        if (preferences.getBoolean(INSTALLED_KEY, false)) return
-        dao.insertMissing(featured())
-        // Mark only after the database transaction succeeds. Repeating after a crash is harmless.
-        preferences.edit().putBoolean(INSTALLED_KEY, true).apply()
+        if (!preferences.getBoolean(INSTALLED_KEY, false)) {
+            dao.insertMissing(featured())
+            // Mark only after the database transaction succeeds. Repeating after a crash is
+            // harmless.
+            preferences
+                .edit()
+                .putBoolean(INSTALLED_KEY, true)
+                .putBoolean(ADDITIONAL_INSTALLED_KEY, true)
+                .apply()
+        } else if (!preferences.getBoolean(ADDITIONAL_INSTALLED_KEY, false)) {
+            // Upgrade only the new catalog entries; do not restore deliberately deleted older
+            // sites.
+            dao.insertMissing(additional())
+            preferences.edit().putBoolean(ADDITIONAL_INSTALLED_KEY, true).apply()
+        }
     }
 
     /** Also restores individually deleted presets, leaving an existing configuration untouched. */
