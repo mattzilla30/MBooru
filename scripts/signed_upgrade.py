@@ -34,6 +34,8 @@ def snapshot(destination):
     adb("pull", f"/data/user/0/{PACKAGE}/shared_prefs/.", destination / "shared_prefs", check=False)
 
 def launch():
+    if int(adb("shell", "getprop", "ro.build.version.sdk").strip()) >= 33:
+        adb("shell", "pm", "grant", PACKAGE, "android.permission.POST_NOTIFICATIONS")
     result = adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", "-n", PACKAGE + "/.ui.activity.MainActivity")
     print("Activity launch result:", result, flush=True)
     assert "Error" not in result, "Fixture activity did not launch: " + result
@@ -140,7 +142,7 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     launch()
     report = {"checkedAt": datetime.now(timezone.utc).isoformat(), "baselineSha256": BASELINE_SHA256,
               "candidateSha256": hashlib.sha256(args.candidate.read_bytes()).hexdigest(), "signerUnchanged": True,
-              "installedWithReplace": True, "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersWallpaperRetained": True,
+              "installedWithReplace": True, "notificationPermissionPreGranted": True, "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersWallpaperRetained": True,
               "roomCredentialsMigratedToReferences": True, "settingsMigratedAndRestarted": True,
               "sauceKeyAbsentFromDataStorePlaintext": True, "api": adb("shell", "getprop", "ro.build.version.sdk").strip()}
     args.out.parent.mkdir(parents=True, exist_ok=True); args.out.write_text(json.dumps(report, indent=2) + "\n")
