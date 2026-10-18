@@ -1,5 +1,7 @@
 # Reviewed Settings screenshot baselines
 
-Captured and visually inspected from GitHub run 39095789577 (2026-10-18), API 28 google_apis x86_64 / pixel_2. SettingsVisualTest normalizes Compose density to 1, captures a 360×640 phone frame (720×640 tablet), and uses font scale 2 plus RTL for the large-text case. Light/dark use the existing app theme.
+BGSU palette captured and visually reviewed from GitHub run 39101079284 (2026-10-18), API 28 google_apis x86_64 / pixel_2. All four initial comparisons failed as expected because the user requested a new palette. Reviewed phone light, phone dark, 200% RTL and tablet captures show readable labels and controls without clipping.
 
-These are the first reviewed regression baselines for the current implementation, not a pixel comparison against a previously captured Flexbooru build. The visible rows wrap correctly; content below the viewport scrolls. The test separately scrolls to the final cache action after pixel comparison. Future replacements require visual review, including labels, controls, wrapping and reachability.
+SettingsVisualTest normalizes Compose density to 1, captures a 360×640 phone frame (720×640 tablet), and uses font scale 2 plus RTL for the large-text case. Light/dark share the BGSU app theme. The test separately scrolls to the final cache action after pixel comparison. Future replacements require visual review, including labels, controls, wrapping and reachability.
+
+Earlier Flexbooru-style baselines came from run 39095789577. These captures document the approved BGSU design, not a pixel comparison with legacy Flexbooru.

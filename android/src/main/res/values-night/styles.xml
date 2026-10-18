@@ -16,6 +16,6 @@
 
 <resources>
 
-    <style name="PopupOverlay" parent="ThemeOverlay.Material3.Dark"/>
+    <style name="PopupOverlay" parent="ThemeOverlay.Material3"/>
 
 </resources>

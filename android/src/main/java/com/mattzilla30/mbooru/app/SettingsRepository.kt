@@ -330,7 +330,7 @@ class SettingsRepository(private val sp: SharedPreferences) {
                 .apply()
 
     val isDohEnable: Boolean
-        get() = sp.getBoolean(DNS_OVER_HTTPS, true)
+        get() = sp.getBoolean(DNS_OVER_HTTPS, false)
 
     private val isSniDisable: Boolean
         get() = sp.getBoolean(DISABLE_SNI_KEY, false)

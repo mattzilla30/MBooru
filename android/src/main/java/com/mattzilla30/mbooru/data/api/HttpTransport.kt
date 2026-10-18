@@ -18,12 +18,14 @@ class HttpTransport(
     private val context = context.applicationContext
     private val pool = ConnectionPool()
     private val dispatcher = Dispatcher()
+    private val dns = SettingsDns(settings)
 
     private fun base(): OkHttpClient =
         OkHttpClient.Builder()
             .connectionPool(pool)
             .dispatcher(dispatcher)
             .cookieJar(cookies)
+            .dns(dns)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
@@ -31,7 +33,6 @@ class HttpTransport(
                 false
             ) // Account/favorite writes must not be replayed after an ambiguous failure.
             .apply {
-                if (settings.isDohEnable) dns(settings.doh)
                 if (settings.isBypassWAF) addInterceptor(CloudflareInterceptor(context, cookies))
             }
             .build()
@@ -53,6 +54,9 @@ class HttpTransport(
     fun mediaClient(): OkHttpClient =
         base()
             .newBuilder()
+            // Image/video GETs can safely recover from a stale pooled connection or an
+            // unreachable first DNS address. Account writes retain the base no-replay policy.
+            .retryOnConnectionFailure(true)
             .addNetworkInterceptor(RequestHeaderInterceptor())
             .addInterceptor(ProgressInterceptor())
             .apply { fixtureInterceptors.forEach(::addInterceptor) }

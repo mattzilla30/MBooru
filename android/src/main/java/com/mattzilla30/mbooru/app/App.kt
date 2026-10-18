@@ -24,7 +24,6 @@ import coil3.asImage
 import coil3.disk.DiskCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.*
-import com.google.android.material.color.DynamicColors
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.common.di.commonModules
 import kotlinx.coroutines.Dispatchers
@@ -71,9 +70,6 @@ open class App : Application(), SingletonImageLoader.Factory {
     protected open fun environmentModules(): List<org.koin.core.module.Module> = emptyList()
 
     private fun initial() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            DynamicColors.applyToActivitiesIfAvailable(this)
-        }
         val scope by inject<kotlinx.coroutines.CoroutineScope>()
         scope.launch {
             val store by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()

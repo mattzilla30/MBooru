@@ -19,7 +19,11 @@ import androidx.compose.ui.unit.sp
 import com.google.android.material.R as MaterialR
 import com.google.android.material.color.MaterialColors
 
-/** Bridge the existing view theme, including dynamic colors and the black night theme. */
+/** Share the complete BGSU palette with native controls, including the black night theme. */
+@Suppress(
+    "LongMethod",
+    "FunctionNaming",
+) // Bridge every Material role together so native and Compose colors stay aligned.
 @Composable
 fun MBooruTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
@@ -45,6 +49,10 @@ fun MBooruTheme(content: @Composable () -> Unit) {
                     color(MaterialR.attr.colorOnSecondaryContainer, base.onSecondaryContainer),
                 tertiary = color(MaterialR.attr.colorTertiary, base.tertiary),
                 onTertiary = color(MaterialR.attr.colorOnTertiary, base.onTertiary),
+                tertiaryContainer =
+                    color(MaterialR.attr.colorTertiaryContainer, base.tertiaryContainer),
+                onTertiaryContainer =
+                    color(MaterialR.attr.colorOnTertiaryContainer, base.onTertiaryContainer),
                 background = color(android.R.attr.colorBackground, base.background),
                 onBackground = color(MaterialR.attr.colorOnBackground, base.onBackground),
                 surface = color(MaterialR.attr.colorSurface, base.surface),
@@ -53,10 +61,32 @@ fun MBooruTheme(content: @Composable () -> Unit) {
                 onSurfaceVariant =
                     color(MaterialR.attr.colorOnSurfaceVariant, base.onSurfaceVariant),
                 surfaceTint = color(MaterialR.attr.colorPrimary, base.surfaceTint),
+                surfaceDim = color(MaterialR.attr.colorSurfaceDim, base.surfaceDim),
+                surfaceBright = color(MaterialR.attr.colorSurfaceBright, base.surfaceBright),
+                surfaceContainerLowest =
+                    color(MaterialR.attr.colorSurfaceContainerLowest, base.surfaceContainerLowest),
+                surfaceContainerLow =
+                    color(MaterialR.attr.colorSurfaceContainerLow, base.surfaceContainerLow),
+                surfaceContainer =
+                    color(MaterialR.attr.colorSurfaceContainer, base.surfaceContainer),
+                surfaceContainerHigh =
+                    color(MaterialR.attr.colorSurfaceContainerHigh, base.surfaceContainerHigh),
+                surfaceContainerHighest =
+                    color(
+                        MaterialR.attr.colorSurfaceContainerHighest,
+                        base.surfaceContainerHighest,
+                    ),
+                inverseSurface = color(MaterialR.attr.colorSurfaceInverse, base.inverseSurface),
+                inverseOnSurface =
+                    color(MaterialR.attr.colorOnSurfaceInverse, base.inverseOnSurface),
+                inversePrimary = color(MaterialR.attr.colorPrimaryInverse, base.inversePrimary),
                 outline = color(MaterialR.attr.colorOutline, base.outline),
                 outlineVariant = color(MaterialR.attr.colorOutlineVariant, base.outlineVariant),
                 error = color(MaterialR.attr.colorError, base.error),
                 onError = color(MaterialR.attr.colorOnError, base.onError),
+                errorContainer = color(MaterialR.attr.colorErrorContainer, base.errorContainer),
+                onErrorContainer =
+                    color(MaterialR.attr.colorOnErrorContainer, base.onErrorContainer),
             )
         }
     MaterialTheme(colorScheme = colors, typography = SettingsTypography, content = content)

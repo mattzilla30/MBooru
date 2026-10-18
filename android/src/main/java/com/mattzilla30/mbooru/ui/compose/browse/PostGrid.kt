@@ -29,6 +29,7 @@ import coil3.request.*
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.extension.isStillImage
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -209,7 +210,7 @@ fun PagingStatus(
             is LoadState.Loading -> CircularProgressIndicator()
             is LoadState.Error -> {
                 Text(
-                    stringResource(R.string.msg_cloudflare_challenges),
+                    state.error.safeNetworkMessage(),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 TextButton(onClick = retry) { Text(stringResource(R.string.action_retry)) }
