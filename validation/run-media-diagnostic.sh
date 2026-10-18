@@ -2,6 +2,7 @@
 set -euo pipefail
 mkdir -p validation/results
 adb root
+adb wait-for-device
 adb install -r validation/media-debug.apk
 adb install -r validation/media-test.apk
 if [ "$1" = 28 ]; then
