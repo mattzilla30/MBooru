@@ -92,6 +92,23 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         adb("push", local, remote); adb("shell", "chown", f"{owner}:{owner}", remote); adb("shell", "chmod", "600", remote); adb("shell", "restorecon", remote)
     adb("install", "-r", args.candidate)  # Deliberately no uninstall or data clear.
     launch()
+    # Existing DB presence is not a readiness signal: async Room/DataStore initialization
+    # can take longer than the first Activity draw on a cold current-API emulator.
+    deadline = time.monotonic() + 60
+    migrated = False
+    while time.monotonic() < deadline:
+        probe = root / "migration-probe"
+        adb("pull", f"/data/user/0/{PACKAGE}/databases/.", probe, check=False)
+        try:
+            with sqlite3.connect(probe / "mbooru.db") as db:
+                row = db.execute("SELECT user,auth FROM boorus WHERE uid=777").fetchone()
+                migrated = row is not None and all(value and value.startswith("mbooru-credential:v1:") for value in row)
+        except sqlite3.Error:
+            migrated = False  # A copy taken during a WAL commit is retried, never trusted.
+        if migrated:
+            break
+        time.sleep(1)
+    assert migrated, "Candidate did not finish credential migration before the deadline"
     snapshot(root / "after")
     with sqlite3.connect(root / "after/databases/mbooru.db") as db:
         site = db.execute("SELECT name,host,hash_salt,user,auth FROM boorus WHERE uid=777").fetchone()

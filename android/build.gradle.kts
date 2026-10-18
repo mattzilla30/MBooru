@@ -282,3 +282,32 @@ kotlin {
         )
     }
 }
+
+// The profile plugin copies the release manifest when creating its synthetic build type.
+// Restore the offline fixture manifest after that copy; production release stays unchanged.
+androidComponents {
+    finalizeDsl {
+        it.sourceSets
+            .getByName("nonMinifiedRelease")
+            .manifest
+            .srcFile("src/nonMinifiedRelease/AndroidManifest.xml")
+    }
+    onVariants(selector().withBuildType("nonMinifiedRelease")) { variant ->
+        val merged =
+            variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.MERGED_MANIFEST)
+        tasks.register("verifyOfflineProfileManifest") {
+            inputs.file(merged)
+            doLast {
+                check(
+                    merged
+                        .get()
+                        .asFile
+                        .readText()
+                        .contains("com.mattzilla30.mbooru.benchmark.FixtureApp")
+                ) {
+                    "Profile target must use the offline fixture application"
+                }
+            }
+        }
+    }
+}
