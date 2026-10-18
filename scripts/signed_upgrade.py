@@ -32,7 +32,9 @@ def snapshot(destination):
     adb("pull", f"/data/user/0/{PACKAGE}/shared_prefs/.", destination / "shared_prefs", check=False)
 
 def launch():
-    adb("shell", "am", "start", "-W", "-n", PACKAGE + "/.ui.activity.MainActivity")
+    result = adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", "-n", PACKAGE + "/.ui.activity.MainActivity")
+    assert "Error" not in result, "Fixture activity did not launch: " + result
+
     # DataStore and Room initialization run asynchronously. This wait is fixture preparation only.
     deadline = time.monotonic() + 25
     while time.monotonic() < deadline:
@@ -111,6 +113,9 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     if not migrated:
         print("Migration readiness failed on the isolated artificial fixture. Crash-buffer diagnostics:", flush=True)
         print(adb("logcat", "-d", "-b", "crash", "-t", "100", check=False), flush=True)
+        adb("shell", "uiautomator", "dump", "/sdcard/upgrade-window.xml", check=False)
+        print(adb("shell", "cat", "/sdcard/upgrade-window.xml", check=False), flush=True)
+        print(adb("shell", "ls", "-ln", f"/data/user/0/{PACKAGE}/shared_prefs", check=False), flush=True)
         with sqlite3.connect(root / "migration-probe/mbooru.db") as db:
             print("Observed schema version:", db.execute("PRAGMA user_version").fetchone()[0], flush=True)
     assert migrated, "Candidate did not finish credential migration before the deadline"
