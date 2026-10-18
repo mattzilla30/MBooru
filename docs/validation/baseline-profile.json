@@ -1,0 +1,28 @@
+{
+  "run": "https://github.com/mattzilla30/MBooru/actions/runs/39098007697",
+  "generatorSource": "d8caa86b",
+  "device": "API 35 google_apis x86_64 / pixel_2",
+  "result": "success",
+  "coverage": [
+    "startup",
+    "grid",
+    "still-image detail and pinch",
+    "video detail",
+    "tags/posts navigation",
+    "settings"
+  ],
+  "fixtureClassesExcluded": true,
+  "profiles": {
+    "startup-prof.txt": {
+      "sha256": "9c3ad00cc5e4e06ba30e281e168d85a2e58a5243ab76d767f003e11a4b78258e",
+      "rules": 36228,
+      "ownedRules": 2570
+    },
+    "baseline-prof.txt": {
+      "sha256": "9c3ad00cc5e4e06ba30e281e168d85a2e58a5243ab76d767f003e11a4b78258e",
+      "rules": 36228,
+      "ownedRules": 2570
+    }
+  },
+  "limitation": "Generated and reviewed real profile rules; physical-device performance benefit remains unmeasured."
+}
