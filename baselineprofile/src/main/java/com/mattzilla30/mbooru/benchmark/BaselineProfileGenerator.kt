@@ -27,7 +27,25 @@ class BaselineProfileGenerator {
                 )
             pressHome()
             startActivityAndWait()
-            val post = requireNotNull(device.wait(Until.findObject(By.desc("Post 1")), 15000))
+            val post =
+                device.wait(Until.findObject(By.desc("Post 1")), 30000)
+                    ?: run {
+                        val instrumentation =
+                            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                        val output =
+                            java.io.File(
+                                androidx.test.platform.app.InstrumentationRegistry.getArguments()
+                                    .getString("additionalTestOutputDir")
+                                    ?: instrumentation.context
+                                        .getExternalFilesDir(null)!!
+                                        .absolutePath
+                            )
+                        output.mkdirs()
+                        val hierarchy = java.io.File(output, "profile-missing-post.xml")
+                        device.dumpWindowHierarchy(hierarchy)
+                        device.takeScreenshot(java.io.File(output, "profile-missing-post.png"))
+                        error("Offline post did not appear: " + hierarchy.readText())
+                    }
             post.click()
             device.waitForIdle()
             device

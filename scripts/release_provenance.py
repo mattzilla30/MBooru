@@ -18,8 +18,10 @@ data = {
     "artifact": args.apk.name, "size": args.apk.stat().st_size,
     "sha256": hashlib.sha256(args.apk.read_bytes()).hexdigest(),
     "gradleWrapper": Path("gradle/wrapper/gradle-wrapper.properties").read_text(),
-    "dependencies": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(Path(".").rglob("gradle.lockfile")) if ".gradle" not in p.parts},
+    "dependencies": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(Path(".").rglob("*gradle.lockfile")) if ".gradle" not in p.parts},
     "verificationSha256": hashlib.sha256(Path("gradle/verification-metadata.xml").read_bytes()).hexdigest(),
+    "signingCertificateSha256": Path("docs/release-signing-certificate.sha256").read_text().strip(),
+    "baselineProfiles": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(Path("android/src/release/generated/baselineProfiles").rglob("*.txt"))},
 }
 args.out.parent.mkdir(parents=True, exist_ok=True)
 args.out.write_text(json.dumps(data, indent=2) + "\n")

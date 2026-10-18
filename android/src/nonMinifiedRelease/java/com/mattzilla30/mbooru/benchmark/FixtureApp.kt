@@ -53,7 +53,9 @@ class FixtureApp : App() {
                     )
                 )
             koin.get<SettingsRepository>().activatedBooruUid = uid
-            preferences.edit().putBoolean("featured_boorus_v1_installed", true).commit()
+            check(preferences.edit().putBoolean("featured_boorus_v1_installed", true).commit())
+            check(preferences.getLong(Settings.BOORU_UID_ACTIVATED_KEY, -1) == uid)
+            android.util.Log.i("OfflineCorpus", "Fixture ready with selected UID $uid")
         }
     }
 }
@@ -103,6 +105,7 @@ private class OfflineCorpus(context: android.content.Context) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val url = chain.request().url
+        android.util.Log.i("OfflineCorpus", "Serving fixture path ${url.encodedPath}")
         val (bytes, mime) =
             when {
                 url.encodedPath.endsWith(".mp4") -> video to "video/mp4"
