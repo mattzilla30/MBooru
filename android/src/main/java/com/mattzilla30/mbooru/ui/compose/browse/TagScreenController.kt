@@ -16,12 +16,10 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.pageLimit
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
@@ -34,6 +32,8 @@ import com.mattzilla30.mbooru.data.repository.tag.TagRepositoryImpl
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.ui.activity.SearchActivity
 import com.mattzilla30.mbooru.ui.compose.browse.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.viewmodel.TagViewModel
 import com.mattzilla30.mbooru.ui.viewmodel.getTagViewModel
 
@@ -84,8 +84,8 @@ class TagScreenController(
         ) { item ->
             TagRow(
                 item,
-                { SearchActivity.startSearch(requireContext(), item.name) },
-                { requireContext().copyText(item.name) },
+                { SearchActivity.startSearch(host, item.name) },
+                { host.copyText(item.name) },
             )
         }
     }
@@ -107,11 +107,11 @@ class TagScreenController(
                 )
             setSearchBarMenu(
                 when (booru.type) {
-                    BOORU_TYPE_DAN1 -> R.menu.tag_dan_one
-                    BOORU_TYPE_DAN -> R.menu.tag_dan
-                    BOORU_TYPE_MOE -> R.menu.tag_moe
-                    in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY) -> R.menu.tag_gel
-                    else -> R.menu.tag_sankaku
+                    BOORU_TYPE_DAN1 -> AppMenu.TagDanOne
+                    BOORU_TYPE_DAN -> AppMenu.TagDan
+                    BOORU_TYPE_MOE -> AppMenu.TagMoe
+                    in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY) -> AppMenu.TagGel
+                    else -> AppMenu.TagSankaku
                 }
             )
         } else {
@@ -127,7 +127,7 @@ class TagScreenController(
         return when (booruType) {
             BOORU_TYPE_MOE,
             BOORU_TYPE_DAN1 -> 20
-            else -> pageLimit
+            else -> settings.pageLimit
         }
     }
 
@@ -143,111 +143,112 @@ class TagScreenController(
         tagViewModel.show(action)
     }
 
-    override fun onMenuItemClick(menuItem: MenuItem) {
-        super.onMenuItemClick(menuItem)
-        when (menuItem.itemId) {
-            R.id.action_tag_order_date -> {
+    override fun onMenuAction(menuItem: AppActionKey) {
+        super.onMenuAction(menuItem)
+        when (menuItem) {
+            AppActionKey.TagOrderDate -> {
                 action?.let {
                     it.order = ORDER_DATE
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_order_name -> {
+            AppActionKey.TagOrderName -> {
                 action?.let {
                     it.order = ORDER_NAME
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_order_count -> {
+            AppActionKey.TagOrderCount -> {
                 action?.let {
                     it.order = ORDER_COUNT
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_all -> {
+            AppActionKey.TagTypeAll -> {
                 action?.let {
                     it.type = Tags.TYPE_ALL
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_general -> {
+            AppActionKey.TagTypeGeneral -> {
                 action?.let {
                     it.type = Tags.TYPE_GENERAL
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_artist -> {
+            AppActionKey.TagTypeArtist -> {
                 action?.let {
                     it.type = Tags.TYPE_ARTIST
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_copyright -> {
+            AppActionKey.TagTypeCopyright -> {
                 action?.let {
                     it.type = Tags.TYPE_COPYRIGHT
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_character -> {
+            AppActionKey.TagTypeCharacter -> {
                 action?.let {
                     it.type = Tags.TYPE_CHARACTER
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_circle -> {
+            AppActionKey.TagTypeCircle -> {
                 action?.let {
                     it.type = Tags.TYPE_CIRCLE
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_faults -> {
+            AppActionKey.TagTypeFaults -> {
                 action?.let {
                     it.type = Tags.TYPE_FAULTS
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_meta -> {
+            AppActionKey.TagTypeMeta -> {
                 action?.let {
                     it.type = Tags.TYPE_META
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_model -> {
+            AppActionKey.TagTypeModel -> {
                 action?.let {
                     it.type = Tags.TYPE_MODEL
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_photo_set -> {
+            AppActionKey.TagTypePhotoSet -> {
                 action?.let {
                     it.type = Tags.TYPE_PHOTO_SET
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_meta_sankaku -> {
+            AppActionKey.TagTypeMetaSankaku -> {
                 action?.let {
                     it.type = Tags.TYPE_META_SANKAKU
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_genre -> {
+            AppActionKey.TagTypeGenre -> {
                 action?.let {
                     it.type = Tags.TYPE_GENRE
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_studio -> {
+            AppActionKey.TagTypeStudio -> {
                 action?.let {
                     it.type = Tags.TYPE_STUDIO
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_tag_type_medium -> {
+            AppActionKey.TagTypeMedium -> {
                 action?.let {
                     it.type = Tags.TYPE_MEDIUM
                     updateActionAndRefresh(it)
                 }
             }
+            else -> Unit
         }
     }
 }

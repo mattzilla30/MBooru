@@ -27,13 +27,10 @@
     <string name="title_pools">Groupes</string>
     <string name="title_tags">Tags</string>
     <string name="title_comments">Commentaires</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Mode nuit</string>
     <string name="title_copyright">Droits d’auteur</string>
     <string name="title_about">A propos</string>
     <string name="title_tag_blacklist">Liste noire de tags</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">Quel Anime</string>
     <string name="title_history">Historique</string>
     <string name="history_clear_all">Effacer tout</string>
     <string name="history_clear_all_content">Tout l\'historique sera effacé.</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">Votre clé Api est erronée !</string>
     <string name="msg_cloudflare_challenges">Loading failed, please try again later</string>
     <string name="post_expand_or_clear">Développer ou réduire</string>
-    <string name="post_add_search_to_muzei">` %s ` ont été sauvegardés dans Muzei.</string>
     <string name="post_download">Télécharger la publication</string>
     <string name="post_add_to_fav">Ajouter aux favoris</string>
-    <string name="post_search_by_sauce_nao">Recherche par SauceNao</string>
     <string name="msg_download_must_enable">Le gestionnaire de téléchargement est requis.</string>
     <string name="msg_path_denied">Échec de la sauvegarde ! Aucun accès au chemin actuel.</string>
     <string name="msg_download_failed">Échec du téléchargement</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">Bypassing Cloudflare WAF</string>
     <string name="settings_safe_mode">Mode sécurisé</string>
     <string name="settings_page_limit">Limite de page</string>
-    <string name="settings_muzei_limit">Limite du Muzei</string>
-    <string name="settings_muzei_size">Taille du Muzei</string>
     <string name="settings_detail_size">Detail size</string>
     <string name="settings_download_size">Taille du téléchargement</string>
     <string name="settings_download_path">Dossier de téléchargement</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">Effacer l\'historique des recherches</string>
     <string name="settings_clear_history_summery">Effacer tout l\'historique des recherches.</string>
     <string name="settings_clear_history_dialog_content">L\'historique des recherches va être entièrement effacé.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Affichage</string>
     <string name="settings_options">Options</string>
     <string name="settings_storage">Stockage</string>
@@ -255,15 +247,6 @@
     <string name="order">Ordre</string>
     <string name="rating">Évaluation</string>
     <string name="threshold">Seuil</string>
-    <string name="muzei_copy">Copier</string>
-    <string name="muzei_delete">Supprimer</string>
-    <string name="muzei_search">Rechercher</string>
-    <string name="muzei_search_hint">Ajouter un tag…</string>
-    <string name="muzei_fetch">Récupérer les illustrations</string>
-    <string name="muzei_input_cant_be_empty">L\'entrée ne peut pas être vide.</string>
-    <string name="muzei_action_view_post">Voir la publication sur MBooru</string>
-    <string name="muzei_action_search_posts">Rechercher des publications sur MBooru</string>
-    <string name="muzei_attribution">Publier depuis MBooru</string>
     <string name="tag_blacklist_copy">Copier</string>
     <string name="tag_blacklist_delete">Supprimer</string>
     <string name="tag_blacklist_add">Ajouter</string>
@@ -275,15 +258,4 @@
     <string name="comment_hint">Écrire un commentaire</string>
     <string name="tab_start_date">Date de début</string>
     <string name="tab_end_date">Date de fin</string>
-    <string name="sauce_nao_help">Aide</string>
-    <string name="sauce_nao_change_api_key">Changer la clé api</string>
-    <string name="sauce_nao_get_api_key">Obtenir une clé api</string>
-    <string name="sauce_nao_remaining_times_today">Temps restant aujourd\'hui : %01$d</string>
-    <string name="sauce_nao_api_key_unset">La clé Api de SauceNao n\'est pas définie.</string>
-    <string name="sauce_nao_image_url">Url de l\'image</string>
-    <string name="sauce_nao_invalid_image_url">URL de l\'image non valide.</string>
-    <string name="sauce_nao_source">Source</string>
-    <string name="sauce_nao_search_from_url">URL</string>
-    <string name="sauce_nao_search_from_file">Fichier</string>
-    <string name="action_add_to_muzei">Ajouter à Muzei</string>
 </resources>

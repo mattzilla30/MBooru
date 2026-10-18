@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Tidak ada hasil</string>
-  <string name="browse_offline">Anda offline. Periksa koneksi dan coba lagi.</string>
-  <string name="image_load_retry">Gambar tidak dapat dimuat. Ketuk untuk mencoba lagi.</string>
-  <string name="post_actions">Tindakan postingan</string>
-  <string name="post_accessibility">Postingan %1$d</string>
+    <string name="browse_empty">Tidak ada hasil</string>
+    <string name="browse_offline">Anda offline. Periksa koneksi dan coba lagi.</string>
+    <string name="image_load_retry">Gambar tidak dapat dimuat. Ketuk untuk mencoba lagi.</string>
+    <string name="post_actions">Tindakan postingan</string>
+    <string name="post_accessibility">Postingan %1$d</string>
+    <string name="booru_empty_message">Tambahkan situs unggulan atau situs sendiri untuk mulai menjelajah.</string>
+    <string name="title_downloads">Unduhan</string>
+    <string name="download_resume_policy">Percobaan ulang melanjutkan unduhan jika server dan penyimpanan mendukungnya; jika tidak, unduhan dimulai ulang. Android dapat menjeda transfer di latar belakang.</string>
+    <string name="download_queue_empty">Belum ada unduhan.</string>
+    <string name="download_state_queued">Dalam antrean · menunggu transfer</string>
+    <string name="download_state_running">Mengunduh</string>
+    <string name="download_state_completed">Selesai</string>
+    <string name="download_state_failed">Gagal · periksa koneksi, akun, dan akses folder</string>
+    <string name="download_state_cancelled">Dibatalkan</string>
+    <string name="download_bytes_unknown">%1$d byte · ukuran total tidak diketahui</string>
+    <string name="download_bytes_total">%1$d / %2$d byte</string>
+    <string name="download_open_file">Buka file</string>
+    <string name="settings_load_failed">Tidak dapat memuat setelan</string>
+    <string name="settings_load_recovery">Setelan Anda tetap tersimpan. Coba lagi; MBooru tidak akan meresetnya secara otomatis.</string>
+    <string name="settings_write_failed">Tidak dapat menyimpan setelan. Coba lagi sebelum menutup aplikasi.</string>
 </resources>

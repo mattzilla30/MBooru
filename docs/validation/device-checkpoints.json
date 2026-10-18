@@ -1,0 +1,109 @@
+{
+  "format": "MBooru-executed-device-checkpoints",
+  "version": 1,
+  "note": "Harness/checksum/profile-source changes differ between checkpoints; these production runtime source trees are identical. Final release profile and APK upgrade checks are recorded separately.",
+  "productionGitTrees": {
+    "3d6bd8a5": {
+      "android/src/main": "079b9c3be858e7c002201bc713f196bb9f198721",
+      "core/model/src/main": "f39a5c64533ba95d0847468b53249e46aea492e8"
+    },
+    "4bfdf0e8": {
+      "android/src/main": "079b9c3be858e7c002201bc713f196bb9f198721",
+      "core/model/src/main": "f39a5c64533ba95d0847468b53249e46aea492e8"
+    },
+    "59ba2c44": {
+      "android/src/main": "079b9c3be858e7c002201bc713f196bb9f198721",
+      "core/model/src/main": "f39a5c64533ba95d0847468b53249e46aea492e8"
+    },
+    "52911048": {
+      "android/src/main": "079b9c3be858e7c002201bc713f196bb9f198721",
+      "core/model/src/main": "f39a5c64533ba95d0847468b53249e46aea492e8"
+    }
+  },
+  "checks": [
+    {
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39096204368",
+      "kind": "native",
+      "report": "android-device-reports-api-21/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 5.0.2.xml",
+      "reportSha256": "83e72081d8067d59a8f2ee51e4e37193a5153168f1a45576a45b45d8ec4375a8",
+      "passed": [
+        "jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader",
+        "localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer",
+        "imagePinchDisablesParentPagingUntilZoomResets",
+        "gridScrollRestoresAndUsesStablePostKeys",
+        "fullResolutionLocalImageUsesTiledDecoder",
+        "signOutClearsNestedParentDomainCookiesAfterOwnerRecreationWithoutClearingAnotherSite",
+        "credentialsRoundTripOutsideRoomAndMissingPayloadRequiresSignIn",
+        "xmlMediaUsesTheAndroidAdapterAndPreservesWireFields",
+        "drawerSettingsAndActivityRecreationKeepWorking"
+      ],
+      "failed": []
+    },
+    {
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39096204368",
+      "kind": "native",
+      "report": "android-device-reports-api-36/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 16.xml",
+      "reportSha256": "aa91c1899bb8eaca2af323d08c847e46614fd35b3a0cfb84de7d34e654f95b55",
+      "passed": [
+        "jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader",
+        "localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer",
+        "imagePinchDisablesParentPagingUntilZoomResets",
+        "gridScrollRestoresAndUsesStablePostKeys",
+        "fullResolutionLocalImageUsesTiledDecoder",
+        "signOutClearsNestedParentDomainCookiesAfterOwnerRecreationWithoutClearingAnotherSite",
+        "credentialsRoundTripOutsideRoomAndMissingPayloadRequiresSignIn",
+        "xmlMediaUsesTheAndroidAdapterAndPreservesWireFields",
+        "drawerSettingsAndActivityRecreationKeepWorking"
+      ],
+      "failed": []
+    },
+    {
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39096390923",
+      "kind": "screenshots",
+      "report": "android-device-reports-api-28/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 9.xml",
+      "reportSha256": "884fb2b169b0628453848c35d09180b4f7dde2d83b2c2ef214257c5e0f619372",
+      "passed": [
+        "phoneLight",
+        "phoneDark",
+        "tablet",
+        "largeTextRtl"
+      ],
+      "failed": []
+    },
+    {
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39095789577",
+      "kind": "native plus first baseline capture",
+      "report": "android-device-reports-api-28/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 9.xml",
+      "reportSha256": "1d987dec1206f680420f6b096f6ff344075398c2b5b1f5d4d4b721de8dcd43ee",
+      "passed": [
+        "jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader",
+        "localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer",
+        "imagePinchDisablesParentPagingUntilZoomResets",
+        "gridScrollRestoresAndUsesStablePostKeys",
+        "fullResolutionLocalImageUsesTiledDecoder",
+        "signOutClearsNestedParentDomainCookiesAfterOwnerRecreationWithoutClearingAnotherSite",
+        "credentialsRoundTripOutsideRoomAndMissingPayloadRequiresSignIn",
+        "xmlMediaUsesTheAndroidAdapterAndPreservesWireFields",
+        "drawerSettingsAndActivityRecreationKeepWorking"
+      ],
+      "failed": [
+        {
+          "test": "phoneLight",
+          "reason": "java.io.FileNotFoundException: goldens/settings-phone-light.png"
+        },
+        {
+          "test": "phoneDark",
+          "reason": "java.io.FileNotFoundException: goldens/settings-phone-dark.png"
+        },
+        {
+          "test": "tablet",
+          "reason": "java.io.FileNotFoundException: goldens/settings-tablet.png"
+        },
+        {
+          "test": "largeTextRtl",
+          "reason": "java.io.FileNotFoundException: goldens/settings-large-text-rtl.png"
+        }
+      ]
+    }
+  ]
+}

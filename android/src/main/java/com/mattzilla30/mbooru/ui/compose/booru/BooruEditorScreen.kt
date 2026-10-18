@@ -1,75 +1,116 @@
+/* Guided server form adapted from Boorusphere's server editor; BSD-3-Clause notice in assets. */
 package com.mattzilla30.mbooru.ui.compose.booru
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.ui.compose.settings.PreferenceRow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("FunctionNaming", "LongMethod")
 fun BooruEditorScreen(state: BooruEditorState, field: (String, String) -> Unit) {
-    var editing by rememberSaveable { mutableStateOf<String?>(null) }
-    var draft by rememberSaveable { mutableStateOf("") }
-    val types = stringArrayResource(R.array.booru_type_entries_values).toList()
-    val typeLabels = stringArrayResource(R.array.booru_type_entries).toList()
-    val schemes = stringArrayResource(R.array.booru_scheme_entries_values).toList()
-    val schemeLabels = stringArrayResource(R.array.booru_scheme_entries).toList()
-    val fields = listOf("name" to R.string.booru_config_name, "type" to R.string.booru_config_type,
-        "scheme" to R.string.booru_config_scheme, "host" to R.string.booru_config_host,
-        "path" to R.string.booru_config_path, "hashSalt" to R.string.booru_config_hash_salt)
-    LazyColumn {
-        fields.filter { (key, _) -> when (key) {
-            "hashSalt" -> state.values["type"] == "danbooru1"
-            "path" -> state.values["type"] == "shimmie"
-            else -> true
-        } }.forEach { (key, title) ->
-            if (key == "type") item {
-                Text(stringResource(R.string.booru_config_info), color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(start = 72.dp, top = 24.dp, bottom = 8.dp))
-            }
-            item(key = key) {
-                val value = state.values[key].orEmpty()
-                val summary = when (key) {
-                    "type" -> typeLabels.getOrNull(types.indexOf(value)) ?: value
-                    "scheme" -> schemeLabels.getOrNull(schemes.indexOf(value)) ?: value
-                    else -> value
-                }.ifEmpty { stringResource(R.string.settings_value_not_set) }
-                PreferenceRow(key, stringResource(title), summary, icon = when (key) {
-                    "type" -> R.drawable.ic_class_24dp
-                    "scheme" -> R.drawable.ic_https_24dp
-                    "host" -> R.drawable.ic_domain_24dp
-                    "hashSalt" -> R.drawable.ic_enhanced_encryption_24dp
-                    else -> 0
-                }, enabled = !state.busy, onClick = { editing = key; draft = value })
+    val types = stringArrayResource(R.array.booru_type_entries_values)
+    val labels = stringArrayResource(R.array.booru_type_entries)
+    var engines by remember { mutableStateOf(false) }
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item {
+            Text(
+                stringResource(R.string.sphere_anonymous_servers),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        item {
+            OutlinedTextField(
+                state.values["name"].orEmpty(),
+                { field("name", it) },
+                label = { Text(stringResource(R.string.booru_config_name)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                enabled = !state.busy && state.available,
+            )
+        }
+        item {
+            ExposedDropdownMenuBox(expanded = engines, onExpandedChange = { engines = it }) {
+                OutlinedTextField(
+                    labels.getOrElse(types.indexOf(state.values["type"])) { "" },
+                    {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.booru_config_type)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(engines) },
+                    modifier =
+                        Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth(),
+                    enabled = !state.busy && state.available,
+                )
+                ExposedDropdownMenu(engines, { engines = false }) {
+                    types.forEachIndexed { index, value ->
+                        DropdownMenuItem(
+                            text = { Text(labels[index]) },
+                            onClick = {
+                                field("type", value)
+                                engines = false
+                            },
+                        )
+                    }
+                }
             }
         }
         item {
-            if (state.busy) CircularProgressIndicator(Modifier.padding(16.dp))
-            state.error?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp)) }
+            OutlinedTextField(
+                state.values["host"].orEmpty(),
+                { field("host", it) },
+                label = { Text(stringResource(R.string.booru_config_host)) },
+                prefix = { Text("${state.values["scheme"] ?: "https"}://") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.busy && state.available,
+            )
         }
-    }
-    val key = editing
-    if (key != null) {
-        val title = fields.first { it.first == key }.second
-        val options = when (key) { "type" -> types; "scheme" -> schemes; else -> emptyList() }
-        val labels = when (key) { "type" -> typeLabels; "scheme" -> schemeLabels; else -> emptyList() }
-        AlertDialog(onDismissRequest = { editing = null }, title = { Text(stringResource(title)) }, text = {
-            if (options.isEmpty()) OutlinedTextField(draft, { draft = it }, singleLine = true,
-                placeholder = { if (key == "host") Text("example.com") })
-            else Column { options.forEachIndexed { index, value ->
-                Row(Modifier.fillMaxWidth().clickable { field(key, value); editing = null }.padding(vertical = 4.dp)) {
-                    RadioButton(selected = value == state.values[key], onClick = { field(key, value); editing = null })
-                    Text(labels[index], modifier = Modifier.padding(top = 12.dp))
+        item {
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                listOf("https", "http").forEachIndexed { index, scheme ->
+                    SegmentedButton(
+                        selected = state.values["scheme"] == scheme,
+                        onClick = { field("scheme", scheme) },
+                        shape = SegmentedButtonDefaults.itemShape(index, 2),
+                    ) {
+                        Text(scheme.uppercase())
+                    }
                 }
-            } }
-        }, confirmButton = { if (options.isEmpty()) TextButton(onClick = { field(key, draft); editing = null }) { Text(stringResource(R.string.dialog_ok)) } },
-            dismissButton = { TextButton(onClick = { editing = null }) { Text(stringResource(R.string.dialog_cancel)) } })
+            }
+        }
+        if (state.values["type"] == "shimmie")
+            item {
+                OutlinedTextField(
+                    state.values["path"].orEmpty(),
+                    { field("path", it) },
+                    label = { Text(stringResource(R.string.booru_config_path)) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        if (state.values["type"] == "danbooru1")
+            item {
+                OutlinedTextField(
+                    state.values["hashSalt"].orEmpty(),
+                    { field("hashSalt", it) },
+                    label = { Text(stringResource(R.string.booru_config_hash_salt)) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        if (state.error != null)
+            item { Text(stringResource(state.error), color = MaterialTheme.colorScheme.error) }
     }
 }

@@ -15,14 +15,13 @@
 
 package com.mattzilla30.mbooru.data.action
 
-import okhttp3.HttpUrl
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POPULAR
 import com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POSTS
 import com.mattzilla30.mbooru.data.model.common.Booru
-
+import okhttp3.HttpUrl
 
 data class ActionPost(
     var booru: Booru,
@@ -34,7 +33,7 @@ data class ActionPost(
     // Danbooru: day week month
     var scale: String = "day",
     // Moebooru: 1d 1w 1m 1y
-    var period: String = "1d"
+    var period: String = "1d",
 ) {
     data class Date(
         var yearStart: Int,
@@ -42,7 +41,7 @@ data class ActionPost(
         var dayStart: Int,
         var yearEnd: Int,
         var monthEnd: Int,
-        var dayEnd: Int
+        var dayEnd: Int,
     ) {
         fun getDateString(): String {
             val realMonth = monthEnd + 1
@@ -54,11 +53,13 @@ data class ActionPost(
 
         fun getDateRangeString(): String {
             val realMonthStart = monthStart + 1
-            val monthStringStart = if (realMonthStart < 10) "0$realMonthStart" else realMonthStart.toString()
+            val monthStringStart =
+                if (realMonthStart < 10) "0$realMonthStart" else realMonthStart.toString()
             val dayStringStart = if (dayStart < 10) "0$dayStart" else dayStart.toString()
 
             val realMonthEnd = monthEnd + 1
-            val monthStringEnd = if (realMonthEnd < 10) "0$realMonthEnd" else realMonthEnd.toString()
+            val monthStringEnd =
+                if (realMonthEnd < 10) "0$realMonthEnd" else realMonthEnd.toString()
             val dayStringEnd = if (dayEnd < 10) "0$dayEnd" else dayEnd.toString()
 
             return "$yearStart-$monthStringStart-${dayStringStart}T16:00..$yearEnd-$monthStringEnd-${dayStringEnd}T16:00"
@@ -75,20 +76,24 @@ data class ActionPost(
     }
 
     private fun getPostsDanUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("posts.json")
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("posts.json")
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
 
         if (isSafeMode && !query.contains(getSafeModeTag(booru.type))) {
-            builder.addQueryParameter("tags", "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim())
+            builder.addQueryParameter(
+                "tags",
+                "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim(),
+            )
         } else {
             builder.addQueryParameter("tags", "$query ${booru.getBlacklistsString()}".trim())
         }
 
-        booru.user?.let { 
+        booru.user?.let {
             builder.apply {
                 addQueryParameter("login", it.name)
                 addQueryParameter("api_key", it.token)
@@ -98,16 +103,20 @@ data class ActionPost(
     }
 
     private fun getPostsDan1Url(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("post")
-            .addPathSegment("index.json")
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("post")
+                .addPathSegment("index.json")
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
 
         if (isSafeMode && !query.contains(getSafeModeTag(booru.type))) {
-            builder.addQueryParameter("tags", "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim())
+            builder.addQueryParameter(
+                "tags",
+                "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim(),
+            )
         } else {
             builder.addQueryParameter("tags", "$query ${booru.getBlacklistsString()}".trim())
         }
@@ -122,18 +131,22 @@ data class ActionPost(
     }
 
     fun getGelPostsUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("index.php")
-            .addQueryParameter("page", "dapi")
-            .addQueryParameter("s", "post")
-            .addQueryParameter("q", "index")
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("pid", page.toString())
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("index.php")
+                .addQueryParameter("page", "dapi")
+                .addQueryParameter("s", "post")
+                .addQueryParameter("q", "index")
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("pid", page.toString())
 
         if (isSafeMode && !query.contains(getSafeModeTag(booru.type))) {
-            builder.addQueryParameter("tags", "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim())
+            builder.addQueryParameter(
+                "tags",
+                "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim(),
+            )
         } else {
             builder.addQueryParameter("tags", "$query ${booru.getBlacklistsString()}".trim())
         }
@@ -149,18 +162,22 @@ data class ActionPost(
 
     fun getPostsMoeUrl(page: Int): HttpUrl {
         val includeVotes = if (booru.host.equals("hypnohub.net", ignoreCase = true)) "0" else "1"
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("post.json")
-            .addQueryParameter("include_tags", "1")
-            .addQueryParameter("include_votes", includeVotes)
-            .addQueryParameter("api_version", "2")
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("post.json")
+                .addQueryParameter("include_tags", "1")
+                .addQueryParameter("include_votes", includeVotes)
+                .addQueryParameter("api_version", "2")
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
 
         if (isSafeMode && !query.contains(getSafeModeTag(booru.type))) {
-            builder.addQueryParameter("tags", "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim())
+            builder.addQueryParameter(
+                "tags",
+                "$query ${getSafeModeTag(booru.type)} ${booru.getBlacklistsString()}".trim(),
+            )
         } else {
             builder.addQueryParameter("tags", "$query ${booru.getBlacklistsString()}".trim())
         }
@@ -176,40 +193,42 @@ data class ActionPost(
 
     private val sankakuBuilder: HttpUrl.Builder
         get() {
-            val builder = HttpUrl.Builder()
-                .scheme(booru.scheme)
-                .host(booru.host)
-                .addPathSegments("posts/keyset")
-                .addQueryParameter("lang", "en")
-                .addQueryParameter("default_threshold", "1")
-                .addQueryParameter("hide_posts_in_books", "in-larger-tags")
-                .addQueryParameter("limit", limit.toString())
-            var tags = if (pageType == PAGE_TYPE_POPULAR) {
-                "${booru.getBlacklistsString()} order:popularity date:${date.getDateRangeString()}"
-            } else {
-                "$query ${booru.getBlacklistsString()}".trim()
-            }
+            val builder =
+                HttpUrl.Builder()
+                    .scheme(booru.scheme)
+                    .host(booru.host)
+                    .addPathSegments("posts/keyset")
+                    .addQueryParameter("lang", "en")
+                    .addQueryParameter("default_threshold", "1")
+                    .addQueryParameter("hide_posts_in_books", "in-larger-tags")
+                    .addQueryParameter("limit", limit.toString())
+            var tags =
+                if (pageType == PAGE_TYPE_POPULAR) {
+                    "${booru.getBlacklistsString()} order:popularity date:${date.getDateRangeString()}"
+                } else {
+                    "$query ${booru.getBlacklistsString()}".trim()
+                }
             if (isSafeMode && !query.contains(getSafeModeTag(booru.type))) {
                 tags = "$tags ${getSafeModeTag(booru.type)}"
             }
             return builder.addQueryParameter("tags", tags)
         }
 
-    fun getSankakuPostsUrl() =
-        sankakuBuilder.build()
+    fun getSankakuPostsUrl() = sankakuBuilder.build()
 
     fun getSankakuPostsUrlNext(next: String) =
         sankakuBuilder.addQueryParameter("next", next).build()
 
     private fun getPopularDanUrl(): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("explore")
-            .addPathSegment("posts")
-            .addPathSegment("popular.json")
-            .addQueryParameter("date", date.getDateString())
-            .addQueryParameter("scale", scale)
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("explore")
+                .addPathSegment("posts")
+                .addPathSegment("popular.json")
+                .addQueryParameter("date", date.getDateString())
+                .addQueryParameter("scale", scale)
         booru.user?.let {
             builder.apply {
                 addQueryParameter("login", it.name)
@@ -220,14 +239,15 @@ data class ActionPost(
     }
 
     private fun getPopularDan1Url(): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("post")
-            .addPathSegment("popular_by_$scale.json")
-            .addQueryParameter("day", date.dayEnd.toString())
-            .addQueryParameter("month", (date.monthEnd + 1).toString())
-            .addQueryParameter("year", date.yearEnd.toString())
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("post")
+                .addPathSegment("popular_by_$scale.json")
+                .addQueryParameter("day", date.dayEnd.toString())
+                .addQueryParameter("month", (date.monthEnd + 1).toString())
+                .addQueryParameter("year", date.yearEnd.toString())
 
         booru.user?.let {
             builder.apply {
@@ -239,14 +259,15 @@ data class ActionPost(
     }
 
     fun getPopularMoeUrl(): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("post")
-            .addPathSegment("popular_by_$scale.json")
-            .addQueryParameter("day", date.dayEnd.toString())
-            .addQueryParameter("month", (date.monthEnd + 1).toString())
-            .addQueryParameter("year", date.yearEnd.toString())
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("post")
+                .addPathSegment("popular_by_$scale.json")
+                .addQueryParameter("day", date.dayEnd.toString())
+                .addQueryParameter("month", (date.monthEnd + 1).toString())
+                .addQueryParameter("year", date.yearEnd.toString())
 
         booru.user?.let {
             builder.apply {
@@ -263,18 +284,16 @@ data class ActionPost(
     fun getDan1PostsUrl(page: Int) =
         if (pageType == PAGE_TYPE_POSTS) getPostsDan1Url(page) else getPopularDan1Url()
 
-
     fun getShimmiePostsUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
+        val builder = HttpUrl.Builder().scheme(booru.scheme).host(booru.host)
 
         val path = booru.path
         if (!path.isNullOrBlank()) {
             builder.addPathSegments(path)
         }
 
-        builder.addPathSegment("api")
+        builder
+            .addPathSegment("api")
             .addPathSegment("danbooru")
             .addPathSegment("find_posts")
             .addQueryParameter("limit", limit.toString())
@@ -287,6 +306,7 @@ data class ActionPost(
     }
 
     companion object {
-        fun getSafeModeTag(booruType: Int): String = if (booruType == BOORU_TYPE_DAN) "rating:general" else "rating:safe"
+        fun getSafeModeTag(booruType: Int): String =
+            if (booruType == BOORU_TYPE_DAN) "rating:general" else "rating:safe"
     }
 }

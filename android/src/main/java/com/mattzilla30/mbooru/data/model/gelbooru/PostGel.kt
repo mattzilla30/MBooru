@@ -15,72 +15,37 @@
 
 package com.mattzilla30.mbooru.data.model.gelbooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.XmlElement
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.utils.getGelDateMillis
 import com.mattzilla30.mbooru.data.utils.toSafeUrl
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlElement
 
 @Serializable
 @SerialName("post")
 data class PostGel(
-    @SerialName("id")
-    @XmlElement(true)
-    val id: Int,
-    @SerialName("width")
-    @XmlElement(true)
-    val width: Int,
-    @SerialName("height")
-    @XmlElement(true)
-    val height: Int,
-    @SerialName("score")
-    @XmlElement(true)
-    val score: String,
-    @SerialName("file_url")
-    @XmlElement(true)
-    val fileUrl: String = "",
-    @SerialName("sample_url")
-    @XmlElement(true)
-    val sampleUrl: String = "",
-    @SerialName("sample_width")
-    @XmlElement(true)
-    val sampleWidth: Int,
-    @SerialName("sample_height")
-    @XmlElement(true)
-    val sampleHeight: Int,
-    @SerialName("preview_url")
-    @XmlElement(true)
-    val previewUrl: String,
-    @SerialName("rating")
-    @XmlElement(true)
-    val rating: String,
-    @SerialName("tags")
-    @XmlElement(true)
-    val tags: String,
-    @SerialName("creator_id")
-    @XmlElement(true)
-    val creatorId: Int,
-    @SerialName("has_children")
-    @XmlElement(true)
-    val hasChildren: Boolean,
-    @SerialName("created_at")
-    @XmlElement(true)
-    val createdAt:	String,
-    @SerialName("source")
-    @XmlElement(true)
-    val source: String,
-    @SerialName("preview_width")
-    @XmlElement(true)
-    val previewWidth: Int,
-    @SerialName("preview_height")
-    @XmlElement(true)
-    val previewHeight: Int
+    @SerialName("id") @XmlElement(true) val id: Int,
+    @SerialName("width") @XmlElement(true) val width: Int,
+    @SerialName("height") @XmlElement(true) val height: Int,
+    @SerialName("score") @XmlElement(true) val score: String,
+    @SerialName("file_url") @XmlElement(true) val fileUrl: String = "",
+    @SerialName("sample_url") @XmlElement(true) val sampleUrl: String = "",
+    @SerialName("sample_width") @XmlElement(true) val sampleWidth: Int,
+    @SerialName("sample_height") @XmlElement(true) val sampleHeight: Int,
+    @SerialName("preview_url") @XmlElement(true) val previewUrl: String,
+    @SerialName("rating") @XmlElement(true) val rating: String,
+    @SerialName("tags") @XmlElement(true) val tags: String,
+    @SerialName("creator_id") @XmlElement(true) val creatorId: Int,
+    @SerialName("has_children") @XmlElement(true) val hasChildren: Boolean,
+    @SerialName("created_at") @XmlElement(true) val createdAt: String,
+    @SerialName("source") @XmlElement(true) val source: String,
+    @SerialName("preview_width") @XmlElement(true) val previewWidth: Int,
+    @SerialName("preview_height") @XmlElement(true) val previewHeight: Int,
 ) {
-    private fun previewUrl(scheme: String, host: String) =
-        previewUrl.toSafeUrl(scheme, host)
+    private fun previewUrl(scheme: String, host: String) = previewUrl.toSafeUrl(scheme, host)
 
     private fun sampleUrl(scheme: String, host: String) =
         if (sampleUrl.isEmpty()) previewUrl(scheme, host) else sampleUrl.toSafeUrl(scheme, host)
@@ -90,12 +55,18 @@ data class PostGel(
     private fun originUrl(scheme: String, host: String) =
         if (fileUrl.isEmpty()) previewUrl(scheme, host) else fileUrl.toSafeUrl(scheme, host)
 
-    private fun String.getTags(): List<TagBase> =
-        trim().split(" ").map { TagBase(it, -1) }
+    private fun String.getTags(): List<TagBase> = trim().split(" ").map { TagBase(it, -1) }
 
     private fun getIntScore(): Int = if (score.isEmpty()) 0 else score.trim().toInt()
 
-    fun toPost(booruUid: Long, query: String, scheme: String, host: String, index: Int, isFavored: Boolean): Post {
+    fun toPost(
+        booruUid: Long,
+        query: String,
+        scheme: String,
+        host: String,
+        index: Int,
+        isFavored: Boolean,
+    ): Post {
         return Post(
             booruUid = booruUid,
             query = query,
@@ -114,7 +85,7 @@ data class PostGel(
             origin = originUrl(scheme, host),
             source = source,
             uploader = User(id = creatorId, name = ""),
-            isFavored = isFavored
+            isFavored = isFavored,
         )
     }
 }

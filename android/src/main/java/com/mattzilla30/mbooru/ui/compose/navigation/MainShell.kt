@@ -1,153 +1,459 @@
+/* MBooru Compose adaptation of Boorusphere's HomeDrawer (Chaldeaprjkt, BSD-3-Clause).
+ * See assets/licenses/boorusphere.txt. MBooru modifications © 2026 mattzilla30. */
 package com.mattzilla30.mbooru.ui.compose.navigation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.foundation.clickable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
+import com.mattzilla30.mbooru.BuildConfig
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.Booru
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-data class DrawerAction(val title: Int, val icon: Int, val action: String)
+enum class DrawerDestination {
+    Sites,
+    Account,
+    Comments,
+    History,
+    Blacklist,
+    Settings,
+    About,
+    Downloads,
+    Favorites,
+    Theme,
+    Exit,
+}
+
+data class DrawerAction(val title: Int, val icon: Int, val action: DrawerDestination)
+
 data class BrowseTab(val id: Int, val title: Int, val icon: Int, val selectedIcon: Int)
 
 fun browseTabs(type: Int): List<BrowseTab> {
-    val posts = BrowseTab(R.id.nav_posts, R.string.title_posts, R.drawable.ic_photo_outline_24dp, R.drawable.ic_photo_24dp)
-    val popular = BrowseTab(R.id.nav_popular, R.string.title_popular, R.drawable.ic_whatshot_outline_24dp, R.drawable.ic_whatshot_24dp)
-    val pools = BrowseTab(R.id.nav_pools, R.string.title_pools, R.drawable.ic_photo_album_outline_24dp, R.drawable.ic_photo_album_24dp)
-    val tags = BrowseTab(R.id.nav_tags, R.string.title_tags, R.drawable.ic_bookmark_border_24dp, R.drawable.ic_bookmark_24dp)
-    val artists = BrowseTab(R.id.nav_artists, R.string.title_artists, R.drawable.ic_people_outline_24dp, R.drawable.ic_people_24dp)
-    return when (type) {
-        Values.BOORU_TYPE_SHIMMIE -> listOf(posts)
-        Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY -> listOf(posts, tags)
-        Values.BOORU_TYPE_SANKAKU -> listOf(posts, popular, pools, tags)
-        else -> listOf(posts, popular, pools, tags, artists)
+    val posts =
+        BrowseTab(
+            R.id.nav_posts,
+            R.string.title_posts,
+            R.drawable.ic_photo_outline_24dp,
+            R.drawable.ic_photo_24dp,
+        )
+    val capabilities = com.mattzilla30.mbooru.core.model.BooruEngine.fromLegacyId(type).capabilities
+    return buildList {
+        add(posts)
+        if (capabilities.popular)
+            add(
+                BrowseTab(
+                    R.id.nav_popular,
+                    R.string.title_popular,
+                    R.drawable.ic_whatshot_outline_24dp,
+                    R.drawable.ic_whatshot_24dp,
+                )
+            )
+        if (capabilities.pools)
+            add(
+                BrowseTab(
+                    R.id.nav_pools,
+                    R.string.title_pools,
+                    R.drawable.ic_photo_album_outline_24dp,
+                    R.drawable.ic_photo_album_24dp,
+                )
+            )
+        if (capabilities.tags)
+            add(
+                BrowseTab(
+                    R.id.nav_tags,
+                    R.string.title_tags,
+                    R.drawable.ic_bookmark_border_24dp,
+                    R.drawable.ic_bookmark_24dp,
+                )
+            )
+        if (capabilities.artists)
+            add(
+                BrowseTab(
+                    R.id.nav_artists,
+                    R.string.title_artists,
+                    R.drawable.ic_people_outline_24dp,
+                    R.drawable.ic_people_24dp,
+                )
+            )
     }
 }
 
 class MainShellViewModel(private val saved: SavedStateHandle) : ViewModel() {
     private val drawer = Channel<Unit>(Channel.CONFLATED)
     val drawerRequests = drawer.receiveAsFlow()
+    private val servers = Channel<Unit>(Channel.CONFLATED)
+    val serverRequests = servers.receiveAsFlow()
+
+    fun chooseServer() {
+        servers.trySend(Unit)
+    }
+
     val navVisible = saved.getStateFlow("navigationVisible", true)
     private val revision = MutableStateFlow(0)
     val preferencesRevision = revision.asStateFlow()
-    fun openDrawer() { drawer.trySend(Unit) }
-    fun navigationVisible(show: Boolean) { saved["navigationVisible"] = show }
-    fun preferencesChanged() { revision.value++ }
+
+    fun openDrawer() {
+        drawer.trySend(Unit)
+    }
+
+    fun navigationVisible(show: Boolean) {
+        saved["navigationVisible"] = show
+    }
+
+    fun preferencesChanged() {
+        revision.value++
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList")
 fun MainShell(
-    boorus: List<Booru>, selectedUid: Long, tabs: List<BrowseTab>, currentTab: Int,
+    boorus: List<Booru>,
+    selectedUid: Long,
+    tabs: List<BrowseTab>,
+    currentTab: Int,
     navigationVisible: Boolean,
     drawerRequests: kotlinx.coroutines.flow.Flow<Unit>,
-    onBooru: (Long) -> Unit, onAction: (String) -> Unit, onTab: (Int) -> Unit,
+    onBooru: (Long) -> Unit,
+    onAction: (DrawerDestination) -> Unit,
+    onTab: (Int) -> Unit,
+    serverRequests: kotlinx.coroutines.flow.Flow<Unit> = kotlinx.coroutines.flow.emptyFlow(),
+    onEditServer: (Booru) -> Unit = {},
+    onRemoveServer: (Long) -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     val drawer = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var profilesExpanded by rememberSaveable { mutableStateOf(false) }
+    val compactDrawer =
+        LocalConfiguration.current.screenHeightDp < COMPACT_DRAWER_HEIGHT_DP ||
+            LocalDensity.current.fontScale > COMPACT_DRAWER_FONT_SCALE
+    var siteMenu by remember { mutableStateOf<Long?>(null) }
+    var exit by remember { mutableStateOf(false) }
+    var selectingServer by remember { mutableStateOf(false) }
+    LaunchedEffect(serverRequests) { serverRequests.collect { selectingServer = true } }
     LaunchedEffect(drawerRequests) { drawerRequests.collect { drawer.open() } }
     BackHandler(drawer.isOpen) { scope.launch { drawer.close() } }
-    val actions = listOf(
-        DrawerAction(R.string.title_account, R.drawable.ic_account_circle_outline_24dp, "account"),
-        DrawerAction(R.string.title_comments, R.drawable.ic_comment_outline_24dp, "comments"),
-        DrawerAction(R.string.title_history, R.drawable.ic_history_24dp, "history"),
-        DrawerAction(R.string.title_tag_blacklist, R.drawable.ic_visibility_off_outline_24dp, "blacklist"),
-        DrawerAction(R.string.title_muzei, R.drawable.ic_muzei_24dp, "muzei"),
-        DrawerAction(R.string.title_sauce_nao, R.drawable.ic_search_24dp, "saucenao"),
-        DrawerAction(R.string.title_what_anime, R.drawable.ic_youtube_searched_for_24dp, "tracemoe"),
-    )
-    ModalNavigationDrawer(modifier = Modifier.semantics { testTagsAsResourceId = true }, drawerState = drawer, drawerContent = {
-        ModalDrawerSheet(Modifier.widthIn(max = 320.dp).windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))) {
-            LazyColumn(Modifier.weight(1f).statusBarsPadding().testTag("main-drawer-list")) {
-                item {
-                    val active = boorus.find { it.uid == selectedUid } ?: boorus.firstOrNull()
-                    Surface(color = MaterialTheme.colorScheme.primaryContainer) {
-                        Column(Modifier.fillMaxWidth().heightIn(min = 160.dp).testTag("main-drawer-profile").clickable { profilesExpanded = !profilesExpanded }.padding(16.dp)) {
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                AsyncImage(active?.let { "${it.scheme}://${it.host}/favicon.ico" }, null, modifier = Modifier.size(56.dp))
-                                Spacer(Modifier.weight(1f))
-                                Icon(painterResource(R.drawable.ic_expand_more_24dp), stringResource(R.string.title_manage_boorus))
+    fun action(destination: DrawerDestination) {
+        onAction(destination)
+        scope.launch { drawer.close() }
+    }
+    ModalNavigationDrawer(
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
+        drawerState = drawer,
+        drawerContent = {
+            ModalDrawerSheet(
+                Modifier.widthIn(max = 326.dp),
+                drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
+            ) {
+                Column(
+                    Modifier.fillMaxHeight()
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
+                        .testTag("sphere-drawer-content")
+                        .then(
+                            if (compactDrawer) Modifier.verticalScroll(rememberScrollState())
+                            else Modifier
+                        )
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .testTag("main-drawer-profile")
+                            .padding(start = 16.dp, end = 8.dp, top = 24.dp, bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "MBooru!",
+                            Modifier.weight(1f),
+                            style = MaterialTheme.typography.headlineMedium,
+                        )
+                        ThemeButton { onAction(DrawerDestination.Theme) }
+                    }
+                    LazyColumn(
+                        (if (compactDrawer) Modifier.height(280.dp) else Modifier.weight(1f))
+                            .testTag("main-drawer-list")
+                    ) {
+                        items(boorus, key = { it.uid }) { site ->
+                            Surface(
+                                color =
+                                    if (site.uid == selectedUid)
+                                        MaterialTheme.colorScheme.secondaryContainer
+                                    else MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
+                                modifier = Modifier.padding(end = 16.dp),
+                            ) {
+                                Row(
+                                    Modifier.fillMaxWidth()
+                                        .heightIn(min = 52.dp)
+                                        .clickable {
+                                            onBooru(site.uid)
+                                            scope.launch { drawer.close() }
+                                        }
+                                        .padding(start = 24.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    AsyncImage(
+                                        "${site.scheme}://${site.host}/favicon.ico",
+                                        null,
+                                        modifier = Modifier.size(21.dp),
+                                    )
+                                    Text(
+                                        site.name,
+                                        Modifier.weight(1f).padding(start = 24.dp),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                    Box {
+                                        IconButton(onClick = { siteMenu = site.uid }) {
+                                            Icon(
+                                                painterResource(R.drawable.ic_more_vert_24dp),
+                                                stringResource(R.string.sphere_server_options),
+                                                modifier = Modifier.size(18.dp),
+                                            )
+                                        }
+                                        DropdownMenu(siteMenu == site.uid, { siteMenu = null }) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(stringResource(R.string.sphere_edit))
+                                                },
+                                                onClick = {
+                                                    siteMenu = null
+                                                    onEditServer(site)
+                                                    scope.launch { drawer.close() }
+                                                },
+                                            )
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(stringResource(R.string.sphere_remove))
+                                                },
+                                                onClick = {
+                                                    siteMenu = null
+                                                    onRemoveServer(site.uid)
+                                                },
+                                            )
+                                            if (
+                                                site.uid == selectedUid &&
+                                                    com.mattzilla30.mbooru.core.model.BooruEngine
+                                                        .fromLegacyId(site.type)
+                                                        .capabilities
+                                                        .accounts
+                                            )
+                                                DropdownMenuItem(
+                                                    text = {
+                                                        Text(stringResource(R.string.title_account))
+                                                    },
+                                                    onClick = {
+                                                        siteMenu = null
+                                                        onBooru(site.uid)
+                                                        action(DrawerDestination.Account)
+                                                    },
+                                                )
+                                        }
+                                    }
+                                }
                             }
-                            Spacer(Modifier.height(12.dp))
-                            Text(active?.name.orEmpty(), style = MaterialTheme.typography.bodyLarge)
-                            Text(active?.let { "${it.scheme}://${it.host}" }.orEmpty(), style = MaterialTheme.typography.bodySmall)
                         }
+                        item {
+                            SphereDrawerRow(
+                                R.string.sphere_add_server,
+                                R.drawable.ic_add_circle_outline_24dp,
+                            ) {
+                                action(DrawerDestination.Sites)
+                            }
+                        }
+                        // Engine-specific browsing remains reachable without a permanent tab bar.
+                        if (tabs.size > 1)
+                            item {
+                                var explore by remember { mutableStateOf(false) }
+                                SphereDrawerRow(
+                                    R.string.sphere_explore,
+                                    R.drawable.ic_photo_album_outline_24dp,
+                                ) {
+                                    explore = !explore
+                                }
+                                if (explore)
+                                    tabs.forEach { tab ->
+                                        NavigationDrawerItem(
+                                            label = { Text(stringResource(tab.title)) },
+                                            selected = currentTab == tab.id,
+                                            icon = { Icon(painterResource(tab.icon), null) },
+                                            onClick = {
+                                                onTab(tab.id)
+                                                scope.launch { drawer.close() }
+                                            },
+                                        )
+                                    }
+                            }
+                    }
+                    HorizontalDivider(
+                        Modifier.padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                    )
+                    listOf(
+                            DrawerAction(
+                                R.string.title_downloads,
+                                R.drawable.ic_file_download_24dp,
+                                DrawerDestination.Downloads,
+                            ),
+                            DrawerAction(
+                                R.string.sphere_favorites,
+                                R.drawable.ic_favorite_24dp,
+                                DrawerDestination.Favorites,
+                            ),
+                            DrawerAction(
+                                R.string.title_tag_blacklist,
+                                R.drawable.ic_visibility_off_outline_24dp,
+                                DrawerDestination.Blacklist,
+                            ),
+                            DrawerAction(
+                                R.string.title_settings,
+                                R.drawable.ic_settings_outline_24dp,
+                                DrawerDestination.Settings,
+                            ),
+                        )
+                        .forEach { row ->
+                            SphereDrawerRow(row.title, row.icon) { action(row.action) }
+                        }
+                    SphereDrawerRow(R.string.dialog_exit, R.drawable.ic_arrow_back_24dp) {
+                        exit = true
+                    }
+                    SphereDrawerRow(
+                        R.string.app_name,
+                        R.drawable.ic_info_outline_24dp,
+                        summary = BuildConfig.VERSION_NAME,
+                    ) {
+                        action(DrawerDestination.About)
                     }
                 }
-                if (profilesExpanded) {
-                items(boorus, key = { it.uid }) { booru ->
-                    NavigationDrawerItem(label = { Column {
-                        Text(booru.name)
-                        Text("${booru.scheme}://${booru.host}", style = MaterialTheme.typography.bodySmall)
-                    } }, selected = booru.uid == selectedUid,
-                        icon = { AsyncImage(if (booru.type == Values.BOORU_TYPE_SANKAKU && booru.host.startsWith("capi-v2."))
-                            "https://sankaku.app/images/192x192.png" else "${booru.scheme}://${booru.host}/favicon.ico",
-                            null, modifier = Modifier.size(40.dp)) },
-                        onClick = { onBooru(booru.uid); profilesExpanded = false })
+            }
+        },
+        content = {
+            CompositionLocalProvider(LocalNavigationVisible provides navigationVisible) {
+                content()
+            }
+        },
+    )
+    if (selectingServer)
+        ModalBottomSheet(onDismissRequest = { selectingServer = false }) {
+            Text(
+                stringResource(R.string.sphere_select_server),
+                Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            LazyColumn(Modifier.heightIn(max = 360.dp)) {
+                items(boorus, key = { it.uid }) { server ->
+                    ListItem(
+                        headlineContent = { Text(server.name) },
+                        leadingContent = {
+                            AsyncImage(
+                                "${server.scheme}://${server.host}/favicon.ico",
+                                null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        },
+                        trailingContent = {
+                            RadioButton(selected = selectedUid == server.uid, onClick = null)
+                        },
+                        modifier =
+                            Modifier.clickable {
+                                onBooru(server.uid)
+                                selectingServer = false
+                            },
+                    )
                 }
                 item {
-                    NavigationDrawerItem(label = { Text(stringResource(R.string.title_manage_boorus)) }, selected = false,
-                        icon = { Icon(painterResource(R.drawable.ic_settings_outline_24dp), null) },
-                        onClick = { onAction("boorus"); profilesExpanded = false })
-                    HorizontalDivider()
-                }
-                }
-                if (!profilesExpanded) {
-                items(actions, key = { it.action }) { item ->
-                    NavigationDrawerItem(label = { Text(stringResource(item.title)) }, selected = false,
-                        icon = { Icon(painterResource(item.icon), null) },
-                        onClick = { onAction(item.action); scope.launch { drawer.close() } })
-                }
-                }
-            }
-            HorizontalDivider()
-            listOf(DrawerAction(R.string.title_settings, R.drawable.ic_settings_outline_24dp, "settings"),
-                DrawerAction(R.string.title_about, R.drawable.ic_info_outline_24dp, "about")).forEach { item ->
-                NavigationDrawerItem(label = { Text(stringResource(item.title)) }, selected = false,
-                    icon = { Icon(painterResource(item.icon), null) },
-                    onClick = { onAction(item.action); scope.launch { drawer.close() } })
-            }
-            Spacer(Modifier.navigationBarsPadding())
-        }
-    }) {
-        Box(Modifier.fillMaxSize()) {
-            content()
-            AnimatedVisibility(navigationVisible, modifier = Modifier.align(Alignment.BottomCenter),
-                enter = slideInVertically { it }, exit = slideOutVertically { it }) {
-                NavigationBar(modifier = Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)), containerColor = MaterialTheme.colorScheme.background) {
-                    tabs.forEach { tab ->
-                        val selected = tab.id == currentTab
-                        NavigationBarItem(modifier = Modifier.testTag("browse-tab-${browseRoute(tab.id)}"), selected = selected, onClick = { onTab(tab.id) },
-                            label = { Text(stringResource(tab.title)) },
-                            icon = { Icon(painterResource(if (selected) tab.selectedIcon else tab.icon), null) })
+                    SphereDrawerRow(
+                        R.string.sphere_add_server,
+                        R.drawable.ic_add_circle_outline_24dp,
+                    ) {
+                        selectingServer = false
+                        action(DrawerDestination.Sites)
                     }
                 }
             }
+            Spacer(Modifier.height(16.dp))
         }
+    if (exit)
+        AlertDialog(
+            onDismissRequest = { exit = false },
+            title = { Text(stringResource(R.string.dialog_exit)) },
+            text = { Text(stringResource(R.string.sphere_exit_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        exit = false
+                        action(DrawerDestination.Exit)
+                    }
+                ) {
+                    Text(stringResource(R.string.dialog_exit))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { exit = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
+}
+
+@Composable
+@Suppress("FunctionNaming")
+private fun SphereDrawerRow(title: Int, icon: Int, summary: String? = null, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(painterResource(icon), null, Modifier.size(22.dp))
+        Text(
+            stringResource(title) + (summary?.let { " $it" } ?: ""),
+            Modifier.padding(start = 24.dp),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+private const val COMPACT_DRAWER_HEIGHT_DP = 640
+private const val COMPACT_DRAWER_FONT_SCALE = 1.3f
+
+val LocalNavigationVisible = compositionLocalOf { true }
+
+@Composable
+@Suppress("FunctionNaming")
+private fun ThemeButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            painterResource(
+                if (isSystemInDarkTheme()) R.drawable.ic_brightness_2_outline_24dp
+                else R.drawable.ic_light_mode_outline_24dp
+            ),
+            stringResource(R.string.sphere_theme),
+        )
     }
 }

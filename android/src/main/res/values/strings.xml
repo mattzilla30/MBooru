@@ -28,13 +28,10 @@
     <string name="title_pools">Pools</string>
     <string name="title_tags">Tags</string>
     <string name="title_comments">Comments</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Night mode</string>
     <string name="title_copyright">Copyright</string>
     <string name="title_about">About</string>
     <string name="title_tag_blacklist">Tag blacklist</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">What Anime</string>
     <string name="title_history">History</string>
     <string name="history_clear_all">Clear all</string>
     <string name="history_clear_all_content">All history will be cleared.</string>
@@ -66,10 +63,8 @@
     <string name="post_transition_name" translatable="false">post_img_%d</string>
     <string name="post_popular_transition_name" translatable="false">post_popular_img_%d</string>
     <string name="post_expand_or_clear">Expand or clear</string>
-    <string name="post_add_search_to_muzei">` %s ` have been saved to Muzei.</string>
     <string name="post_download">Download post</string>
     <string name="post_add_to_fav">Add to favorites</string>
-    <string name="post_search_by_sauce_nao">Search by SauceNao</string>
     <string name="msg_download_must_enable">Download Manager is needed.</string>
     <string name="msg_path_denied">Save failed! No access to the current path.</string>
     <string name="msg_download_failed">Download failed</string>
@@ -200,8 +195,6 @@
     <string name="settings_bypass_waf_summary">Bypassing Cloudflare WAF</string>
     <string name="settings_safe_mode">Safe mode</string>
     <string name="settings_page_limit">Page limit</string>
-    <string name="settings_muzei_limit">Muzei limit</string>
-    <string name="settings_muzei_size">Muzei size</string>
     <string name="settings_detail_size">Detail size</string>
     <string name="settings_download_size">Download size</string>
     <string name="settings_download_path">Download path</string>
@@ -231,7 +224,6 @@
     <string name="settings_clear_history">Clear search history</string>
     <string name="settings_clear_history_summery">Remove all search history.</string>
     <string name="settings_clear_history_dialog_content">All search history will be cleared.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Display</string>
     <string name="settings_options">Options</string>
     <string name="settings_storage">Storage</string>
@@ -284,15 +276,6 @@
     <string name="order">Order</string>
     <string name="rating">Rating</string>
     <string name="threshold">Threshold</string>
-    <string name="muzei_copy">Copy</string>
-    <string name="muzei_delete">Delete</string>
-    <string name="muzei_search">Search</string>
-    <string name="muzei_search_hint">Add tag…</string>
-    <string name="muzei_fetch">Fetch Artwork</string>
-    <string name="muzei_input_cant_be_empty">Input can not be empty.</string>
-    <string name="muzei_action_view_post">View post on MBooru</string>
-    <string name="muzei_action_search_posts">Search posts on MBooru</string>
-    <string name="muzei_attribution">Post from MBooru</string>
     <string name="tag_blacklist_copy">Copy</string>
     <string name="tag_blacklist_delete">Delete</string>
     <string name="tag_blacklist_add">Add</string>
@@ -304,18 +287,6 @@
     <string name="comment_hint">Input comment</string>
     <string name="tab_start_date">Start date</string>
     <string name="tab_end_date">End date</string>
-    <string name="sauce_nao_help">Help</string>
-    <string name="sauce_nao_change_api_key">Change api key</string>
-    <string name="sauce_nao_get_api_key">Get api key</string>
-    <string name="sauce_nao_remaining_times_today">Remaining times today: %01$d</string>
-    <string name="sauce_nao_api_key_unset">SauceNao\'s Api key is not set.</string>
-    <string name="sauce_nao_image_url">Image url</string>
-    <string name="sauce_nao_invalid_image_url">Invalid image url.</string>
-    <string name="sauce_nao_source">Source</string>
-    <string name="sauce_nao_search_from_url">Url</string>
-    <string name="sauce_nao_search_from_file">File</string>
-
-    <string name="action_add_to_muzei">Add to Muzei</string>
     <string name="settings_cache_clear_failed">Could not clear the cache. Please try again.</string>
     <string name="booru_config_save_failed">Could not save changes. Please try again.</string>
     <string name="image_search_read_failed">Could not read the selected image.</string>

@@ -16,10 +16,10 @@
 package com.mattzilla30.mbooru.data.repository.comment
 
 import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionComment
 import com.mattzilla30.mbooru.data.model.common.Comment
 import com.mattzilla30.mbooru.extension.NetResult
+import kotlinx.coroutines.flow.Flow
 
 interface CommentRepository {
 

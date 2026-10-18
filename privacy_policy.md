@@ -1,40 +1,23 @@
-## Privacy Policy
+# MBooru privacy policy
 
-The MBooru is built as an Open Source software. This app is provided by MBooru at no cost and is intended for use as is.
+Updated 2026-10-18. Maintainer: mattzilla30, <mattzilla30@gmail.com>.
 
-This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our app.
+MBooru is free, open-source software. It contains no advertising, billing, subscriptions or paid feature gates. The default build does not include Firebase Analytics or Crashlytics. A separately configured build can explicitly enable those services with `-PenableFirebase=true` and a matching Firebase configuration; its distributor must disclose that choice.
 
-If you choose to use our app, then you agree to the collection and use of information in relation to this policy. The Personal Information that we collect is used for providing and improving the app. We will not use or share your information with anyone except as described in this Privacy Policy.
+## Connections and local data
 
-The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at Shadowsocks-android unless otherwise defined in this Privacy Policy.
+The app connects directly to the booru sites you select. Those services receive your IP address, searches, requested files and any credentials required for your account, under their own policies. Optional DNS-over-HTTPS sends DNS queries to the selected provider. The update check reads the public MBooru update manifest on GitHub. Reverse-image searches send the image you select to SauceNAO or trace.moe when you invoke that feature. Camera access is used for the scanner when requested.
 
-**Information Collection and Use**
+Sites, history, filters, settings, cached media and download records are stored on your device. Account tokens, HTTP authentication and the SauceNAO key use encrypted device-only storage backed by Android Keystore. The database and settings contain references to those credentials. Cookies are maintained by Android WebView; sign-out clears the relevant host/domain session. Queued media addresses are also kept in the device vault because a CDN address can contain a temporary access token. Cached post metadata can still contain media addresses; avoid sharing database files or diagnostic captures. MBooru does not send account credentials to the maintainer.
 
-For a better experience, while using our app, we may require you to provide us with certain personally identifiable information. The information that we request will be retained by us and used as described in this privacy policy.
+## Backups, downloads and deletion
 
-The app does use third party services that may collect information used to identify you.
+Android backup can include the user database and settings, subject to your device and backup provider. Device-only keys and encrypted credential payloads are excluded. Restoring to another device requires signing in again. Site-configuration exports omit account credentials and HTTP authentication. Imports preserve credentials already stored on this device.
 
-Link to privacy policy of third party service providers used by the app
+Downloads use a folder you grant through Android's document picker. Queue entries retain the original destination URI, including after you select a different folder. Older folder grants remain available so queued downloads and completed-file actions continue to work; Android Settings can revoke them. Interrupted downloads retain a `.part` staging document for retry. A file is published under its final name only after the transfer succeeds. Deleting app data removes local accounts, history, settings, cookies and queues; downloaded files in your selected folder remain yours.
 
-*   [Google Play Services](https://www.google.com/policies/privacy/)
-*   [Firebase Analytics](https://firebase.google.com/policies/analytics)
+## Diagnostics and third parties
 
-**Log Data**
+MBooru does not operate a telemetry backend or automatically upload crash reports. Camera scanning uses Google ML Kit, whose SDK collects device, application, installation and performance metadata for diagnostics and usage analytics as described in [Google’s ML Kit data disclosure](https://developers.google.com/ml-kit/android-data-disclosure). Barcode images are processed on the device. API logging is disabled to avoid leaking query credentials. Reports you voluntarily share may contain personal information; review them first. Optional integrations such as Muzei and external websites have their own privacy policies. No TLS certificate-validation bypass is implemented.
 
-We want to inform you that whenever you use our app, in a case of an error in the app we collect data and information (through third party products) on your phone called Log Data. This Log Data may include information such as your device name, operating system version, the configuration of the app when utilizing our App, the time and date of your use of the app, and other statistics.
-
-**Security**
-
-We value your trust in providing us your Personal Information, thus we are striving to use commercially acceptable means of protecting it. But remember that no method of transmission over the internet, or method of electronic storage is 100% secure and reliable, and we cannot guarantee its absolute security.
-
-**Links to Other Sites**
-
-This app may contain links to other sites. If you click on a third-party link, you will be directed to that site. Note that these external sites are not operated by us. Therefore, we strongly advise you to review the Privacy Policy of these websites. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.
-
-**Changes to This Privacy Policy**
-
-We may update our Privacy Policy from time to time. Thus, you are advised to review this page periodically for any changes. We will notify you of any changes by posting the new Privacy Policy on this page. These changes are effective immediately after they are posted on this page.
-
-**Contact Us**
-
-If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us.
+Contact <mattzilla30@gmail.com> with privacy questions. Changes to this policy are versioned in the source repository.

@@ -32,20 +32,21 @@ import kotlin.math.sqrt
 
 // https://github.com/Ifxcyr/RippleAnimation/
 @SuppressLint("ViewConstructor")
-class RippleAnimation private constructor(
+class RippleAnimation
+private constructor(
     context: Context,
     private val startX: Float,
     private val startY: Float,
-    private val startRadius: Int
+    private val startRadius: Int,
 ) : View(context) {
 
-    private var background: Bitmap? = null//屏幕截图
+    private var background: Bitmap? = null // 屏幕截图
     private var paint: Paint? = null
     private var maxRadius = 0
     private var currentRadius: Int = 0
     private var isStarted = false
     private var duration: Long = 0
-    private var rootView: ViewGroup? = null//DecorView
+    private var rootView: ViewGroup? = null // DecorView
     private var onAnimationEndListener: OnAnimationEndListener? = null
     private var animatorListener: Animator.AnimatorListener? = null
     private var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
@@ -59,19 +60,19 @@ class RippleAnimation private constructor(
         }
 
     init {
-        //获取activity的根视图,用来添加本View
+        // 获取activity的根视图,用来添加本View
         rootView = getActivityFromContext(context).window.decorView as ViewGroup
         paint = Paint()
         paint!!.isAntiAlias = true
-        //设置为擦除模式
+        // 设置为擦除模式
         paint!!.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         updateMaxRadius()
         initListener()
     }
 
     /**
-     * try get host activity from view.
-     * views hosted on floating window like dialog and toast will sure return null.
+     * try get host activity from view. views hosted on floating window like dialog and toast will
+     * sure return null.
      *
      * @return host activity
      */
@@ -86,9 +87,7 @@ class RippleAnimation private constructor(
         throw RuntimeException("Activity not found!")
     }
 
-    /**
-     * 开始播放动画
-     */
+    /** 开始播放动画 */
     fun start() {
         if (!isStarted) {
             isStarted = true
@@ -98,44 +97,41 @@ class RippleAnimation private constructor(
         }
     }
 
-    /**
-     * 设置动画时长
-     */
+    /** 设置动画时长 */
     fun setDuration(duration: Long): RippleAnimation {
         this.duration = duration
         return this
     }
 
     private fun initListener() {
-        animatorListener = object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                if (onAnimationEndListener != null) {
-                    onAnimationEndListener!!.onAnimationEnd()
+        animatorListener =
+            object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    if (onAnimationEndListener != null) {
+                        onAnimationEndListener!!.onAnimationEnd()
+                    }
+                    isStarted = false
+                    // 动画播放完毕, 移除本View
+                    detachFromRootView()
                 }
-                isStarted = false
-                //动画播放完毕, 移除本View
-                detachFromRootView()
             }
-        }
         animatorUpdateListener = ValueAnimator.AnimatorUpdateListener { animation ->
-            //更新圆的半径
+            // 更新圆的半径
             currentRadius = (animation.animatedValue as Float).toInt() + startRadius
             postInvalidate()
         }
     }
 
-    /**
-     * 根据起始点将屏幕分成4个小矩形,maxRadius就是取它们中最大的矩形的对角线长度
-     * 这样的话, 无论起始点在屏幕中的哪一个位置上, 我们绘制的圆形总是能覆盖屏幕
-     */
+    /** 根据起始点将屏幕分成4个小矩形,maxRadius就是取它们中最大的矩形的对角线长度 这样的话, 无论起始点在屏幕中的哪一个位置上, 我们绘制的圆形总是能覆盖屏幕 */
     private fun updateMaxRadius() {
         val root = rootView ?: return
-        //将屏幕分成4个小矩形
+        // 将屏幕分成4个小矩形
         val leftTop = RectF(0f, 0f, startX + startRadius, startY + startRadius)
         val rightTop = RectF(leftTop.right, 0f, root.right.toFloat(), leftTop.bottom)
         val leftBottom = RectF(0f, leftTop.bottom, leftTop.right, root.bottom.toFloat())
-        val rightBottom = RectF(leftBottom.right, leftTop.bottom, root.right.toFloat(), leftBottom.bottom)
-        //分别获取对角线长度
+        val rightBottom =
+            RectF(leftBottom.right, leftTop.bottom, root.right.toFloat(), leftBottom.bottom)
+        // 分别获取对角线长度
         val leftTopHypotenuse =
             sqrt(leftTop.width().toDouble().pow(2.0) + leftTop.height().toDouble().pow(2.0))
         val rightTopHypotenuse =
@@ -144,26 +140,28 @@ class RippleAnimation private constructor(
             sqrt(leftBottom.width().toDouble().pow(2.0) + leftBottom.height().toDouble().pow(2.0))
         val rightBottomHypotenuse =
             sqrt(rightBottom.width().toDouble().pow(2.0) + rightBottom.height().toDouble().pow(2.0))
-        //取最大值
-        maxRadius = max(
-            max(leftTopHypotenuse, rightTopHypotenuse),
-            max(leftBottomHypotenuse, rightBottomHypotenuse)
-        ).toInt()
+        // 取最大值
+        maxRadius =
+            max(
+                    max(leftTopHypotenuse, rightTopHypotenuse),
+                    max(leftBottomHypotenuse, rightBottomHypotenuse),
+                )
+                .toInt()
     }
 
-    /**
-     * 添加到根视图
-     */
+    /** 添加到根视图 */
     private fun attachToRootView() {
-        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
         rootView?.addView(this)
     }
 
-    /**
-     * 从根视图中移除并释放资源
-     */
+    /** 从根视图中移除并释放资源 */
     private fun detachFromRootView() {
-        rootView?.removeView(this).also { 
+        rootView?.removeView(this).also {
             rootView = null
         }
         if (background != null) {
@@ -177,9 +175,7 @@ class RippleAnimation private constructor(
         }
     }
 
-    /**
-     * 更新屏幕截图
-     */
+    /** 更新屏幕截图 */
     private fun updateBackground() {
         if (background != null && !background!!.isRecycled) {
             background!!.recycle()
@@ -188,16 +184,14 @@ class RippleAnimation private constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        //在新的图层上面绘制
+        // 在新的图层上面绘制
         val layer = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), null)
         canvas.drawBitmap(background!!, 0f, 0f, null)
         canvas.drawCircle(startX, startY, currentRadius.toFloat(), paint!!)
         canvas.restoreToCount(layer)
     }
 
-    /**
-     * 设置动画结束监听器
-     */
+    /** 设置动画结束监听器 */
     fun setOnAnimationEndListener(listener: OnAnimationEndListener): RippleAnimation {
         onAnimationEndListener = listener
         return this
@@ -218,22 +212,20 @@ class RippleAnimation private constructor(
             val context = onClickView.context
             val newWidth = onClickView.width / 2
             val newHeight = onClickView.height / 2
-            //计算起点位置
+            // 计算起点位置
             val startX = getAbsoluteX(onClickView) + newWidth
             val startY = getAbsoluteY(onClickView) + newHeight
-            //起始半径
-            //因为我们要避免遮挡按钮
+            // 起始半径
+            // 因为我们要避免遮挡按钮
             val radius = max(newWidth, newHeight)
             return RippleAnimation(context, startX, startY, radius)
         }
 
-        /**
-         * 由canvas更新背景截图（drawingCache已废弃）
-         */
+        /** 由canvas更新背景截图（drawingCache已废弃） */
         private fun getBitmapFromView(view: View): Bitmap {
             view.measure(
                 MeasureSpec.makeMeasureSpec(view.layoutParams.width, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(view.layoutParams.height, MeasureSpec.EXACTLY)
+                MeasureSpec.makeMeasureSpec(view.layoutParams.height, MeasureSpec.EXACTLY),
             )
             val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
@@ -241,9 +233,7 @@ class RippleAnimation private constructor(
             return bitmap
         }
 
-        /**
-         * 获取view在屏幕中的绝对x坐标
-         */
+        /** 获取view在屏幕中的绝对x坐标 */
         private fun getAbsoluteX(view: View): Float {
             var x = view.x
             val parent = view.parent
@@ -253,9 +243,7 @@ class RippleAnimation private constructor(
             return x
         }
 
-        /**
-         * 获取view在屏幕中的绝对y坐标
-         */
+        /** 获取view在屏幕中的绝对y坐标 */
         private fun getAbsoluteY(view: View): Float {
             var y = view.y
             val parent = view.parent

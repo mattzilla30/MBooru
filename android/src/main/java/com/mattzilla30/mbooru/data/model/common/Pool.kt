@@ -26,5 +26,5 @@ data class Pool(
     val description: String,
     val creatorId: Int = -1,
     val creatorName: String? = null,
-    val creatorAvatar: String? = null
+    val creatorAvatar: String? = null,
 )

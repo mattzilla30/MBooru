@@ -28,17 +28,17 @@ object ViewAnimation {
 
     fun expand(v: View, animListener: AnimListener) {
         val a = expandAction(v)
-        a.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation) {}
+        a.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation) {}
 
-            override fun onAnimationEnd(animation: Animation) {
-                animListener.onFinish()
+                override fun onAnimationEnd(animation: Animation) {
+                    animListener.onFinish()
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {}
             }
-
-            override fun onAnimationRepeat(animation: Animation) {
-
-            }
-        })
+        )
         v.startAnimation(a)
     }
 
@@ -53,19 +53,19 @@ object ViewAnimation {
 
         v.layoutParams.height = 0
         v.visibility = View.VISIBLE
-        val a = object : Animation() {
-            override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
-                v.layoutParams.height = if (interpolatedTime == 1f)
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                else
-                    (targetHeight * interpolatedTime).toInt()
-                v.requestLayout()
-            }
+        val a =
+            object : Animation() {
+                override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
+                    v.layoutParams.height =
+                        if (interpolatedTime == 1f) ViewGroup.LayoutParams.WRAP_CONTENT
+                        else (targetHeight * interpolatedTime).toInt()
+                    v.requestLayout()
+                }
 
-            override fun willChangeBounds(): Boolean {
-                return true
+                override fun willChangeBounds(): Boolean {
+                    return true
+                }
             }
-        }
 
         a.duration = (targetHeight / v.context.resources.displayMetrics.density).toInt().toLong()
         v.startAnimation(a)
@@ -75,20 +75,22 @@ object ViewAnimation {
     fun collapse(v: View) {
         val initialHeight = v.measuredHeight
 
-        val a = object : Animation() {
-            override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
-                if (interpolatedTime == 1f) {
-                    v.visibility = View.GONE
-                } else {
-                    v.layoutParams.height = initialHeight - (initialHeight * interpolatedTime).toInt()
-                    v.requestLayout()
+        val a =
+            object : Animation() {
+                override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
+                    if (interpolatedTime == 1f) {
+                        v.visibility = View.GONE
+                    } else {
+                        v.layoutParams.height =
+                            initialHeight - (initialHeight * interpolatedTime).toInt()
+                        v.requestLayout()
+                    }
+                }
+
+                override fun willChangeBounds(): Boolean {
+                    return true
                 }
             }
-
-            override fun willChangeBounds(): Boolean {
-                return true
-            }
-        }
 
         a.duration = (initialHeight / v.context.resources.displayMetrics.density).toInt().toLong()
         v.startAnimation(a)
@@ -103,12 +105,14 @@ object ViewAnimation {
         v.animate()
             .setDuration(200)
             .translationY(0f)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    animListener?.onFinish()
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        animListener?.onFinish()
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            })
+            )
             .alpha(1.0f)
             .start()
     }
@@ -121,12 +125,14 @@ object ViewAnimation {
         v.animate()
             .setDuration(200)
             .translationY(v.height.toFloat())
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    animListener?.onFinish()
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        animListener?.onFinish()
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            })
+            )
             .alpha(0.0f)
             .start()
     }
@@ -141,13 +147,15 @@ object ViewAnimation {
         // Prepare the View for the animation
         v.animate()
             .setDuration(200)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    v.visibility = View.VISIBLE
-                    animListener?.onFinish()
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        v.visibility = View.VISIBLE
+                        animListener?.onFinish()
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            })
+            )
             .alpha(1.0f)
     }
 
@@ -160,12 +168,14 @@ object ViewAnimation {
         // Prepare the View for the animation
         v.animate()
             .setDuration(500)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    animListener?.onFinish()
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        animListener?.onFinish()
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            })
+            )
             .alpha(0.0f)
     }
 
@@ -173,11 +183,7 @@ object ViewAnimation {
         v.visibility = View.VISIBLE
         v.alpha = 0f
         v.translationY = v.height.toFloat()
-        v.animate()
-            .setDuration(200)
-            .translationY(0f)
-            .alpha(1f)
-            .start()
+        v.animate().setDuration(200).translationY(0f).alpha(1f).start()
     }
 
     fun initShowOut(v: View) {
@@ -193,21 +199,22 @@ object ViewAnimation {
         v.animate()
             .setDuration(200)
             .translationY(v.height.toFloat())
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    v.visibility = View.GONE
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        v.visibility = View.GONE
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            }).alpha(0f)
+            )
+            .alpha(0f)
             .start()
     }
 
     fun rotateFab(v: View, rotate: Boolean): Boolean {
-        v.animate().setDuration(200)
-            .rotation(if (rotate) 135f else 0f)
+        v.animate().setDuration(200).rotation(if (rotate) 135f else 0f)
         return rotate
     }
-
 
     interface AnimListener {
         fun onFinish()
@@ -223,7 +230,6 @@ object ViewAnimation {
         animatorSet.start()
     }
 
-
     fun showScale(v: View) {
         showScale(v, null)
     }
@@ -233,12 +239,14 @@ object ViewAnimation {
             .scaleY(1f)
             .scaleX(1f)
             .setDuration(200)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    animListener?.onFinish()
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        animListener?.onFinish()
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            })
+            )
             .start()
     }
 
@@ -251,12 +259,14 @@ object ViewAnimation {
             .scaleY(0f)
             .scaleX(0f)
             .setDuration(200)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    animListener?.onFinish()
-                    super.onAnimationEnd(animation)
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        animListener?.onFinish()
+                        super.onAnimationEnd(animation)
+                    }
                 }
-            })
+            )
             .start()
     }
 }

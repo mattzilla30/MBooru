@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">基于 onlymash 及贡献者开发的 Flexbooru。</string>
+    <string name="action_to_top">回到顶部</string>
+    <string name="booru_add_featured">添加推荐站点</string>
+    <string name="booru_config_save_failed">无法保存更改。请重试。</string>
+    <string name="image_search_read_failed">无法读取所选图片。</string>
+    <string name="navigation_drawer_open">打开导航菜单</string>
+    <string name="settings_cache_clear_failed">无法清理缓存。请重试。</string>
+</resources>

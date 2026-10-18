@@ -15,10 +15,9 @@
 
 package com.mattzilla30.mbooru.okhttp
 
+import java.io.IOException
 import okhttp3.Interceptor
 import okhttp3.Response
-
-import java.io.IOException
 
 class ProgressInterceptor : Interceptor {
 
@@ -29,21 +28,20 @@ class ProgressInterceptor : Interceptor {
         val body = response.body
         val url = request.url.toString()
         val listener = LISTENERS_MAP[url] ?: return response
-        return response.newBuilder()
-            .body(ProgressResponseBody(body, listener))
-            .build()
+        return response.newBuilder().body(ProgressResponseBody(body, listener)).build()
     }
 
     companion object {
 
-        private val LISTENERS_MAP: MutableMap<String, ProgressListener> = java.util.concurrent.ConcurrentHashMap()
+        private val LISTENERS_MAP: MutableMap<String, ProgressListener> =
+            java.util.concurrent.ConcurrentHashMap()
 
-        //注册下载监听
+        // 注册下载监听
         fun addListener(url: String, listener: ProgressListener) {
             LISTENERS_MAP[url] = listener
         }
 
-        //取消注册下载监听
+        // 取消注册下载监听
         fun removeListener(url: String) {
             LISTENERS_MAP.remove(url)
         }
@@ -51,23 +49,29 @@ class ProgressInterceptor : Interceptor {
         fun bindUrlWithInterval(url: String, interval: Long, callback: (Int) -> Unit) {
             var startTime = 0L
             var elapsedTime = interval
-            addListener(url, object : ProgressListener {
-                override fun onUpdate(bytesRead: Long, contentLength: Long, done: Boolean) {
-                    val progress = downloadProgress(bytesRead, contentLength, done)
-                    if (elapsedTime >= interval) {
-                        callback.invoke(progress.toInt())
-                        startTime = System.currentTimeMillis()
-                        elapsedTime = 0L
-                    } else {
-                        elapsedTime = System.currentTimeMillis() - startTime
+            addListener(
+                url,
+                object : ProgressListener {
+                    override fun onUpdate(bytesRead: Long, contentLength: Long, done: Boolean) {
+                        val progress = downloadProgress(bytesRead, contentLength, done)
+                        if (elapsedTime >= interval) {
+                            callback.invoke(progress.toInt())
+                            startTime = System.currentTimeMillis()
+                            elapsedTime = 0L
+                        } else {
+                            elapsedTime = System.currentTimeMillis() - startTime
+                        }
                     }
-                }
-            })
+                },
+            )
         }
     }
 }
-internal fun downloadProgress(bytes: Long, length: Long, done: Boolean): Int = when {
-    done -> 100
-    length <= 0 -> 0
-    else -> (bytes.coerceAtLeast(0).toDouble() / length.toDouble() * 100).toInt().coerceIn(0, 100)
-}
+
+internal fun downloadProgress(bytes: Long, length: Long, done: Boolean): Int =
+    when {
+        done -> 100
+        length <= 0 -> 0
+        else ->
+            (bytes.coerceAtLeast(0).toDouble() / length.toDouble() * 100).toInt().coerceIn(0, 100)
+    }

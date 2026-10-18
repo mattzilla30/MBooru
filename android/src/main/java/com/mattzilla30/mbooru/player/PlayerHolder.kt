@@ -22,45 +22,23 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.cache.CacheDataSource
-import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
-import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import com.mattzilla30.mbooru.app.App.Companion.app
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.Booru
-import com.mattzilla30.mbooru.okhttp.AndroidCookieJar
-import java.io.File
+import okhttp3.Interceptor
 
-/**
- * [ExoPlayer] holder
- * */
+/** [ExoPlayer] holder */
 @SuppressLint("UnsafeOptInUsageError")
 class PlayerHolder(
-    private val booru: Booru? = null
+    val resources: MediaResources,
+    private val booru: Booru? = null,
 ) {
 
-    companion object {
-        private var cache: SimpleCache? = null
-        /**
-         * return player network cache [SimpleCache]
-         * */
-        fun cache(): SimpleCache {
-            if (cache == null) {
-                cache = SimpleCache(
-                    File(app.cacheDir, "video"),
-                    LeastRecentlyUsedCacheEvictor(1024 * 1024 * 256L),
-                    DefaultDatabaseProvider.databaseProvider())
-            }
-            return cache!!
-        }
-    }
     private var currentPlayerState: PlayerState? = null
     private val playerStates: MutableList<PlayerState> = mutableListOf()
     private var player: ExoPlayer? = null
@@ -69,73 +47,77 @@ class PlayerHolder(
         val booru = booru
         var interceptor: Interceptor? = null
         if (booru != null) {
-            val referer = when (booru.type) {
-                Values.BOORU_TYPE_DAN1, Values.BOORU_TYPE_MOE -> "${booru.scheme}://${booru.host}/post/"
-                Values.BOORU_TYPE_SANKAKU -> Values.SANKAKU_REFERER
-                else -> "${booru.scheme}://${booru.host}/"
-            }
+            val referer =
+                when (booru.type) {
+                    Values.BOORU_TYPE_DAN1,
+                    Values.BOORU_TYPE_MOE -> "${booru.scheme}://${booru.host}/post/"
+                    Values.BOORU_TYPE_SANKAKU -> Values.SANKAKU_REFERER
+                    else -> "${booru.scheme}://${booru.host}/"
+                }
             interceptor = Interceptor {
                 val request = it.request()
                 it.proceed(request.newBuilder().addHeader(Keys.HEADER_REFERER, referer).build())
             }
         }
-        val okHttpClientBuilder = OkHttpClient.Builder()
-            .cookieJar(AndroidCookieJar)
+        val okHttpClientBuilder = resources.transport.mediaClient().newBuilder()
         if (interceptor != null) {
-            okHttpClientBuilder.addInterceptor(interceptor)
+            okHttpClientBuilder.addNetworkInterceptor(interceptor)
         }
         val okHttpClient = okHttpClientBuilder.build()
-        val okHttpFactory = OkHttpDataSource.Factory(okHttpClient)
-            .setUserAgent(Values.PC_USER_AGENT)
+        val okHttpFactory =
+            OkHttpDataSource.Factory(okHttpClient).setUserAgent(Values.PC_USER_AGENT)
         val sourceFactory = DefaultDataSource.Factory(context, okHttpFactory)
-        val cacheSourceFactory = CacheDataSource.Factory().apply {
-            setCache(cache())
-            setUpstreamDataSourceFactory(sourceFactory)
-        }
+        val cacheSourceFactory =
+            CacheDataSource.Factory().apply {
+                setCache(resources.cache)
+                setUpstreamDataSourceFactory(sourceFactory)
+            }
         return ProgressiveMediaSource.Factory(cacheSourceFactory)
             .createMediaSource(MediaItem.Builder().setUri(uri).build())
     }
 
-    //start play
+    // start play
     fun start(context: Context, uri: Uri, playerView: PlayerView) {
         playerView.player = player
         val mediaSource = createExtractorMediaSource(context, uri)
         val index = playerStates.indexOfFirst { it.uri == uri }
-        currentPlayerState = if (index >= 0) {
-            playerStates[index]
-        } else {
-            PlayerState(uri = uri).also {
-                playerStates.add(it)
+        currentPlayerState =
+            if (index >= 0) {
+                playerStates[index]
+            } else {
+                PlayerState(uri = uri).also {
+                    playerStates.add(it)
+                }
             }
-        }
         player?.apply {
             setMediaSource(mediaSource)
             prepare()
-            playWhenReady = true
             // Restore state (after onResume()/onStart())
             currentPlayerState?.apply {
                 // Start playback when media has buffered enough
                 seekTo(window, position)
+                playWhenReady = whenReady
             }
         }
     }
 
     fun pause() {
         player?.apply {
-            if (playWhenReady) {
-                currentPlayerState?.apply {
-                    position = currentPosition
-                    window = currentMediaItemIndex
-                    whenReady = playWhenReady
-                }
-                playWhenReady = false
-                playbackState
+            currentPlayerState?.apply {
+                position = currentPosition
+                window = currentMediaItemIndex
+                whenReady = playWhenReady
             }
+            playWhenReady = false
         }
     }
 
     fun create(context: Context): ExoPlayer {
-        val player = ExoPlayer.Builder(context).build().apply {
+        this.player?.let {
+            return it
+        }
+        val player =
+            ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
                 repeatMode = Player.REPEAT_MODE_ALL
             }
@@ -144,6 +126,7 @@ class PlayerHolder(
     }
 
     fun release() {
+        pause()
         player?.release()
         player = null
     }

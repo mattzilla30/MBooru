@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-18T17:09:14.158187+00:00",
+  "baselineSha256": "c376506dc526b580ea180b5dd21bd40421fa8f68a2f866e28bf96df28270d808",
+  "candidateSha256": "e0e4e4cad0fd3cd681876521714d95c5ae5fb30a308bd1ec5d057c39015d3818",
+  "signerUnchanged": true,
+  "installedWithReplace": true,
+  "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+  "networkDisabledForFixture": true,
+  "customSiteRetained": true,
+  "historyFiltersRetained": true,
+  "retiredMuzeiTableRemoved": true,
+  "localFavoritesCreated": true,
+  "roomCredentialsMigratedToReferences": true,
+  "settingsMigratedAndRestarted": true,
+  "sauceKeyAbsentFromDataStorePlaintext": true,
+  "api": "28"
+}

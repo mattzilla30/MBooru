@@ -1,7 +1,0 @@
-<resources>
-  <string name="browse_empty">Нет результатов</string>
-  <string name="browse_offline">Нет подключения к сети. Проверьте соединение и повторите попытку.</string>
-  <string name="image_load_retry">Не удалось загрузить изображение. Нажмите для повтора.</string>
-  <string name="post_actions">Действия с публикацией</string>
-  <string name="post_accessibility">Публикация %1$d</string>
-</resources>

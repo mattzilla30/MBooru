@@ -20,8 +20,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MetaSankaku(
-    @SerialName("next")
-    val next: String?,
-    @SerialName("prev")
-    val prev: String?
+    @SerialName("next") val next: String?,
+    @SerialName("prev") val prev: String?,
 )

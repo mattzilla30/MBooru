@@ -17,7 +17,7 @@ package com.mattzilla30.mbooru.extension
 
 import android.view.View
 
-fun View.toVisibility(constraint : Boolean) {
+fun View.toVisibility(constraint: Boolean) {
     visibility = if (constraint) View.VISIBLE else View.GONE
 }
 
@@ -39,8 +39,7 @@ fun View.toggleArrow(): Boolean =
         }
     }
 
-fun View.toggleArrow(show: Boolean): Boolean =
-    toggleArrow(show, true)
+fun View.toggleArrow(show: Boolean): Boolean = toggleArrow(show, true)
 
 fun View.toggleArrow(show: Boolean, delay: Boolean): Boolean =
     when {

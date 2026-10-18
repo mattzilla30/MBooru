@@ -1,0 +1,61 @@
+{
+  "run": "https://github.com/mattzilla30/MBooru/actions/runs/39097485619",
+  "source": "bbf78f74",
+  "result": "success",
+  "productionGitTrees": {
+    "android/src/main": "24b7d654f8c217515d81ab1732261743ea999fff",
+    "core/model/src/main": "f39a5c64533ba95d0847468b53249e46aea492e8"
+  },
+  "deviceTests": [
+    {
+      "report": "android-device-reports-api-28/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 9.xml",
+      "sha256": "06edd17ce73c41159c1bc23bd1b7baf548a1e2d1eeb8cb9d51f08ce775572b91",
+      "passed": [
+        "jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader",
+        "localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer",
+        "imagePinchDisablesParentPagingUntilZoomResets",
+        "gridScrollRestoresAndUsesStablePostKeys",
+        "fullResolutionLocalImageUsesTiledDecoder",
+        "signOutClearsNestedParentDomainCookiesAfterOwnerRecreationWithoutClearingAnotherSite",
+        "credentialsRoundTripOutsideRoomAndMissingPayloadRequiresSignIn",
+        "xmlMediaUsesTheAndroidAdapterAndPreservesWireFields",
+        "drawerSettingsAndActivityRecreationKeepWorking",
+        "phoneLight",
+        "phoneDark",
+        "tablet",
+        "largeTextRtl"
+      ]
+    },
+    {
+      "report": "android-device-reports-api-36/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 16.xml",
+      "sha256": "512788401cd731af825e0f551679a2e1bd64cadf11a2551b208406b3e5b9aa2d",
+      "passed": [
+        "jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader",
+        "localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer",
+        "imagePinchDisablesParentPagingUntilZoomResets",
+        "gridScrollRestoresAndUsesStablePostKeys",
+        "fullResolutionLocalImageUsesTiledDecoder",
+        "signOutClearsNestedParentDomainCookiesAfterOwnerRecreationWithoutClearingAnotherSite",
+        "credentialsRoundTripOutsideRoomAndMissingPayloadRequiresSignIn",
+        "xmlMediaUsesTheAndroidAdapterAndPreservesWireFields",
+        "drawerSettingsAndActivityRecreationKeepWorking"
+      ]
+    },
+    {
+      "report": "android-device-reports-api-21/outputs/androidTest-results/connected/debug/TEST-test(AVD) - 5.0.2.xml",
+      "sha256": "fe99b2e233aaf691741db8b199e8843dcaed4aff50f0e149b3b76d41bba99d0d",
+      "passed": [
+        "jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader",
+        "localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer",
+        "imagePinchDisablesParentPagingUntilZoomResets",
+        "gridScrollRestoresAndUsesStablePostKeys",
+        "fullResolutionLocalImageUsesTiledDecoder",
+        "signOutClearsNestedParentDomainCookiesAfterOwnerRecreationWithoutClearingAnotherSite",
+        "credentialsRoundTripOutsideRoomAndMissingPayloadRequiresSignIn",
+        "xmlMediaUsesTheAndroidAdapterAndPreservesWireFields",
+        "drawerSettingsAndActivityRecreationKeepWorking"
+      ]
+    }
+  ],
+  "scope": "Clean build/unit/lint/release/benchmark verification, API 21/28/36 native tests and four API-28 screenshot comparisons. Physical-device acceptance remains unverified."
+}

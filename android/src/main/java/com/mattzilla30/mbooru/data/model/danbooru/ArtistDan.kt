@@ -14,41 +14,32 @@
  */
 
 package com.mattzilla30.mbooru.data.model.danbooru
-import kotlinx.serialization.Serializable
 
-import kotlinx.serialization.SerialName
 import com.mattzilla30.mbooru.data.model.common.Artist
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class ArtistDan(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("urls")
-    val urls: List<ArtistDanUrl>
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("urls") val urls: List<ArtistDanUrl>,
 ) {
     fun toArtist(): Artist {
         return Artist(
             id = id,
             name = name,
-            urls = urls.map { it.url }
+            urls = urls.map { it.url },
         )
     }
 }
 
 @Serializable
 data class ArtistDanUrl(
-    @SerialName("artist_id")
-    val artistId: Int,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("id")
-    val id: Int,
-    @SerialName("is_active")
-    val isActive: Boolean,
-    @SerialName("updated_at")
-    val updatedAt: String,
-    @SerialName("url")
-    val url: String
+    @SerialName("artist_id") val artistId: Int,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("id") val id: Int,
+    @SerialName("is_active") val isActive: Boolean,
+    @SerialName("updated_at") val updatedAt: String,
+    @SerialName("url") val url: String,
 )

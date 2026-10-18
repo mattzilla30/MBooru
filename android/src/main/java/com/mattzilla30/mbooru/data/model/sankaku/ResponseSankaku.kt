@@ -14,17 +14,12 @@
  */
 
 package com.mattzilla30.mbooru.data.model.sankaku
-import kotlinx.serialization.Serializable
 
 import kotlinx.serialization.SerialName
-
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class ResponseSankaku(
-    @SerialName("data")
-    val posts: List<PostSankaku>,
-    @SerialName("meta")
-    val meta: MetaSankaku
+    @SerialName("data") val posts: List<PostSankaku>,
+    @SerialName("meta") val meta: MetaSankaku,
 )
-
-

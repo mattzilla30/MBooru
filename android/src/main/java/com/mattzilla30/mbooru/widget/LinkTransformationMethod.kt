@@ -40,7 +40,8 @@ class LinkTransformationMethod : TransformationMethod {
                             },
                             getSpanStart(span),
                             getSpanEnd(span),
-                            getSpanFlags(span))
+                            getSpanFlags(span),
+                        )
                         removeSpan(span)
                     }
                 }
@@ -55,8 +56,6 @@ class LinkTransformationMethod : TransformationMethod {
         sourceText: CharSequence?,
         focused: Boolean,
         direction: Int,
-        previouslyFocusedRect: Rect?
-    ) {
-
-    }
+        previouslyFocusedRect: Rect?,
+    ) {}
 }

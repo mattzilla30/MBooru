@@ -15,46 +15,31 @@
 
 package com.mattzilla30.mbooru.data.model.shimmie
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.utils.getShimmieDateMillis
 import com.mattzilla30.mbooru.data.utils.toSafeUrl
-
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("post")
 data class PostShimmie(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("preview_url")
-    val previewUrl: String?,
-    @SerialName("preview_width")
-    val previewWidth: Int,
-    @SerialName("preview_height")
-    val previewHeight: Int,
-    @SerialName("file_url")
-    val fileUrl: String?,
-    @SerialName("file_name")
-    val fileName: String,
-    @SerialName("width")
-    val width: Int,
-    @SerialName("height")
-    val height: Int,
-    @SerialName("score")
-    val score: Int,
-    @SerialName("tags")
-    val tags: String,
-    @SerialName("date")
-    val date: String,
-    @SerialName("author")
-    val author: String,
-    @SerialName("rating")
-    val rating: String,
-    @SerialName("source")
-    val source: String? = null
+    @SerialName("id") val id: Int,
+    @SerialName("preview_url") val previewUrl: String?,
+    @SerialName("preview_width") val previewWidth: Int,
+    @SerialName("preview_height") val previewHeight: Int,
+    @SerialName("file_url") val fileUrl: String?,
+    @SerialName("file_name") val fileName: String,
+    @SerialName("width") val width: Int,
+    @SerialName("height") val height: Int,
+    @SerialName("score") val score: Int,
+    @SerialName("tags") val tags: String,
+    @SerialName("date") val date: String,
+    @SerialName("author") val author: String,
+    @SerialName("rating") val rating: String,
+    @SerialName("source") val source: String? = null,
 ) {
     fun toPost(booruUid: Long, query: String, scheme: String, host: String, index: Int): Post {
         return Post(
@@ -75,7 +60,7 @@ data class PostShimmie(
             origin = fileUrl?.toSafeUrl(scheme, host) ?: "",
             source = source,
             uploader = User(id = 1, name = author),
-            isFavored = false
+            isFavored = false,
         )
     }
 }
@@ -83,34 +68,20 @@ data class PostShimmie(
 @Serializable
 @SerialName("tag")
 data class PostShimmieTag(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("preview_url")
-    val previewUrl: String?,
-    @SerialName("preview_width")
-    val previewWidth: Int,
-    @SerialName("preview_height")
-    val previewHeight: Int,
-    @SerialName("file_url")
-    val fileUrl: String?,
-    @SerialName("file_name")
-    val fileName: String,
-    @SerialName("width")
-    val width: Int,
-    @SerialName("height")
-    val height: Int,
-    @SerialName("score")
-    val score: Int,
-    @SerialName("tags")
-    val tags: String,
-    @SerialName("date")
-    val date: String,
-    @SerialName("author")
-    val author: String,
-    @SerialName("rating")
-    val rating: String,
-    @SerialName("source")
-    val source: String? = null
+    @SerialName("id") val id: Int,
+    @SerialName("preview_url") val previewUrl: String?,
+    @SerialName("preview_width") val previewWidth: Int,
+    @SerialName("preview_height") val previewHeight: Int,
+    @SerialName("file_url") val fileUrl: String?,
+    @SerialName("file_name") val fileName: String,
+    @SerialName("width") val width: Int,
+    @SerialName("height") val height: Int,
+    @SerialName("score") val score: Int,
+    @SerialName("tags") val tags: String,
+    @SerialName("date") val date: String,
+    @SerialName("author") val author: String,
+    @SerialName("rating") val rating: String,
+    @SerialName("source") val source: String? = null,
 ) {
     fun toPost(booruUid: Long, query: String, scheme: String, host: String, index: Int): Post {
         return Post(
@@ -131,7 +102,7 @@ data class PostShimmieTag(
             origin = fileUrl?.toSafeUrl(scheme, host) ?: "",
             source = source,
             uploader = User(id = 1, name = author),
-            isFavored = false
+            isFavored = false,
         )
     }
 }

@@ -19,8 +19,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 
-
-private val REGEX_HOST = "^(?=.{1,255}\$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\\.?\$".toRegex()
+private val REGEX_HOST =
+    "^(?=.{1,255}\$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\\.?\$"
+        .toRegex()
 
 private val REGEX_NUMBER = "-?\\d+(\\.\\d+)?".toRegex()
 

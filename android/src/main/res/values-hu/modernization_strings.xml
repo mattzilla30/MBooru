@@ -1,7 +1,0 @@
-<resources>
-  <string name="browse_empty">Nincs találat</string>
-  <string name="browse_offline">Nincs kapcsolat. Ellenőrizd a kapcsolatot, majd próbáld újra.</string>
-  <string name="image_load_retry">A kép nem tölthető be. Koppints az újrapróbálkozáshoz.</string>
-  <string name="post_actions">Bejegyzés műveletei</string>
-  <string name="post_accessibility">Bejegyzés: %1$d</string>
-</resources>

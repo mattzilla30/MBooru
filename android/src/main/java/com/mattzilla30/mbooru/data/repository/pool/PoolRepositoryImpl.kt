@@ -16,22 +16,24 @@
 package com.mattzilla30.mbooru.data.repository.pool
 
 import androidx.paging.*
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionPool
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.model.common.Pool
+import kotlinx.coroutines.flow.Flow
 
 class PoolRepositoryImpl(private val booruApis: BooruApis) : PoolRepository {
 
     override fun getPools(action: ActionPool): Flow<PagingData<Pool>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = action.limit,
-                enablePlaceholders = true
-            ),
-            initialKey = 1
-        ) {
-            PoolPagingSource(action, booruApis)
-        }.flow
+                config =
+                    PagingConfig(
+                        pageSize = action.limit,
+                        enablePlaceholders = true,
+                    ),
+                initialKey = 1,
+            ) {
+                PoolPagingSource(action, booruApis)
+            }
+            .flow
     }
 }

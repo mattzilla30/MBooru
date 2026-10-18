@@ -15,30 +15,24 @@
 
 package com.mattzilla30.mbooru.data.api
 
+import com.mattzilla30.mbooru.data.model.gelbooru.*
 import okhttp3.HttpUrl
 import okhttp3.ResponseBody
-import com.mattzilla30.mbooru.data.model.gelbooru.*
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Url
 
 interface GelbooruApi {
 
-    @GET
-    suspend fun getPosts(@Url httpUrl: HttpUrl): Response<PostGelResponse>
+    @GET suspend fun getPosts(@Url httpUrl: HttpUrl): Response<PostGelResponse>
 
-    @GET
-    suspend fun getTags(@Url httpUrl: HttpUrl): Response<TagGelResponse>
+    @GET suspend fun getTags(@Url httpUrl: HttpUrl): Response<TagGelResponse>
 
-    @GET
-    suspend fun getPostsLegacy(@Url httpUrl: HttpUrl): Response<PostGelLegacyResponse>
+    @GET suspend fun getPostsLegacy(@Url httpUrl: HttpUrl): Response<PostGelLegacyResponse>
 
-    @GET
-    suspend fun getTagsLegacy(@Url httpUrl: HttpUrl): Response<TagGelLegacyResponse>
+    @GET suspend fun getTagsLegacy(@Url httpUrl: HttpUrl): Response<TagGelLegacyResponse>
 
-    @GET
-    suspend fun getComments(@Url httpUrl: HttpUrl): Response<CommentGelResponse>
+    @GET suspend fun getComments(@Url httpUrl: HttpUrl): Response<CommentGelResponse>
 
-    @GET
-    suspend fun favPost(@Url httpUrl: HttpUrl): Response<ResponseBody>
+    @GET suspend fun favPost(@Url httpUrl: HttpUrl): Response<ResponseBody>
 }

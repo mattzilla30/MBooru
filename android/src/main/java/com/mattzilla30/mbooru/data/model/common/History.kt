@@ -17,18 +17,21 @@ package com.mattzilla30.mbooru.data.model.common
 
 import androidx.room.*
 
-@Entity(tableName = "history", indices = [(Index(value = ["booru_uid", "query"], unique = true))],
-    foreignKeys = [(ForeignKey(
-        entity = Booru::class,
-        parentColumns = ["uid"],
-        childColumns = ["booru_uid"],
-        onDelete = ForeignKey.CASCADE))])
+@Entity(
+    tableName = "history",
+    indices = [(Index(value = ["booru_uid", "query"], unique = true))],
+    foreignKeys =
+        [
+            (ForeignKey(
+                entity = Booru::class,
+                parentColumns = ["uid"],
+                childColumns = ["booru_uid"],
+                onDelete = ForeignKey.CASCADE,
+            ))
+        ],
+)
 data class History(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "uid")
-    var uid: Long = 0L,
-    @ColumnInfo(name = "booru_uid")
-    val booruUid: Long,
-    @ColumnInfo(name = "query")
-    var query: String
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "uid") var uid: Long = 0L,
+    @ColumnInfo(name = "booru_uid") val booruUid: Long,
+    @ColumnInfo(name = "query") var query: String,
 )

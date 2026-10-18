@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.pageLimit
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.data.action.ActionPool
@@ -80,8 +79,8 @@ class PoolScreenController(
         ) { item ->
             PoolRow(
                 item,
-                requireContext().formatDate(item.time).orEmpty(),
-                { SearchActivity.startSearch(requireContext(), "pool:${item.id}") },
+                host.formatDate(item.time).orEmpty(),
+                { SearchActivity.startSearch(host, "pool:${item.id}") },
                 { action?.booru?.let { handlePoolDownload(item.id, it) } },
                 {
                     if (
@@ -89,7 +88,7 @@ class PoolScreenController(
                             item.booruType == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SANKAKU
                     )
                         startActivity(
-                            Intent(requireContext(), AccountActivity::class.java).apply {
+                            Intent(host, AccountActivity::class.java).apply {
                                 putExtra(AccountActivity.USER_ID_KEY, item.creatorId)
                                 putExtra(AccountActivity.USER_NAME_KEY, item.creatorName)
                                 putExtra(AccountActivity.USER_AVATAR_KEY, item.creatorAvatar)
@@ -126,7 +125,7 @@ class PoolScreenController(
         return when (booruType) {
             BOORU_TYPE_MOE,
             BOORU_TYPE_DAN1 -> 20
-            else -> pageLimit
+            else -> settings.pageLimit
         }
     }
 
@@ -142,7 +141,7 @@ class PoolScreenController(
         if (booru.type != BOORU_TYPE_MOE) {
             return
         }
-        val activity = activity as? PathActivity ?: return
+        val activity = host as? PathActivity ?: return
         AlertDialog.Builder(activity)
             .setTitle("Pool $poolId")
             .setItems(activity.resources.getStringArray(R.array.pool_item_action)) { _, which ->
@@ -169,6 +168,6 @@ class PoolScreenController(
                 .addQueryParameter("login", booru.user?.name)
                 .addQueryParameter("password_hash", booru.user?.token)
                 .build()
-        context?.launchUrl(url.toString())
+        host.launchUrl(url.toString())
     }
 }

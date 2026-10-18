@@ -15,24 +15,22 @@
 
 package com.mattzilla30.mbooru.data.utils
 
-import com.mattzilla30.mbooru.app.Values.DATE_PATTERN_SHIMMIE
 import com.mattzilla30.mbooru.app.Values.DATE_PATTERN_DAN as PATTERN_DAN
 import com.mattzilla30.mbooru.app.Values.DATE_PATTERN_GEL as PATTERN_GEL
+import com.mattzilla30.mbooru.app.Values.DATE_PATTERN_SHIMMIE
 import com.mattzilla30.mbooru.extension.formatDate
 import java.text.SimpleDateFormat
 import java.util.*
 
+/** Only network URLs cross the engine boundary; remote DTOs must not select local files/intents. */
 fun String.toSafeUrl(scheme: String, host: String): String {
-    var url = this
-    if (contains("""\/""")) {
-        url = url.replace("""\/""", "/")
-    }
-    return when {
-        url.startsWith("http") -> url
-        url.startsWith("//") -> "$scheme:$url"
-        url.startsWith("/") -> "$scheme://$host$url"
-        else -> url
-    }
+    val value = replace("""\/""", "/").trim()
+    if (value.isEmpty() || value.any { it.code < 32 }) return ""
+    val base =
+        runCatching { okhttp3.HttpUrl.Builder().scheme(scheme).host(host).build() }.getOrNull()
+            ?: return ""
+    val url = base.resolve(value) ?: return ""
+    return if (url.username.isEmpty() && url.password.isEmpty()) url.toString() else ""
 }
 
 fun String.getDanDateMillis(): Long? {
@@ -48,16 +46,13 @@ fun String.getShimmieDateMillis(): Long? =
     SimpleDateFormat(DATE_PATTERN_SHIMMIE, Locale.ENGLISH).parse(this)?.time
 
 fun String.formatDateDan(): CharSequence? =
-    SimpleDateFormat(PATTERN_DAN, Locale.ENGLISH)
-        .parse(this)?.time?.formatDate()
+    SimpleDateFormat(PATTERN_DAN, Locale.ENGLISH).parse(this)?.time?.formatDate()
 
 fun String.formatDateGel(): CharSequence? =
-    SimpleDateFormat(PATTERN_GEL, Locale.ENGLISH)
-        .parse(this)?.time?.formatDate()
+    SimpleDateFormat(PATTERN_GEL, Locale.ENGLISH).parse(this)?.time?.formatDate()
 
 fun String.formatDateShimmie(): CharSequence? =
-    SimpleDateFormat(DATE_PATTERN_SHIMMIE, Locale.ENGLISH)
-        .parse(this)?.time?.formatDate()
+    SimpleDateFormat(DATE_PATTERN_SHIMMIE, Locale.ENGLISH).parse(this)?.time?.formatDate()
 
 fun List<String>.toQuery(): String {
     var query = ""

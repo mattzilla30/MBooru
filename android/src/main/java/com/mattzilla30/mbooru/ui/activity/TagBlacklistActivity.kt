@@ -16,12 +16,9 @@
 package com.mattzilla30.mbooru.ui.activity
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,22 +29,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.viewmodel.getBooruViewModel
 import org.koin.android.ext.android.inject
 
 class TagBlacklistActivity : BaseActivity() {
+    private val siteManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val booruDao by inject<BooruDao>()
-    private val model by lazy { getBooruViewModel(booruDao) }
+    private val model by lazy { getBooruViewModel(booruDao, siteManager) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_tag_blacklist)
-        model.loadBooru(Settings.activatedBooruUid)
+        model.loadBooru(settings.activatedBooruUid)
         setComposeContent {
             val booru by model.booruState.collectAsStateWithLifecycle()
             var adding by rememberSaveable { mutableStateOf(false) }
@@ -113,7 +110,10 @@ class TagBlacklistActivity : BaseActivity() {
                     onClick = { if (booru != null) adding = true },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 ) {
-                    Icon(Icons.Default.Add, stringResource(R.string.tag_blacklist_add))
+                    Icon(
+                        painterResource(R.drawable.ic_add_24dp),
+                        stringResource(R.string.tag_blacklist_add),
+                    )
                 }
             }
             if (adding)
@@ -148,11 +148,11 @@ class TagBlacklistActivity : BaseActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
+    override fun onAction(action: AppActionKey): Boolean {
+        if (action == AppActionKey.Back) {
             onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return super.onAction(action)
     }
 }

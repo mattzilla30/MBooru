@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">沒有結果</string>
-  <string name="browse_offline">目前離線。請檢查網路連線後重試。</string>
-  <string name="image_load_retry">無法載入圖片。點按重試。</string>
-  <string name="post_actions">貼文操作</string>
-  <string name="post_accessibility">貼文 %1$d</string>
+    <string name="browse_empty">沒有結果</string>
+    <string name="browse_offline">目前離線。請檢查網路連線後重試。</string>
+    <string name="image_load_retry">無法載入圖片。點按重試。</string>
+    <string name="post_actions">貼文操作</string>
+    <string name="post_accessibility">貼文 %1$d</string>
+    <string name="booru_empty_message">新增推薦或自訂網站以開始瀏覽。</string>
+    <string name="title_downloads">下載</string>
+    <string name="download_resume_policy">如伺服器和儲存空間供應商支援，重試時會繼續下載；否則將重新開始。Android 可能暫停背景傳輸。</string>
+    <string name="download_queue_empty">尚無下載。</string>
+    <string name="download_state_queued">已排隊 · 等候傳輸</string>
+    <string name="download_state_running">正在下載</string>
+    <string name="download_state_completed">已完成</string>
+    <string name="download_state_failed">失敗 · 請檢查網絡、登入狀態和資料夾權限</string>
+    <string name="download_state_cancelled">已取消</string>
+    <string name="download_bytes_unknown">%1$d 位元組 · 總大小未知</string>
+    <string name="download_bytes_total">%1$d / %2$d 位元組</string>
+    <string name="download_open_file">開啟檔案</string>
+    <string name="settings_load_failed">無法載入設定</string>
+    <string name="settings_load_recovery">你的設定已保留。請重試；MBooru 不會自動重設設定。</string>
+    <string name="settings_write_failed">無法儲存設定。請在關閉應用程式前重試。</string>
 </resources>

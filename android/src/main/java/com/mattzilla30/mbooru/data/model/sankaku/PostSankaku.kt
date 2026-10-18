@@ -15,100 +15,61 @@
 
 package com.mattzilla30.mbooru.data.model.sankaku
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.Date
+import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.utils.toSafeUrl
-
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PostSankaku(
-    @SerialName("author")
-    val author: AuthorSankaku,
-    @SerialName("change")
-    val change: Int,
-    @SerialName("comment_count")
-    val commentCount: Int?,
-    @SerialName("created_at")
-    val createdAt: Date,
-    @SerialName("fav_count")
-    val favCount: Int,
-    @SerialName("file_size")
-    val fileSize: Int,
-    @SerialName("file_type")
-    val fileType: String? = null,
-    @SerialName("file_url")
-    val fileUrl: String?,
-    @SerialName("has_children")
-    val hasChildren: Boolean,
-    @SerialName("has_comments")
-    val hasComments: Boolean,
-    @SerialName("has_notes")
-    val hasNotes: Boolean,
-    @SerialName("height")
-    val height: Int?,
-    @SerialName("id")
-    val id: Int,
-    @SerialName("in_visible_pool")
-    val inVisiblePool: Boolean,
-    @SerialName("is_favorited")
-    val isFavorited: Boolean,
-    @SerialName("is_premium")
-    val isPremium: Boolean,
-    @SerialName("md5")
-    val md5: String,
-    @SerialName("parent_id")
-    val parentId: Long?,
-    @SerialName("preview_height")
-    val previewHeight: Int?,
-    @SerialName("preview_url")
-    val previewUrl: String?,
-    @SerialName("preview_width")
-    val previewWidth: Int?,
-    @SerialName("rating")
-    val rating: String?,
-    @SerialName("recommended_posts")
-    val recommendedPosts: Int,
-    @SerialName("recommended_score")
-    val recommendedScore: Int,
-    @SerialName("redirect_to_signup")
-    val redirectToSignup: Boolean,
-    @SerialName("sample_height")
-    val sampleHeight: Int?,
-    @SerialName("sample_url")
-    val sampleUrl: String?,
-    @SerialName("sample_width")
-    val sampleWidth: Int?,
-    @SerialName("source")
-    val source: String?,
-    @SerialName("status")
-    val status: String,
-    @SerialName("tags")
-    val tags: List<TagSankaku>,
-    @SerialName("total_score")
-    val totalScore: Int,
-    @SerialName("vote_count")
-    val voteCount: Int,
-    @SerialName("width")
-    val width: Int?
+    @SerialName("author") val author: AuthorSankaku,
+    @SerialName("change") val change: Int,
+    @SerialName("comment_count") val commentCount: Int?,
+    @SerialName("created_at") val createdAt: Date,
+    @SerialName("fav_count") val favCount: Int,
+    @SerialName("file_size") val fileSize: Int,
+    @SerialName("file_type") val fileType: String? = null,
+    @SerialName("file_url") val fileUrl: String?,
+    @SerialName("has_children") val hasChildren: Boolean,
+    @SerialName("has_comments") val hasComments: Boolean,
+    @SerialName("has_notes") val hasNotes: Boolean,
+    @SerialName("height") val height: Int?,
+    @SerialName("id") val id: Int,
+    @SerialName("in_visible_pool") val inVisiblePool: Boolean,
+    @SerialName("is_favorited") val isFavorited: Boolean,
+    @SerialName("is_premium") val isPremium: Boolean,
+    @SerialName("md5") val md5: String,
+    @SerialName("parent_id") val parentId: Long?,
+    @SerialName("preview_height") val previewHeight: Int?,
+    @SerialName("preview_url") val previewUrl: String?,
+    @SerialName("preview_width") val previewWidth: Int?,
+    @SerialName("rating") val rating: String?,
+    @SerialName("recommended_posts") val recommendedPosts: Int,
+    @SerialName("recommended_score") val recommendedScore: Int,
+    @SerialName("redirect_to_signup") val redirectToSignup: Boolean,
+    @SerialName("sample_height") val sampleHeight: Int?,
+    @SerialName("sample_url") val sampleUrl: String?,
+    @SerialName("sample_width") val sampleWidth: Int?,
+    @SerialName("source") val source: String?,
+    @SerialName("status") val status: String,
+    @SerialName("tags") val tags: List<TagSankaku>,
+    @SerialName("total_score") val totalScore: Int,
+    @SerialName("vote_count") val voteCount: Int,
+    @SerialName("width") val width: Int?,
 ) {
 
-    private fun previewUrl(scheme: String, host: String) =
-        previewUrl?.toSafeUrl(scheme, host)
+    private fun previewUrl(scheme: String, host: String) = previewUrl?.toSafeUrl(scheme, host)
 
-    private fun sampleUrl(scheme: String, host: String) =
-        sampleUrl?.toSafeUrl(scheme, host)
+    private fun sampleUrl(scheme: String, host: String) = sampleUrl?.toSafeUrl(scheme, host)
 
     private fun mediumUrl(scheme: String, host: String) = sampleUrl(scheme, host)
 
-    private fun originUrl(scheme: String, host: String) =
-        fileUrl?.toSafeUrl(scheme, host)
+    private fun originUrl(scheme: String, host: String) = fileUrl?.toSafeUrl(scheme, host)
 
-    private fun String.getTags(): List<TagBase> =
-        trim().split(" ").map { TagBase(it, -1) }
+    private fun String.getTags(): List<TagBase> = trim().split(" ").map { TagBase(it, -1) }
 
     private fun TagSankaku.toTagBase(): TagBase = TagBase(name, type)
 
@@ -128,13 +89,12 @@ data class PostSankaku(
             time = createdAt.s * 1000L,
             tags = tags.toTags(),
             preview = previewUrl(scheme, host) ?: "",
-            sample = sampleUrl(scheme, host)  ?: "",
-            medium = mediumUrl(scheme, host)  ?: "",
-            origin = originUrl(scheme, host)  ?: "",
+            sample = sampleUrl(scheme, host) ?: "",
+            medium = mediumUrl(scheme, host) ?: "",
+            origin = originUrl(scheme, host) ?: "",
             source = source,
             isFavored = isFavorited,
-            uploader = User(id = author.id, name = author.name, avatar = author.avatar)
+            uploader = User(id = author.id, name = author.name, avatar = author.avatar),
         )
     }
-
 }

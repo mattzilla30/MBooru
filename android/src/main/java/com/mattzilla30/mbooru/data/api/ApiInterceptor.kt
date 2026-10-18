@@ -15,27 +15,33 @@
 
 package com.mattzilla30.mbooru.data.api
 
-import okhttp3.Interceptor
-import okhttp3.Response
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.app.Values
+import okhttp3.Interceptor
+import okhttp3.Response
 
 class ApiInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val requests =  chain.request().newBuilder()
-            .header(Keys.HEADER_USER_AGENT, Values.MOBILE_USER_AGENT)
-            .build()
+        val requests =
+            chain
+                .request()
+                .newBuilder()
+                .header(Keys.HEADER_USER_AGENT, Values.MOBILE_USER_AGENT)
+                .build()
         return chain.proceed(requests)
     }
 }
 
 class ApiSankakuInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val requests =  chain.request().newBuilder()
-            .header(Keys.HEADER_USER_AGENT, Values.PC_USER_AGENT)
-            .header(Keys.HEADER_ORIGIN, Values.SANKAKU_ORIGIN)
-            .header(Keys.HEADER_REFERER, Values.SANKAKU_REFERER)
-            .build()
+        val requests =
+            chain
+                .request()
+                .newBuilder()
+                .header(Keys.HEADER_USER_AGENT, Values.PC_USER_AGENT)
+                .header(Keys.HEADER_ORIGIN, Values.SANKAKU_ORIGIN)
+                .header(Keys.HEADER_REFERER, Values.SANKAKU_REFERER)
+                .build()
         return chain.proceed(requests)
     }
 }

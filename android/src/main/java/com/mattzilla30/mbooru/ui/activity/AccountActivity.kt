@@ -16,8 +16,6 @@
 package com.mattzilla30.mbooru.ui.activity
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
@@ -36,9 +34,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.BooruManager
@@ -47,11 +44,17 @@ import com.mattzilla30.mbooru.data.repository.user.UserRepositoryImpl
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.account.AccountViewModel
+import com.mattzilla30.mbooru.ui.compose.common.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import org.koin.core.component.inject
 
-class AccountActivity : PathActivity() {
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+class AccountActivity : PathActivity(), org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     companion object {
         const val USER_ID_KEY = "user_id"
         const val USER_NAME_KEY = "user_name"
@@ -59,7 +62,7 @@ class AccountActivity : PathActivity() {
     }
 
     private val apis by inject<BooruApis>()
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
+    private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
     private var confirmRemoval by mutableStateOf(false)
     private val model by
         viewModels<AccountViewModel> {
@@ -74,12 +77,19 @@ class AccountActivity : PathActivity() {
                     )
                 else site.user
             viewModelFactory {
-                initializer { AccountViewModel(UserRepositoryImpl(apis), site, user) }
+                initializer { AccountViewModel(UserRepositoryImpl(apis), site, user, booruManager) }
             }
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            booru = booruManager.getBooruByUid(settings.activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            initializeContent()
+        }
+    }
+
+    private fun initializeContent() {
         val site = booru ?: return finish()
         screenTitle = getString(R.string.title_account_and_booru, site.name)
         setComposeContent {
@@ -214,21 +224,19 @@ class AccountActivity : PathActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (booru?.user != null) menuInflater.inflate(R.menu.account, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            android.R.id.home -> {
+    override fun onAction(action: AppActionKey): Boolean =
+        when (action) {
+            AppActionKey.Back -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
-            R.id.action_account_remove -> {
+            AppActionKey.AccountRemove -> {
                 confirmRemoval = true
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onAction(action)
         }
+
+    @androidx.compose.runtime.Composable
+    override fun appActions() = if (booru?.user != null) AppMenu.Account.actions() else emptyList()
 }

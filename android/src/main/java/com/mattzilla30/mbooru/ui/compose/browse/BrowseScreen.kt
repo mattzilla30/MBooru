@@ -1,12 +1,8 @@
+/* Boorusphere HomeSearchBar layout adapted to Compose; Chaldeaprjkt, BSD-3-Clause.
+ * Original notice: assets/licenses/boorusphere.txt. MBooru modifications © 2026 mattzilla30. */
 package com.mattzilla30.mbooru.ui.compose.browse
 
-import android.view.MenuItem
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.view.SupportMenuInflater
-import androidx.appcompat.widget.PopupMenu
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,22 +12,22 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import com.mattzilla30.mbooru.ui.compose.common.menuActions
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.mattzilla30.mbooru.R
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.actions
 
 @Composable
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 fun BrowseScreen(
     state: BrowseUiState,
     hint: String,
@@ -40,99 +36,296 @@ fun BrowseScreen(
     onMode: (Int) -> Unit,
     onSearch: (String) -> Unit,
     onNavigate: () -> Unit,
-    onMenu: (MenuItem) -> Unit,
-    onAddToMuzei: (String) -> Unit,
+    onMenu: (AppActionKey) -> Unit,
     bottomPadding: Boolean,
+    onServers: () -> Unit = onNavigate,
+    autoHideBottomBar: Boolean = false,
     filters: @Composable () -> Unit = {},
     content: @Composable (Modifier) -> Unit,
 ) {
     BackHandler(state.mode != 0) { onMode(0) }
-    var editing by remember { mutableStateOf(androidx.compose.ui.text.input.TextFieldValue(state.query)) }
-    LaunchedEffect(state.query) { if (editing.text != state.query) editing = androidx.compose.ui.text.input.TextFieldValue(state.query) }
-    val view = androidx.compose.ui.platform.LocalView.current
-    val addSelection by rememberUpdatedState { onAddToMuzei(editing.text.substring(editing.selection.min, editing.selection.max)) }
-    val textToolbar = remember(view) { SearchTextToolbar(view) { addSelection() } }
-    DisposableEffect(textToolbar) { onDispose { textToolbar.hide() } }
-    var overflow by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
-    LaunchedEffect(state.mode) { if (state.mode == 1) { focus.requestFocus(); keyboard?.show() } }
-    val context = LocalContext.current
-    val actions = remember(state.menu, context) { menuActions(context, state.menu) }
-    var submenu by remember { mutableStateOf<Int?>(null) }
-    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)).statusBarsPadding().imePadding()) {
+    var overflow by remember { mutableStateOf(false) }
+    var ratings by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val actions = remember(state.menu, context) { state.menu.actions() }
+    LaunchedEffect(state.mode) {
+        if (state.mode == 1) {
+            focus.requestFocus()
+            keyboard?.show()
+        } else keyboard?.hide()
+    }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(
+            Modifier.fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .imePadding()
+        ) {
+            // Content begins at the top, with the reference app's search controls anchored below
+            // it.
             com.mattzilla30.mbooru.ui.compose.common.ConnectivityBanner()
-            Surface(shape = RoundedCornerShape(12.dp), tonalElevation = 2.dp,
-                modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp).fillMaxWidth()) {
-                Row(Modifier.heightIn(min = 54.dp), verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { if (state.mode != 0) onMode(0) else onNavigate() }) {
-                        Icon(if (state.mode == 0 && bottomPadding) Icons.Default.Menu else Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(if (state.mode == 0 && bottomPadding) R.string.navigation_drawer_open else androidx.appcompat.R.string.abc_action_bar_up_description))
-                    }
-                    if (state.mode == 1 || state.mode == 2) {
-                        CompositionLocalProvider(androidx.compose.ui.platform.LocalTextToolbar provides textToolbar) {
-                        TextField(editing, onValueChange = { editing = it; onQuery(it.text) },
-                            placeholder = { Text(hint, style = MaterialTheme.typography.bodyLarge) },
-                            singleLine = true, modifier = Modifier.weight(1f).testTag("browse-query-input").focusRequester(focus),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            keyboardActions = KeyboardActions(onSearch = { onSearch(state.query) }),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent))
+            if (state.mode == 2)
+                Box(Modifier.weight(1f).fillMaxWidth().statusBarsPadding()) { filters() }
+            else content(Modifier.weight(1f).fillMaxWidth().statusBarsPadding())
+            if (state.mode == 1 && suggestions.isNotEmpty()) {
+                LazyColumn(Modifier.heightIn(max = 280.dp).fillMaxWidth()) {
+                    items(suggestions.distinct(), key = { it }) { tag ->
+                        Row(
+                            Modifier.fillMaxWidth()
+                                .clickable {
+                                    onQuery(tag)
+                                    onSearch(tag)
+                                }
+                                .padding(horizontal = 24.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.ic_search_24dp),
+                                null,
+                                Modifier.size(20.dp),
+                            )
+                            Text(
+                                tag,
+                                Modifier.padding(start = 24.dp),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
                         }
-                    } else Text(state.title.ifEmpty { stringResource(R.string.app_name) },
-                        modifier = Modifier.weight(1f).testTag("browse-query-toggle").clickable { onMode(1) }.padding(vertical = 16.dp),
-                        style = MaterialTheme.typography.bodyLarge)
-                    if (state.query.isNotEmpty() && state.mode != 0 && actions.none { it.item.itemId == R.id.action_expand_or_clear }) IconButton(onClick = { onQuery("") }) {
-                        Icon(painterResource(R.drawable.ic_close_24dp), stringResource(androidx.appcompat.R.string.abc_searchview_description_clear))
                     }
-                    actions.filter { it.direct && it.item.isVisible }.forEach { action ->
-                        Box {
-                            IconButton(onClick = {
-                                if (action.item.hasSubMenu()) submenu = action.item.itemId else onMenu(action.item)
-                            }) {
-                                Icon(painterResource(action.icon), action.item.title.toString(),
-                                    modifier = if (action.item.itemId == R.id.action_expand_or_clear && state.mode != 0) Modifier.rotate(135f) else Modifier)
+                }
+            }
+            androidx.compose.animation.AnimatedVisibility(
+                visible =
+                    !autoHideBottomBar ||
+                        com.mattzilla30.mbooru.ui.compose.navigation.LocalNavigationVisible
+                            .current ||
+                        state.mode != 0
+            ) {
+                Surface(
+                    tonalElevation = 1.dp,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = .97f),
+                    modifier = Modifier.fillMaxWidth().testTag("sphere-bottom-search"),
+                ) {
+                    Column(Modifier.navigationBarsPadding()) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        if (state.mode == 1)
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                TextButton(onClick = { ratings = true }) {
+                                    Text(stringResource(R.string.rating))
+                                }
+                                TextButton(onClick = { onMode(2) }) {
+                                    Text(stringResource(R.string.sphere_filters))
+                                }
+                                TextButton(onClick = { onQuery("") }) {
+                                    Text(stringResource(R.string.sphere_clear))
+                                }
                             }
-                            val sub = action.item.subMenu
-                            DropdownMenu(expanded = submenu == action.item.itemId, onDismissRequest = { submenu = null }) {
-                                if (sub != null) repeat(sub.size()) { index ->
-                                    val item = sub.getItem(index)
-                                    DropdownMenuItem(text = { Text(item.title.toString()) }, onClick = { submenu = null; onMenu(item) })
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color =
+                                MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .5f),
+                            modifier =
+                                Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .fillMaxWidth(),
+                        ) {
+                            Row(
+                                Modifier.heightIn(min = 56.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        if (state.mode != 0) onMode(0)
+                                        else if (bottomPadding) onServers() else onNavigate()
+                                    }
+                                ) {
+                                    if (state.mode == 0 && bottomPadding)
+                                        Box(Modifier.size(32.dp)) {
+                                            coil3.compose.AsyncImage(
+                                                state.booru?.let {
+                                                    "${it.scheme}://${it.host}/favicon.ico"
+                                                },
+                                                stringResource(R.string.sphere_select_server),
+                                                modifier =
+                                                    Modifier.size(21.dp).align(Alignment.Center),
+                                            )
+                                            Surface(
+                                                shape = RoundedCornerShape(20.dp),
+                                                color = MaterialTheme.colorScheme.primaryContainer,
+                                                modifier = Modifier.align(Alignment.BottomEnd),
+                                            ) {
+                                                Text(
+                                                    if (state.query.contains("rating:explicit")) "e"
+                                                    else if (
+                                                        state.query.contains("rating:questionable")
+                                                    )
+                                                        "q"
+                                                    else "s",
+                                                    Modifier.padding(horizontal = 4.dp),
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color =
+                                                        MaterialTheme.colorScheme
+                                                            .onPrimaryContainer,
+                                                )
+                                            }
+                                        }
+                                    else
+                                        Icon(
+                                            painterResource(R.drawable.ic_arrow_back_24dp),
+                                            stringResource(
+                                                androidx.appcompat.R.string
+                                                    .abc_action_bar_up_description
+                                            ),
+                                        )
+                                }
+                                if (state.mode == 1) {
+                                    TextField(
+                                        state.query,
+                                        onValueChange = onQuery,
+                                        singleLine = true,
+                                        placeholder = {
+                                            Text(hint, style = MaterialTheme.typography.bodyLarge)
+                                        },
+                                        modifier =
+                                            Modifier.weight(1f)
+                                                .testTag("browse-query-input")
+                                                .focusRequester(focus),
+                                        keyboardOptions =
+                                            KeyboardOptions(imeAction = ImeAction.Search),
+                                        keyboardActions =
+                                            KeyboardActions(onSearch = { onSearch(state.query) }),
+                                        colors =
+                                            TextFieldDefaults.colors(
+                                                focusedContainerColor =
+                                                    androidx.compose.ui.graphics.Color.Transparent,
+                                                unfocusedContainerColor =
+                                                    androidx.compose.ui.graphics.Color.Transparent,
+                                                focusedIndicatorColor =
+                                                    androidx.compose.ui.graphics.Color.Transparent,
+                                                unfocusedIndicatorColor =
+                                                    androidx.compose.ui.graphics.Color.Transparent,
+                                            ),
+                                    )
+                                    IconButton(onClick = { onQuery("") }) {
+                                        Icon(
+                                            painterResource(R.drawable.ic_close_24dp),
+                                            stringResource(R.string.sphere_clear),
+                                        )
+                                    }
+                                    IconButton(onClick = { onSearch(state.query) }) {
+                                        Icon(
+                                            painterResource(R.drawable.ic_search_24dp),
+                                            stringResource(android.R.string.search_go),
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        state.query.ifBlank {
+                                            state.booru?.name
+                                                ?: state.title.ifEmpty {
+                                                    stringResource(R.string.app_name)
+                                                }
+                                        },
+                                        Modifier.weight(1f)
+                                            .testTag("browse-query-toggle")
+                                            .clickable { onMode(1) }
+                                            .padding(vertical = 16.dp),
+                                        maxLines = 1,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                    if (bottomPadding)
+                                        IconButton(onClick = onNavigate) {
+                                            Icon(
+                                                painterResource(R.drawable.ic_menu_24dp),
+                                                stringResource(R.string.navigation_drawer_open),
+                                            )
+                                        }
+                                    Box {
+                                        IconButton(onClick = { overflow = true }) {
+                                            Icon(
+                                                painterResource(R.drawable.ic_more_vert_24dp),
+                                                stringResource(
+                                                    androidx.appcompat.R.string
+                                                        .abc_action_menu_overflow_description
+                                                ),
+                                            )
+                                        }
+                                        DropdownMenu(overflow, { overflow = false }) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(stringResource(R.string.sphere_filters))
+                                                },
+                                                onClick = {
+                                                    overflow = false
+                                                    onMode(2)
+                                                },
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.rating)) },
+                                                onClick = {
+                                                    overflow = false
+                                                    ratings = true
+                                                },
+                                            )
+                                            actions
+                                                .filter {
+                                                    it.visible &&
+                                                        it.key != AppActionKey.ExpandOrClear
+                                                }
+                                                .flatMap { it.children.ifEmpty { listOf(it) } }
+                                                .forEach { item ->
+                                                    DropdownMenuItem(
+                                                        text = { Text(stringResource(item.title)) },
+                                                        enabled = item.enabled,
+                                                        onClick = {
+                                                            overflow = false
+                                                            onMenu(item.key)
+                                                        },
+                                                    )
+                                                }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    val overflowItems = actions.filter { !it.direct && it.item.isVisible }.flatMap { action ->
-                        action.item.subMenu?.let { sub -> (0 until sub.size()).map { sub.getItem(it) } } ?: listOf(action.item)
-                    }
-                    if (overflowItems.isNotEmpty()) Box {
-                        IconButton(onClick = { overflow = true }) {
-                            Icon(painterResource(R.drawable.ic_more_vert_24dp), stringResource(androidx.appcompat.R.string.abc_action_menu_overflow_description))
-                        }
-                        DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
-                            overflowItems.forEach { item ->
-                                DropdownMenuItem(text = { Text(item.title.toString()) }, onClick = { overflow = false; onMenu(item) })
-                            }
-                        }
-                    }
                 }
             }
-            if (state.mode == 1 && suggestions.isNotEmpty()) {
-                LazyColumn(Modifier.heightIn(max = 240.dp)) {
-                    items(suggestions.distinct(), key = { it }) { suggestion ->
-                        Text(suggestion, Modifier.fillMaxWidth().clickable { onQuery(suggestion); onSearch(suggestion) }
-                            .padding(horizontal = 24.dp, vertical = 12.dp), style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
-            if (state.mode == 2) Box(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()
-                .padding(bottom = if (bottomPadding) 80.dp else 0.dp)) { filters() }
-            else content(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()
-                .padding(bottom = if (bottomPadding && !com.mattzilla30.mbooru.app.Settings.autoHideBottomBar) 80.dp else 0.dp))
         }
     }
+    if (ratings)
+        AlertDialog(
+            onDismissRequest = { ratings = false },
+            title = { Text(stringResource(R.string.rating)) },
+            text = {
+                Column {
+                    listOf(
+                            R.string.sphere_rating_all to "",
+                            R.string.browse_info_rating_safe to "rating:safe",
+                            R.string.browse_info_rating_questionable to "rating:questionable",
+                            R.string.browse_info_rating_explicit to "rating:explicit",
+                        )
+                        .forEach { (label, tag) ->
+                            TextButton(
+                                onClick = {
+                                    val value =
+                                        (state.query
+                                                .replace(Regex("(?:^|\\s)-?rating:[^\\s]+"), "")
+                                                .trim() + " " + tag)
+                                            .trim()
+                                    ratings = false
+                                    onQuery(value)
+                                    onSearch(value)
+                                }
+                            ) {
+                                Text(stringResource(label))
+                            }
+                        }
+                }
+            },
+            confirmButton = {},
+        )
 }

@@ -15,64 +15,40 @@
 
 package com.mattzilla30.mbooru.data.model.danbooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.utils.getDanDateMillis
 import com.mattzilla30.mbooru.data.utils.toSafeUrl
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PostDan(
-    @SerialName("id")
-    val id: Int = -1,
-    @SerialName("pixiv_id")
-    val pixivId: Int? = null,
-    @SerialName("parent_id")
-    val parentId: Int? = null,
-    @SerialName("rating")
-    val rating: String,
-    @SerialName("score")
-    val score: Int,
-    @SerialName("source")
-    val source: String,
-    @SerialName("fav_count")
-    val favCount: Int,
-    @SerialName("image_height")
-    val imageHeight: Int,
-    @SerialName("image_width")
-    val imageWidth: Int,
-    @SerialName("file_size")
-    val fileSize: Int,
-    @SerialName("preview_file_url")
-    val previewFileUrl: String? = null,
-    @SerialName("large_file_url")
-    val largeFileUrl: String? = null,
-    @SerialName("file_url")
-    val fileUrl: String? = null,
-    @SerialName("tag_string")
-    val tagString: String,
-    @SerialName("tag_string_artist")
-    val tagStringArtist: String,
-    @SerialName("tag_string_character")
-    val tagStringCharacter: String,
-    @SerialName("tag_string_copyright")
-    val tagStringCopyright: String,
-    @SerialName("tag_string_general")
-    val tagStringGeneral: String,
-    @SerialName("tag_string_meta")
-    val tagStringMeta: String,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("updated_at")
-    val updatedAt: String?,
-    @SerialName("uploader")
-    val uploader: UploaderDan? = null,
-    @SerialName("uploader_id")
-    val uploaderId: Int = -1,
-    @SerialName("uploader_name")
-    val uploaderName: String? = null
+    @SerialName("id") val id: Int = -1,
+    @SerialName("pixiv_id") val pixivId: Int? = null,
+    @SerialName("parent_id") val parentId: Int? = null,
+    @SerialName("rating") val rating: String,
+    @SerialName("score") val score: Int,
+    @SerialName("source") val source: String,
+    @SerialName("fav_count") val favCount: Int,
+    @SerialName("image_height") val imageHeight: Int,
+    @SerialName("image_width") val imageWidth: Int,
+    @SerialName("file_size") val fileSize: Int,
+    @SerialName("preview_file_url") val previewFileUrl: String? = null,
+    @SerialName("large_file_url") val largeFileUrl: String? = null,
+    @SerialName("file_url") val fileUrl: String? = null,
+    @SerialName("tag_string") val tagString: String,
+    @SerialName("tag_string_artist") val tagStringArtist: String,
+    @SerialName("tag_string_character") val tagStringCharacter: String,
+    @SerialName("tag_string_copyright") val tagStringCopyright: String,
+    @SerialName("tag_string_general") val tagStringGeneral: String,
+    @SerialName("tag_string_meta") val tagStringMeta: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String?,
+    @SerialName("uploader") val uploader: UploaderDan? = null,
+    @SerialName("uploader_id") val uploaderId: Int = -1,
+    @SerialName("uploader_name") val uploaderName: String? = null,
 ) {
     private fun previewUrl(scheme: String, host: String) =
         previewFileUrl?.toSafeUrl(scheme, host) ?: ""
@@ -85,7 +61,14 @@ data class PostDan(
     private fun originUrl(scheme: String, host: String) =
         fileUrl?.toSafeUrl(scheme, host) ?: sampleUrl(scheme, host)
 
-    fun toPost(booruUid: Long, query: String, scheme: String, host: String, index: Int, isFavored: Boolean): Post {
+    fun toPost(
+        booruUid: Long,
+        query: String,
+        scheme: String,
+        host: String,
+        index: Int,
+        isFavored: Boolean,
+    ): Post {
         return Post(
             booruUid = booruUid,
             query = query,
@@ -105,11 +88,15 @@ data class PostDan(
             origin = originUrl(scheme, host),
             pixivId = pixivId,
             source = source,
-            uploader = User(id = uploader?.id ?: uploaderId, name = uploader?.name ?: uploaderName ?: "null")
+            uploader =
+                User(
+                    id = uploader?.id ?: uploaderId,
+                    name = uploader?.name ?: uploaderName ?: "null",
+                ),
         )
     }
 
-    private fun getTags(): List<TagBase>{
+    private fun getTags(): List<TagBase> {
         val tagsGeneral = tagStringGeneral.toTagsList(0)
         val tagsCharacter = tagStringCharacter.toTagsList(1)
         val tagsCopyright = tagStringCopyright.toTagsList(2)
@@ -118,22 +105,15 @@ data class PostDan(
         return tagsArtist + tagsMeta + tagsCopyright + tagsCharacter + tagsGeneral
     }
 
-    private fun String.toTagsList(type: Int) =
-        trim().split(" ").map { TagBase(it, type) }
+    private fun String.toTagsList(type: Int) = trim().split(" ").map { TagBase(it, type) }
 }
 
 @Serializable
 data class UploaderDan(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("level")
-    val level: Int,
-    @SerialName("level_string")
-    val levelString: String,
-    @SerialName("post_update_count")
-    val postUpdateCount: Int,
-    @SerialName("post_upload_count")
-    val postUploadCount: Int
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("level") val level: Int,
+    @SerialName("level_string") val levelString: String,
+    @SerialName("post_update_count") val postUpdateCount: Int,
+    @SerialName("post_upload_count") val postUploadCount: Int,
 )

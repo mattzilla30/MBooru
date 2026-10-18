@@ -15,22 +15,22 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionPool
 import com.mattzilla30.mbooru.data.repository.pool.PoolRepository
+import kotlinx.coroutines.flow.*
 
-class PoolViewModel(private val repository: PoolRepository) : ScopeViewModel() {
+class PoolViewModel(private val repository: PoolRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionPool?>(null)
     val state = actions.asStateFlow()
-    val pools = actions.flatMapLatest { action ->
-        if (action == null) flowOf(PagingData.empty()) else repository.getPools(action)
-    }.cachedIn(viewModelScope)
+    val pools =
+        actions
+            .flatMapLatest { action ->
+                if (action == null) flowOf(PagingData.empty()) else repository.getPools(action)
+            }
+            .cachedIn(viewModelScope)
 
     fun show(action: ActionPool): Boolean {
         val snapshot = action.copy(booru = action.booru.copy())

@@ -15,84 +15,48 @@
 
 package com.mattzilla30.mbooru.data.api
 
-import android.util.Log
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.mattzilla30.mbooru.app.Values
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlConfig
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import com.mattzilla30.mbooru.BuildConfig
-import com.mattzilla30.mbooru.app.App
-import com.mattzilla30.mbooru.app.Settings
-import com.mattzilla30.mbooru.app.Values
-import com.mattzilla30.mbooru.okhttp.AndroidCookieJar
-import com.mattzilla30.mbooru.okhttp.CloudflareInterceptor
 import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-fun createHttpClient(isSankaku: Boolean): OkHttpClient {
-    val builder = OkHttpClient.Builder()
-        .cookieJar(AndroidCookieJar)
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .writeTimeout(15, TimeUnit.SECONDS)
-
-    if (Settings.isDohEnable) {
-        builder.dns(Settings.doh)
+val defaultJson
+    get() = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
     }
 
-    if (isSankaku) {
-        builder.addInterceptor(ApiSankakuInterceptor())
-    } else {
-        builder.addInterceptor(ApiInterceptor())
-    }
-
-    if (Settings.isBypassWAF) {
-        builder.addInterceptor(CloudflareInterceptor(App.app))
-    }
-
-    if (BuildConfig.DEBUG) {
-        val logger = HttpLoggingInterceptor { message -> Log.d("Api", message) }.apply {
-            level = HttpLoggingInterceptor.Level.BASIC
-        }
-        builder.addInterceptor(logger)
-    }
-
-    return builder.build()
-}
-
-val defaultJson get() = Json {
-    ignoreUnknownKeys = true
-    isLenient = true
-}
-
-inline fun <reified T> createApi(): T {
+inline fun <reified T> createApi(client: OkHttpClient): T {
     val classJava = T::class
-    val baseUrl = when (classJava) {
-        AppUpdaterApi::class -> "https://raw.githubusercontent.com"
-        else -> Values.BASE_URL
-    }
-    val converterFactory = when (classJava) {
-        GelbooruApi::class,
-        ShimmieApi::class-> {
-            XML {
-                defaultPolicy {
-                    pedantic = false
-                    autoPolymorphic = true
-                    unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_CHILD_HANDLER
-                }
-            }.asConverterFactory("application/xml".toMediaType())
+    val baseUrl =
+        when (classJava) {
+            AppUpdaterApi::class -> "https://raw.githubusercontent.com"
+            else -> Values.BASE_URL
         }
-        else -> {
-            defaultJson.asConverterFactory("application/json".toMediaType())
+    val converterFactory =
+        when (classJava) {
+            GelbooruApi::class,
+            ShimmieApi::class -> {
+                XML {
+                        defaultPolicy {
+                            pedantic = false
+                            autoPolymorphic = true
+                            unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_CHILD_HANDLER
+                        }
+                    }
+                    .asConverterFactory("application/xml".toMediaType())
+            }
+            else -> {
+                defaultJson.asConverterFactory("application/json".toMediaType())
+            }
         }
-    }
-    val isSankaku = classJava == SankakuApi::class
     return Retrofit.Builder()
         .baseUrl(baseUrl)
-        .client(createHttpClient(isSankaku))
+        .client(client)
         .addConverterFactory(converterFactory)
         .build()
         .create(classJava.java)

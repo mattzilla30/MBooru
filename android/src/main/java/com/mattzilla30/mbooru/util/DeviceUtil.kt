@@ -3,8 +3,7 @@ package com.mattzilla30.mbooru.util
 import android.annotation.SuppressLint
 import android.os.Build
 
-
-//https://github.com/tachiyomiorg/tachiyomi/blob/master/core/src/main/java/eu/kanade/tachiyomi/util/system/DeviceUtil.kt
+// https://github.com/tachiyomiorg/tachiyomi/blob/master/core/src/main/java/eu/kanade/tachiyomi/util/system/DeviceUtil.kt
 object DeviceUtil {
 
     val isMiui by lazy {
@@ -19,9 +18,8 @@ object DeviceUtil {
         }
 
         return try {
-            Class.forName("android.miui.AppOpsUtils")
-                .getDeclaredMethod("isXOptMode")
-                .invoke(null) as Boolean
+            Class.forName("android.miui.AppOpsUtils").getDeclaredMethod("isXOptMode").invoke(null)
+                as Boolean
         } catch (e: Exception) {
             false
         }
@@ -31,11 +29,12 @@ object DeviceUtil {
         Build.MANUFACTURER.equals("samsung", ignoreCase = true)
     }
 
-    val invalidDefaultBrowsers = listOf(
-        "android",
-        "com.huawei.android.internal.app",
-        "com.zui.resolver",
-    )
+    val invalidDefaultBrowsers =
+        listOf(
+            "android",
+            "com.huawei.android.internal.app",
+            "com.zui.resolver",
+        )
 
     @SuppressLint("PrivateApi")
     private fun getSystemProperty(key: String?): String? {

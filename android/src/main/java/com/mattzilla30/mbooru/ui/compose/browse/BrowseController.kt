@@ -4,11 +4,12 @@ import android.content.ComponentCallbacks
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.initializer
 import androidx.navigation.NavBackStackEntry
 import androidx.savedstate.SavedStateRegistryOwner
 import com.mattzilla30.mbooru.app.Settings
@@ -23,12 +24,15 @@ import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.data.repository.suggestion.SuggestionRepositoryImpl
 import com.mattzilla30.mbooru.ui.activity.MainActivity
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.viewmodel.*
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 
 /** Activity-bound actions with models owned by the Compose destination, never a fragment. */
 abstract class BrowseController(
-    private val host: BaseActivity,
+    protected val host: BaseActivity,
     val owner: NavBackStackEntry,
     val arguments: Bundle,
 ) :
@@ -38,25 +42,24 @@ abstract class BrowseController(
     HasDefaultViewModelProviderFactory by owner,
     SavedStateRegistryOwner by owner,
     BrowseNavigation,
-    SharedPreferences.OnSharedPreferenceChangeListener {
+    SharedPreferences.OnSharedPreferenceChangeListener,
+    org.koin.core.component.KoinComponent {
+    protected val settings
+        get() = host.settings
+
+    protected val mutations by lazy {
+        ViewModelProvider(
+            owner,
+            androidx.lifecycle.viewmodel.viewModelFactory {
+                initializer {
+                    BrowseActionsViewModel(getKoin().get(), getKoin().get())
+                }
+            },
+        )[BrowseActionsViewModel::class.java]
+    }
+
     override val lifecycle: Lifecycle
         get() = owner.lifecycle
-
-    val activity: BaseActivity?
-        get() = host
-
-    val context: android.content.Context?
-        get() = host
-
-    val resources
-        get() = host.resources
-
-    val childFragmentManager
-        get() = host.supportFragmentManager
-
-    fun requireContext(): android.content.Context = host
-
-    fun requireActivity(): BaseActivity = host
 
     fun getString(id: Int, vararg args: Any): String = host.getString(id, *args)
 
@@ -68,10 +71,11 @@ abstract class BrowseController(
 
     protected val booruApis by inject<BooruApis>()
     protected val preferences by inject<SharedPreferences>()
+    private val siteManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val booruDao by inject<BooruDao>()
     protected val browse by viewModels<BrowseStateViewModel>()
     private val suggestions by lazy { getSuggestionViewModel(SuggestionRepositoryImpl(booruApis)) }
-    private val boorus by lazy { getBooruViewModel(booruDao) }
+    private val boorus by lazy { getBooruViewModel(booruDao, siteManager) }
     private val saved = owner.savedStateHandle
     protected var currentBooru: Booru? = null
 
@@ -89,7 +93,7 @@ abstract class BrowseController(
 
     open fun onApplySearch(query: String) {}
 
-    open fun onMenuItemClick(item: MenuItem) {}
+    open fun onMenuAction(item: AppActionKey) {}
 
     open fun onBooruLoaded(booru: Booru?) {
         currentBooru = booru
@@ -106,12 +110,26 @@ abstract class BrowseController(
 
     @Composable
     fun Content() {
+        LaunchedEffect(this) {
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { boorus.booruState.collect(::onBooruLoaded) }
+                launch {
+                    mutations.errors.collect {
+                        android.widget.Toast.makeText(
+                                host,
+                                com.mattzilla30.mbooru.R.string.booru_config_save_failed,
+                                android.widget.Toast.LENGTH_LONG,
+                            )
+                            .show()
+                    }
+                }
+            }
+        }
         DisposableEffect(this) {
             saved.setSavedStateProvider("browse_request_state") {
                 Bundle().apply(::onSaveInstanceState)
             }
-            boorus.booru.observe(owner, ::onBooruLoaded)
-            boorus.loadBooru(Settings.activatedBooruUid)
+            boorus.loadBooru(settings.activatedBooruUid)
             preferences.registerOnSharedPreferenceChangeListener(this@BrowseController)
             (host as? MainActivity)?.activeBrowse = this@BrowseController
             val observer =
@@ -127,7 +145,6 @@ abstract class BrowseController(
                 owner.lifecycle.removeObserver(observer)
                 // Removing an observer does not deliver stop to a still-started destination.
                 if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) onStop()
-                boorus.booru.removeObservers(owner)
                 preferences.unregisterOnSharedPreferenceChangeListener(this@BrowseController)
                 if ((host as? MainActivity)?.activeBrowse === this@BrowseController)
                     host.activeBrowse = null
@@ -165,17 +182,11 @@ abstract class BrowseController(
                 onApplySearch(it)
                 browse.mode(0)
             },
+            onServers = { (host as? MainActivity)?.chooseServer() ?: host.finish() },
             onNavigate = { (host as? MainActivity)?.openDrawer() ?: host.finish() },
-            onMenu = ::onMenuItemClick,
-            onAddToMuzei = { query ->
-                com.mattzilla30.mbooru.data.database.MuzeiManager.createMuzei(
-                    com.mattzilla30.mbooru.data.model.common.Muzei(
-                        booruUid = Settings.activatedBooruUid,
-                        query = query,
-                    )
-                )
-            },
+            onMenu = ::onMenuAction,
             bottomPadding = host is MainActivity,
+            autoHideBottomBar = settings.autoHideBottomBar,
             filters = { Filters() },
             content = { BrowseContent(it) },
         )
@@ -183,7 +194,7 @@ abstract class BrowseController(
 
     protected fun setSearchBarTitle(value: CharSequence) = browse.title(value.toString())
 
-    protected fun setSearchBarMenu(menu: Int) = browse.menu(menu)
+    protected fun setSearchBarMenu(menu: AppMenu) = browse.menu(menu)
 
     protected fun setSearchBarText(text: CharSequence) = browse.query(text.toString())
 
@@ -201,7 +212,7 @@ abstract class BrowseController(
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        if (key == Settings.BOORU_UID_ACTIVATED_KEY) boorus.loadBooru(Settings.activatedBooruUid)
+        if (key == Settings.BOORU_UID_ACTIVATED_KEY) boorus.loadBooru(settings.activatedBooruUid)
         browse.preferencesChanged()
     }
 }

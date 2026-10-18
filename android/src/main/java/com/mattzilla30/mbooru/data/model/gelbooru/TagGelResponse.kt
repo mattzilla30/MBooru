@@ -21,17 +21,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("tags")
 data class TagGelResponse(
-    @SerialName("type")
-    val type: String,
-    @SerialName("tag")
-    val tags: List<TagGel>?
+    @SerialName("type") val type: String,
+    @SerialName("tag") val tags: List<TagGel>?,
 )
 
 @Serializable
 @SerialName("tags")
 data class TagGelLegacyResponse(
-    @SerialName("type")
-    val type: String,
-    @SerialName("tag")
-    val tags: List<TagGelLegacy>?
+    @SerialName("type") val type: String,
+    @SerialName("tag") val tags: List<TagGelLegacy>?,
 )

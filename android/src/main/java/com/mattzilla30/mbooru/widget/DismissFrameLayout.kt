@@ -28,11 +28,17 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.max
 
-class DismissFrameLayout @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+class DismissFrameLayout
+@JvmOverloads
+constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     var isDismissEnabled: Boolean = true
+
+    private var multiTouch = false
 
     private var lastX = 0f
     private var lastY = 0f
@@ -49,12 +55,23 @@ class DismissFrameLayout @JvmOverloads constructor(
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                multiTouch = false
                 lastX = ev.x
                 lastY = ev.y
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                multiTouch = true
+                dragHelper.cancel()
+                parent?.requestDisallowInterceptTouchEvent(true)
+            }
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_MOVE -> {
                 val dx = ev.x - lastX
                 val dy = ev.y - lastY
+                if (ev.actionMasked == MotionEvent.ACTION_UP && isDetailsSwipe(dx, dy)) {
+                    dismissListener?.onDismissCancel()
+                    dismissListener?.onDetailsRequested()
+                }
                 val angle = atan2(dy, dx) * 180 / PI
                 if (angle in 20.0..160.0) {
                     parent.requestDisallowInterceptTouchEvent(true)
@@ -64,13 +81,19 @@ class DismissFrameLayout @JvmOverloads constructor(
         return super.dispatchTouchEvent(ev)
     }
 
+    private fun isDetailsSwipe(dx: Float, dy: Float): Boolean {
+        if (multiTouch || !isDismissEnabled) return false
+        return dy < -DETAILS_SWIPE_DP * resources.displayMetrics.density &&
+            kotlin.math.abs(dx) < kotlin.math.abs(dy)
+    }
+
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
-        isDismissEnabled && dragHelper.shouldInterceptTouchEvent(ev)
+        !multiTouch && isDismissEnabled && dragHelper.shouldInterceptTouchEvent(ev)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event?.run {
-            dragHelper.processTouchEvent(event)
+            if (!multiTouch) dragHelper.processTouchEvent(event)
         }
         return true
     }
@@ -86,15 +109,21 @@ class DismissFrameLayout @JvmOverloads constructor(
     }
 
     interface OnDismissListener {
+        fun onDetailsRequested() {}
+
         fun onDismissStart()
+
         fun onDismissProgress(progress: Float)
+
         fun onDismissed()
+
         fun onDismissCancel()
     }
 
     private inner class ViewDragCallback : ViewDragHelper.Callback() {
 
-        override fun tryCaptureView(child: View, pointerId: Int): Boolean = isDismissEnabled
+        override fun tryCaptureView(child: View, pointerId: Int): Boolean =
+            isDismissEnabled && !multiTouch
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int = 0
 
@@ -108,7 +137,13 @@ class DismissFrameLayout @JvmOverloads constructor(
             dismissListener?.onDismissStart()
         }
 
-        override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
+        override fun onViewPositionChanged(
+            changedView: View,
+            left: Int,
+            top: Int,
+            dx: Int,
+            dy: Int,
+        ) {
             dismissListener?.onDismissProgress(top.toFloat() / height.toFloat())
         }
 
@@ -124,3 +159,5 @@ class DismissFrameLayout @JvmOverloads constructor(
         }
     }
 }
+
+private const val DETAILS_SWIPE_DP = 64

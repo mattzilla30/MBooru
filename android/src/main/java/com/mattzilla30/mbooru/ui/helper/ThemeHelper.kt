@@ -16,7 +16,6 @@
 package com.mattzilla30.mbooru.ui.helper
 
 import android.content.res.Configuration
-import com.mattzilla30.mbooru.app.Settings.isNightModeOn
 
 fun Configuration.isNightEnable(): Boolean =
-    isNightModeOn || (uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
+    (uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)

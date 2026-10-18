@@ -15,39 +15,13 @@
 
 package com.mattzilla30.mbooru.data.api
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.data.model.app.UpdateInfo
 import retrofit2.Response
 import retrofit2.http.GET
 
-/**
- * App update api
- * */
+/** App update api */
 interface AppUpdaterApi {
 
-    companion object {
-
-        suspend fun checkUpdate() {
-            withContext(Dispatchers.IO) {
-                try {
-                    val response = createApi<AppUpdaterApi>().checkUpdate()
-                    val data = response.body()
-                    if (response.isSuccessful && data != null) {
-                        Settings.latestVersionUrl = data.url
-                        Settings.latestVersionName = data.versionName
-                        Settings.latestVersionCode = data.versionCode
-                        Settings.isAvailableOnStore = data.isAvailableStore
-                    }
-                } catch (_: Exception) {}
-            }
-        }
-    }
-
-    /**
-     * check app new version
-     * */
-    @GET("/mattzilla30/MBooru/master/update.json")
-    suspend fun checkUpdate(): Response<UpdateInfo>
+    /** check app new version */
+    @GET("/mattzilla30/MBooru/master/update.json") suspend fun checkUpdate(): Response<UpdateInfo>
 }

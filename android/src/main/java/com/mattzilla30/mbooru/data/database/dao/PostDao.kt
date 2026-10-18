@@ -15,59 +15,65 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.Post
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(posts: List<Post>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(posts: List<Post>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(post: Post)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(post: Post)
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC")
-    fun getPosts(booruUid: Long, query: String) : PagingSource<Int, Post>
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC"
+    )
+    fun getPosts(booruUid: Long, query: String): PagingSource<Int, Post>
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND `index` = :index")
-    fun getPost(booruUid: Long, query: String, index: Int): Post?
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND `index` = :index"
+    )
+    suspend fun getPost(booruUid: Long, query: String, index: Int): Post?
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT :limit")
-    fun getPostsRaw(booruUid: Long, query: String, limit: Int) : List<Post>
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT :limit"
+    )
+    suspend fun getPostsRaw(booruUid: Long, query: String, limit: Int): List<Post>
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT 1")
-    fun getFirstPostRaw(booruUid: Long, query: String) : Post?
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT 1"
+    )
+    suspend fun getFirstPostRaw(booruUid: Long, query: String): Post?
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `id` = :postId ORDER BY `index` ASC LIMIT 1")
-    fun getFirstPostLiveData(booruUid: Long, postId: Int) : LiveData<Post?>
-
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC")
-    fun getPostsLiveData(booruUid: Long, query: String) : LiveData<List<Post>>
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `id` = :postId ORDER BY `index` ASC LIMIT 1"
+    )
+    fun observeFirstPost(booruUid: Long, postId: Int): Flow<Post?>
 
     @Query("DELETE FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query")
-    fun deletePosts(booruUid: Long, query: String)
+    suspend fun deletePosts(booruUid: Long, query: String)
 
     @Query("DELETE FROM `posts` WHERE `booru_uid` = :booruUid")
-    fun deletePosts(booruUid: Long)
+    suspend fun deletePosts(booruUid: Long)
 
-    @Query("SELECT MAX(`index`) + 1 FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query")
-    fun getNextIndex(booruUid: Long, query: String): Int
+    @Query(
+        "SELECT MAX(`index`) + 1 FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query"
+    )
+    suspend fun getNextIndex(booruUid: Long, query: String): Int
 
-    @Delete
-    fun deletePost(post: Post)
+    @Delete suspend fun deletePost(post: Post)
 
-    @Update
-    fun updatePost(post: Post)
+    @Update suspend fun updatePost(post: Post)
 
     @Query("DELETE FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND id = :id")
-    fun deletePost(booruUid: Long, query: String, id: Int)
+    suspend fun deletePost(booruUid: Long, query: String, id: Int)
 
-    @Query("DELETE FROM `posts`")
-    fun deleteAll()
+    @Query("DELETE FROM `posts`") suspend fun deleteAll()
 
-    @Query("UPDATE `posts` SET `is_favored` = :isFavored WHERE `booru_uid` = :booruUid AND `id` = :postId")
-    fun updateFav(booruUid: Long, postId: Int, isFavored: Boolean)
+    @Query(
+        "UPDATE `posts` SET `is_favored` = :isFavored WHERE `booru_uid` = :booruUid AND `id` = :postId"
+    )
+    suspend fun updateFav(booruUid: Long, postId: Int, isFavored: Boolean)
 }

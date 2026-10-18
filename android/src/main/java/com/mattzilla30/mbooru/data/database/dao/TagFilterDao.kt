@@ -15,42 +15,32 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.TagFilter
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TagFilterDao {
     @Query("SELECT * FROM `tags_filter` WHERE `booru_uid` = :booruUid")
-    fun getTagByBooruUid(booruUid: Long): List<TagFilter>?
+    suspend fun getTagByBooruUid(booruUid: Long): List<TagFilter>?
 
     @Query("SELECT * FROM `tags_filter` WHERE `uid` = :uid")
-    fun getTagByTagUid(uid: Long): TagFilter?
+    suspend fun getTagByTagUid(uid: Long): TagFilter?
 
-    @Query("SELECT * FROM `tags_filter` ORDER BY `uid` ASC")
-    fun getAll(): List<TagFilter>?
+    @Query("SELECT * FROM `tags_filter` ORDER BY `uid` ASC") suspend fun getAll(): List<TagFilter>?
 
-    @Query("SELECT 1 FROM `boorus` LIMIT 1")
-    fun isNotEmpty(): Boolean
+    @Query("SELECT 1 FROM `tags_filter` LIMIT 1") suspend fun isNotEmpty(): Boolean
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(tag: TagFilter): Long
+    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insert(tag: TagFilter): Long
 
-    @Update
-    fun update(tag: TagFilter): Int
+    @Update suspend fun update(tag: TagFilter): Int
 
-    @Query("DELETE FROM `tags_filter` WHERE `uid` = :uid")
-    fun delete(uid: Long): Int
+    @Query("DELETE FROM `tags_filter` WHERE `uid` = :uid") suspend fun delete(uid: Long): Int
 
-    @Delete
-    fun delete(tags: List<TagFilter>)
+    @Delete suspend fun delete(tags: List<TagFilter>)
 
-    @Query("DELETE FROM `tags_filter`")
-    fun deleteAll(): Int
-
-    @Query("SELECT * FROM `tags_filter` WHERE `booru_uid` = :booruUid")
-    fun getTagByBooruUidLiveData(booruUid: Long): LiveData<List<TagFilter>>
+    @Query("DELETE FROM `tags_filter`") suspend fun deleteAll(): Int
 
     @Query("SELECT * FROM `tags_filter` ORDER BY `name` ASC")
-    fun getAllLiveData(): LiveData<List<TagFilter>>
+    fun observeTagFilter(): Flow<List<TagFilter>>
 }

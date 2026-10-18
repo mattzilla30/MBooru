@@ -9,7 +9,7 @@ import com.mattzilla30.mbooru.data.model.common.Artist
 
 class ArtistPagingSource(
     private val action: ActionArtist,
-    private val booruApis: BooruApis
+    private val booruApis: BooruApis,
 ) : PagingSource<Int, Artist>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Artist> {
@@ -20,13 +20,13 @@ class ArtistPagingSource(
             LoadResult.Page(
                 data = listOf(),
                 prevKey = null,
-                nextKey = null
+                nextKey = null,
             )
         }
     }
 
     override fun getRefreshKey(state: PagingState<Int, Artist>): Int {
-         return 1
+        return 1
     }
 
     private suspend fun getArtists(action: ActionArtist, page: Int): LoadResult<Int, Artist> {
@@ -34,39 +34,43 @@ class ArtistPagingSource(
             return getArtistsDan(action, page)
         }
         return try {
-            val response =  when (action.booru.type) {
-                Values.BOORU_TYPE_DAN1 -> booruApis.dan1Api.getArtists(action.getDan1ArtistsUrl(page))
-                else -> booruApis.moeApi.getArtists(action.getMoeArtistsUrl(page))
-            }
+            val response =
+                when (action.booru.type) {
+                    Values.BOORU_TYPE_DAN1 ->
+                        booruApis.dan1Api.getArtists(action.getDan1ArtistsUrl(page))
+                    else -> booruApis.moeApi.getArtists(action.getMoeArtistsUrl(page))
+                }
             if (response.isSuccessful) {
                 val artists = response.body() ?: listOf()
                 LoadResult.Page(
                     data = artists,
                     prevKey = page - 1,
-                    nextKey = if (artists.size == action.limit) page + 1 else null
+                    nextKey = if (artists.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
 
     private suspend fun getArtistsDan(action: ActionArtist, page: Int): LoadResult<Int, Artist> {
         return try {
-            val response =  booruApis.danApi.getArtists(action.getDanArtistsUrl(page))
+            val response = booruApis.danApi.getArtists(action.getDanArtistsUrl(page))
             if (response.isSuccessful) {
                 val artists = response.body()?.map { it.toArtist() } ?: listOf()
                 LoadResult.Page(
                     data = artists,
                     prevKey = page - 1,
-                    nextKey = if (artists.size == action.limit) page + 1 else null
+                    nextKey = if (artists.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }

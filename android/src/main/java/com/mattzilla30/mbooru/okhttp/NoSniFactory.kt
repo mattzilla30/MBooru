@@ -1,6 +1,5 @@
 package com.mattzilla30.mbooru.okhttp
 
-import okhttp3.ConnectionSpec
 import java.net.InetAddress
 import java.net.Socket
 import java.security.KeyManagementException
@@ -9,19 +8,20 @@ import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
+import okhttp3.ConnectionSpec
 
 @Suppress("DEPRECATION")
 object NoSniFactory : SSLSocketFactory() {
     private val defaultFactory = getDefault() as SSLSocketFactory
-    private val openSSLSocket = android.net.SSLCertificateSocketFactory
-        .getDefault(1000) as android.net.SSLCertificateSocketFactory
+    private val openSSLSocket =
+        android.net.SSLCertificateSocketFactory.getDefault(1000)
+            as android.net.SSLCertificateSocketFactory
 
     val defaultTrustManager = platformTrustManager()
-    val tls = listOf(
-        ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-            .supportsTlsExtensions(false)
-            .build()
-    )
+    val tls =
+        listOf(
+            ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS).supportsTlsExtensions(false).build()
+        )
 
     override fun createSocket(s: Socket?, host: String?, port: Int, autoClose: Boolean): Socket {
         val socket = defaultFactory.createSocket(s, host, port, autoClose)
@@ -39,7 +39,7 @@ object NoSniFactory : SSLSocketFactory() {
         host: String?,
         port: Int,
         localHost: InetAddress?,
-        localPort: Int
+        localPort: Int,
     ): Socket {
         val socket = defaultFactory.createSocket(host, port, localHost, localPort)
         setParams(socket)
@@ -56,7 +56,7 @@ object NoSniFactory : SSLSocketFactory() {
         address: InetAddress?,
         port: Int,
         localAddress: InetAddress?,
-        localPort: Int
+        localPort: Int,
     ): Socket {
         val socket = defaultFactory.createSocket(address, port, localAddress, localPort)
         setParams(socket)

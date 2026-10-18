@@ -20,5 +20,5 @@ data class Tag(
     val id: Int,
     val name: String,
     val category: Int,
-    val count: Int
+    val count: Int,
 )

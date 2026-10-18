@@ -15,34 +15,46 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [28], manifest = Config.NONE)
 class SignExtTest {
-    @Test fun missingModernSigningInformationReturnsNoFingerprint() {
+    @Test
+    fun missingModernSigningInformationReturnsNoFingerprint() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        shadowOf(context.packageManager).installPackage(PackageInfo().apply { packageName = context.packageName })
+        shadowOf(context.packageManager)
+            .installPackage(PackageInfo().apply { packageName = context.packageName })
         assertNull(context.getSignMd5())
     }
 
     @Suppress("DEPRECATION")
     @Config(sdk = [27])
-    @Test fun legacyCertificateKeepsItsExistingFingerprint() {
+    @Test
+    fun legacyCertificateKeepsItsExistingFingerprint() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        shadowOf(context.packageManager).installPackage(PackageInfo().apply {
-            packageName = context.packageName
-            signatures = arrayOf(Signature(byteArrayOf(1, 2, 3)))
-        })
+        shadowOf(context.packageManager)
+            .installPackage(
+                PackageInfo().apply {
+                    packageName = context.packageName
+                    signatures = arrayOf(Signature(byteArrayOf(1, 2, 3)))
+                }
+            )
         assertEquals("5289df737df57326fcdd22597afb1fac", context.getSignMd5())
     }
 
     @Suppress("DEPRECATION")
     @Config(sdk = [27])
-    @Test fun emptyLegacyCertificateListReturnsNoFingerprint() {
+    @Test
+    fun emptyLegacyCertificateListReturnsNoFingerprint() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        shadowOf(context.packageManager).installPackage(PackageInfo().apply {
-            packageName = context.packageName
-            signatures = emptyArray()
-        })
+        shadowOf(context.packageManager)
+            .installPackage(
+                PackageInfo().apply {
+                    packageName = context.packageName
+                    signatures = emptyArray()
+                }
+            )
         assertNull(context.getSignMd5())
     }
-    @Test fun noConfiguredPlayCertificateCannotMatch() {
+
+    @Test
+    fun noConfiguredPlayCertificateCannotMatch() {
         val context = ApplicationProvider.getApplicationContext<Application>()
         org.junit.Assert.assertFalse(context.matchesPlaySigningCertificate(""))
         org.junit.Assert.assertFalse(context.matchesPlaySigningCertificate("invalid"))
@@ -53,13 +65,18 @@ class SignExtTest {
     @Suppress("DEPRECATION")
     fun configuredPlayFingerprintMatchesCurrentCertificateOnly() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        shadowOf(context.packageManager).installPackage(PackageInfo().apply {
-            packageName = context.packageName
-            signatures = arrayOf(Signature(byteArrayOf(1, 2, 3)))
-        })
-        org.junit.Assert.assertTrue(context.matchesPlaySigningCertificate(
-            "03:90:58:c6:f2:c0:cb:49:2c:53:3b:0a:4d:14:ef:77:cc:0f:78:ab:cc:ce:d5:28:7d:84:a1:a2:01:1c:fb:81"))
+        shadowOf(context.packageManager)
+            .installPackage(
+                PackageInfo().apply {
+                    packageName = context.packageName
+                    signatures = arrayOf(Signature(byteArrayOf(1, 2, 3)))
+                }
+            )
+        org.junit.Assert.assertTrue(
+            context.matchesPlaySigningCertificate(
+                "03:90:58:c6:f2:c0:cb:49:2c:53:3b:0a:4d:14:ef:77:cc:0f:78:ab:cc:ce:d5:28:7d:84:a1:a2:01:1c:fb:81"
+            )
+        )
         org.junit.Assert.assertFalse(context.matchesPlaySigningCertificate("0".repeat(64)))
     }
-
 }

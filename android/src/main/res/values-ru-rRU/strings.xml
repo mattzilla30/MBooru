@@ -28,13 +28,10 @@
     <string name="title_pools">Пулы</string>
     <string name="title_tags">Теги</string>
     <string name="title_comments">Комментарии</string>
-    <string name="title_muzei">Обои Muzei</string>
     <string name="title_night_mode">Ночной режим</string>
     <string name="title_copyright">Авторские права</string>
     <string name="title_about">О программе</string>
     <string name="title_tag_blacklist">Чёрный список тегов</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">What Anime</string>
     <string name="title_history">История</string>
     <string name="history_clear_all">Очистить всё</string>
     <string name="history_clear_all_content">Вся история будет очищена.</string>
@@ -63,10 +60,8 @@
     <string name="msg_your_api_key_is_wrong">Неправильный ключ API!</string>
     <string name="msg_cloudflare_challenges">Не удалось загрузить, попробуйте ещё раз позже</string>
     <string name="post_expand_or_clear">Развернуть или очистить</string>
-    <string name="post_add_search_to_muzei">` %s ` было сохранено в Muzei.</string>
     <string name="post_download">Скачать</string>
     <string name="post_add_to_fav">Добавить в избранные</string>
-    <string name="post_search_by_sauce_nao">Поиск по SauceNao</string>
     <string name="msg_download_must_enable">Требуется Менеджер Загрузок.</string>
     <string name="msg_path_denied">Не удалось сохранить! Нет доступа к текущему пути.</string>
     <string name="msg_download_failed">Загрузка не удалась</string>
@@ -178,8 +173,6 @@
     <string name="settings_bypass_waf_summary">Обходит Cloudflare WAF</string>
     <string name="settings_safe_mode">Безопасный режим</string>
     <string name="settings_page_limit">Лимит страниц</string>
-    <string name="settings_muzei_limit">Лимит Muzei</string>
-    <string name="settings_muzei_size">Размер музея</string>
     <string name="settings_detail_size">Размер фото</string>
     <string name="settings_download_size">Размер для скачивания</string>
     <string name="settings_download_path">Путь скачивания</string>
@@ -206,7 +199,6 @@
     <string name="settings_clear_history">Удалить историю поиска</string>
     <string name="settings_clear_history_summery">Удалить всю историю поиска.</string>
     <string name="settings_clear_history_dialog_content">Вся история поиска будет удалена.</string>
-    <string name="settings_muzei">Обои Muzei</string>
     <string name="settings_display">Экран</string>
     <string name="settings_options">Настройки</string>
     <string name="settings_storage">Хранилище</string>
@@ -256,15 +248,6 @@
     <string name="order">Порядок</string>
     <string name="rating">Рейтинг</string>
     <string name="threshold">Порог</string>
-    <string name="muzei_copy">Копировать</string>
-    <string name="muzei_delete">Удалить</string>
-    <string name="muzei_search">Поиск</string>
-    <string name="muzei_search_hint">Добавить тег…</string>
-    <string name="muzei_fetch">Получить Арт</string>
-    <string name="muzei_input_cant_be_empty">Поле ввода не может быть пустое.</string>
-    <string name="muzei_action_view_post">Посмотреть пост в MBooru</string>
-    <string name="muzei_action_search_posts">Поиск постов на MBooru</string>
-    <string name="muzei_attribution">Пост из MBooru</string>
     <string name="tag_blacklist_copy">Скопировать</string>
     <string name="tag_blacklist_delete">Удалить</string>
     <string name="tag_blacklist_add">Добавить</string>
@@ -276,15 +259,4 @@
     <string name="comment_hint">Введите комментарий</string>
     <string name="tab_start_date">Дата старта</string>
     <string name="tab_end_date">Дата окончания</string>
-    <string name="sauce_nao_help">Справка</string>
-    <string name="sauce_nao_change_api_key">Изменить API-ключ</string>
-    <string name="sauce_nao_get_api_key">Получить API-ключ</string>
-    <string name="sauce_nao_remaining_times_today">Осталось на сегодня: %01$d раз</string>
-    <string name="sauce_nao_api_key_unset">API-ключ SauceNao не указан.</string>
-    <string name="sauce_nao_image_url">URL-адрес изображения</string>
-    <string name="sauce_nao_invalid_image_url">Неверный URL-адрес изображения.</string>
-    <string name="sauce_nao_source">Источник</string>
-    <string name="sauce_nao_search_from_url">URL-Адрес</string>
-    <string name="sauce_nao_search_from_file">Файл</string>
-    <string name="action_add_to_muzei">Добавить в Muzei</string>
 </resources>

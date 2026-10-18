@@ -18,53 +18,87 @@ package com.mattzilla30.mbooru.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.compose.runtime.getValue
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.BooruManager
 import com.mattzilla30.mbooru.data.repository.user.UserRepositoryImpl
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.base.BaseActivity
-import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.compose.account.*
+import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import org.koin.core.component.inject
 
-class AccountConfigActivity : BaseActivity() {
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+class AccountConfigActivity : BaseActivity(), org.koin.core.component.KoinComponent {
+    private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
+
     private val apis by inject<BooruApis>()
-    private val booru by lazy { BooruManager.getBooruByUid(Settings.activatedBooruUid) }
-    private val model by viewModels<AccountConfigViewModel> {
-        viewModelFactory { initializer { AccountConfigViewModel(UserRepositoryImpl(apis), checkNotNull(booru)) } }
+    private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
+    private val model by
+        viewModels<AccountConfigViewModel> {
+            viewModelFactory {
+                initializer {
+                    AccountConfigViewModel(
+                        UserRepositoryImpl(apis),
+                        checkNotNull(booru),
+                        booruManager,
+                    )
+                }
+            }
+        }
+
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            booru = booruManager.getBooruByUid(settings.activatedBooruUid)
+            if (isFinishing || isDestroyed) return@launch
+            initializeContent()
+        }
     }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    private fun initializeContent() {
         val site = booru ?: return finish()
         setComposeContent {
             val state by model.state.collectAsStateWithLifecycle()
-            AccountConfigScreen(state, site, model::username, model::token, model::submit, ::forgotCredentials)
+            AccountConfigScreen(
+                state,
+                site,
+                model::username,
+                model::token,
+                model::submit,
+                ::forgotCredentials,
+            )
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.success.collect { startActivity(Intent(this@AccountConfigActivity, AccountActivity::class.java)); finish() }
+                model.success.collect {
+                    startActivity(Intent(this@AccountConfigActivity, AccountActivity::class.java))
+                    finish()
+                }
             }
         }
     }
+
     private fun forgotCredentials() {
         val site = booru ?: return
-        val path = when (site.type) {
-            Values.BOORU_TYPE_DAN -> "session/new"
-            Values.BOORU_TYPE_MOE, Values.BOORU_TYPE_DAN1 -> "user/reset_password"
-            Values.BOORU_TYPE_SANKAKU -> "reset_password"
-            else -> return
-        }
-        val host = if (site.type == Values.BOORU_TYPE_SANKAKU) site.host.replaceFirst("capi-v2.", "beta.") else site.host
+        val path =
+            when (site.type) {
+                Values.BOORU_TYPE_DAN -> "session/new"
+                Values.BOORU_TYPE_MOE,
+                Values.BOORU_TYPE_DAN1 -> "user/reset_password"
+                Values.BOORU_TYPE_SANKAKU -> "reset_password"
+                else -> return
+            }
+        val host =
+            if (site.type == Values.BOORU_TYPE_SANKAKU) site.host.replaceFirst("capi-v2.", "beta.")
+            else site.host
         launchUrl("${site.scheme}://$host/$path")
     }
 }

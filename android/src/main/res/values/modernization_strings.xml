@@ -4,4 +4,19 @@
   <string name="image_load_retry">Image could not be loaded. Tap to retry.</string>
   <string name="post_actions">Post actions</string>
   <string name="post_accessibility">Post %1$d</string>
+    <string name="booru_empty_message">Add a featured or custom site to start browsing.</string>
+    <string name="title_downloads">Downloads</string>
+    <string name="download_resume_policy">Retries resume when the server and storage provider support it; otherwise the file restarts. Background transfers may be paused by Android.</string>
+    <string name="download_queue_empty">No downloads yet.</string>
+    <string name="download_state_queued">Queued · waiting to transfer</string>
+    <string name="download_state_running">Downloading</string>
+    <string name="download_state_completed">Completed</string>
+    <string name="download_state_failed">Failed · check connection, sign-in and folder access</string>
+    <string name="download_state_cancelled">Cancelled</string>
+    <string name="download_bytes_unknown">%1$d bytes · total size unknown</string>
+    <string name="download_bytes_total">%1$d / %2$d bytes</string>
+    <string name="download_open_file">Open file</string>
+    <string name="settings_load_failed">Unable to load settings</string>
+    <string name="settings_load_recovery">Your settings have been preserved. Retry loading them; MBooru will not reset them automatically.</string>
+    <string name="settings_write_failed">Settings could not be saved. Retry before closing the app.</string>
 </resources>

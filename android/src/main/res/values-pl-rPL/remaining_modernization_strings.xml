@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">Na podstawie Flexbooru autorstwa onlymash i współtwórców.</string>
+    <string name="action_to_top">Na górę</string>
+    <string name="booru_add_featured">Dodaj polecaną witrynę</string>
+    <string name="booru_config_save_failed">Nie można zapisać zmian. Spróbuj ponownie.</string>
+    <string name="image_search_read_failed">Nie można odczytać wybranego obrazu.</string>
+    <string name="navigation_drawer_open">Otwórz menu nawigacji</string>
+    <string name="settings_cache_clear_failed">Nie można wyczyścić pamięci podręcznej. Spróbuj ponownie.</string>
+</resources>

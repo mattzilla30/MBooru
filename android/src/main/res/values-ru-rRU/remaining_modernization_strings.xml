@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">На основе Flexbooru от onlymash и участников проекта.</string>
+    <string name="action_to_top">Наверх</string>
+    <string name="booru_add_featured">Добавить рекомендуемый сайт</string>
+    <string name="booru_config_save_failed">Не удалось сохранить изменения. Повторите попытку.</string>
+    <string name="image_search_read_failed">Не удалось прочитать выбранное изображение.</string>
+    <string name="navigation_drawer_open">Открыть меню навигации</string>
+    <string name="settings_cache_clear_failed">Не удалось очистить кэш. Повторите попытку.</string>
+</resources>

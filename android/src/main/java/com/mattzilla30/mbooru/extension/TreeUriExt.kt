@@ -25,97 +25,83 @@ import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import java.util.*
 
-fun PathActivity.getSaveUri(fileName: String): Uri? = getFileUri("save", fileName)
+suspend fun PathActivity.getSaveUri(fileName: String): Uri? = getFileUri("save", fileName)
 
-fun PathActivity.getPoolUri(fileName: String): Uri? = getFileUri("pools", fileName)
+suspend fun PathActivity.getPoolUri(fileName: String): Uri? = getFileUri("pools", fileName, true)
 
-fun PathActivity.getDownloadUri(host: String, fileName: String): Uri? = getFileUri(host, fileName)
+suspend fun PathActivity.getDownloadUri(host: String, fileName: String): Uri? =
+    getFileUri(host, fileName, true)
 
+/**
+ * New queue entries retain the complete provider URI; old entries still resolve their document ID.
+ */
 fun ContentResolver.getFileUriByDocId(docId: String): Uri? {
+    val uri = Uri.parse(docId)
+    if (uri.scheme == "content") return uri
     val treeUri = getTreeUri() ?: return null
     return DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
 }
 
-fun ContentResolver.getTreeUri(): Uri? {
-    val permissions = persistedUriPermissions
-    val index = permissions.indexOfFirst { permission ->
-        permission.isReadPermission && permission.isWritePermission
-    }
-    if (index < 0) {
-        return null
-    }
-    return permissions[index].uri
+fun ContentResolver.getTreeUri(preferred: String? = null): Uri? {
+    val permissions = persistedUriPermissions.filter { it.isReadPermission && it.isWritePermission }
+    return permissions
+        .firstOrNull {
+            it.uri.toString() == preferred || Uri.decode(it.uri.toString()) == preferred
+        }
+        ?.uri ?: if (preferred == null) permissions.firstOrNull()?.uri else null
 }
 
-private fun PathActivity.getFileUri(dirName: String, fileName: String): Uri? {
-    val treeUri = contentResolver.getTreeUri()
-    if (treeUri == null) {
-        pickDir()
-        return null
-    }
-    val treeDir = DocumentFile.fromTreeUri(this, treeUri)
-    if (treeDir == null || !treeDir.exists() || treeDir.isFile ||
-        !treeDir.canRead() || !treeDir.canWrite()) {
-        Toast.makeText(this, getString(R.string.msg_path_denied), Toast.LENGTH_LONG).show()
-        pickDir()
-        return null
-    }
-    val treeId = DocumentsContract.getTreeDocumentId(treeUri)
-    val dirId = getDocumentFileId(treeId, dirName)
-    val dirUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, dirId) ?: return null
-    val dir = DocumentFile.fromSingleUri(this, dirUri)
-    var tmpUri: Uri? = null
-    try {
-        if (dir == null || !dir.exists()) {
-            tmpUri = treeDir.createDirectory(dirName)?.uri ?: return null
-        } else if (dir.isFile) {
-            dir.delete()
-            tmpUri = treeDir.createDirectory(dirName)?.uri ?: return null
+private suspend fun PathActivity.getFileUri(
+    dirName: String,
+    fileName: String,
+    staged: Boolean = false,
+): Uri? {
+    val result =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val treeUri =
+                    contentResolver.getTreeUri(settings.downloadDirPath) ?: return@withContext null
+                val root =
+                    DocumentFile.fromTreeUri(this@getFileUri, treeUri) ?: return@withContext null
+                if (!root.canWrite()) return@withContext null
+                val directory =
+                    (root.findFile(dirName)?.takeIf { it.isDirectory }
+                        ?: if (root.findFile(dirName) == null) root.createDirectory(dirName)
+                        else null) ?: return@withContext null
+                val safeName =
+                    fileName.replace(Regex("[\\\\/\u0000-\u001f]"), "_").take(180).ifBlank {
+                        "download"
+                    }
+                // Never reuse/truncate an existing document, including providers with opaque IDs.
+                val name =
+                    if (staged) "$safeName.${UUID.randomUUID()}.part"
+                    else {
+                        if (directory.findFile(safeName) == null) safeName
+                        else "${UUID.randomUUID()}-$safeName"
+                    }
+                directory
+                    .createFile(
+                        if (staged) "application/octet-stream"
+                        else safeName.getMimeType().ifBlank { "application/octet-stream" },
+                        name,
+                    )
+                    ?.uri
+            } catch (_: SecurityException) {
+                null
+            } catch (_: java.io.IOException) {
+                null
+            } catch (_: IllegalArgumentException) {
+                null
+            } catch (_: UnsupportedOperationException) {
+                null
+            }
         }
-    } catch (_: Exception) {
-        return null
-    }
-    if (tmpUri != null && tmpUri != dirUri) {
-        Toast.makeText(this, getString(R.string.msg_path_denied), Toast.LENGTH_LONG).show()
-        pickDir()
-        return null
-    }
-    val fileId= getDocumentFileId(dirId, fileName)
-    var fileUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, fileId)
-    var file = DocumentFile.fromSingleUri(this, fileUri)
-    try {
-        if (file == null || !file.exists()) {
-            fileUri = DocumentsContract.createDocument(
-                contentResolver,
-                dirUri,
-                fileName.getMimeType(),
-                fileName
-            ) ?: return null
-        } else if (file.isDirectory) {
-            file.delete()
-            fileUri = DocumentsContract.createDocument(
-                contentResolver,
-                dirUri,
-                fileName.getMimeType(),
-                fileName
-            ) ?: return null
+    if (result == null)
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+            Toast.makeText(this@getFileUri, R.string.msg_path_denied, Toast.LENGTH_LONG).show()
+            pickDir()
         }
-    } catch (_: Exception) {
-        return null
-    }
-    file = DocumentFile.fromSingleUri(this, fileUri)
-    if (file == null || !file.exists() || !file.canWrite()) {
-        return null
-    }
-    return fileUri
-}
-
-private fun getDocumentFileId(prentId: String, fileName: String): String {
-    return if (prentId.endsWith(":")) {
-        prentId + fileName
-    } else {
-        "$prentId/$fileName"
-    }
+    return result
 }
 
 fun String.getMimeType(): String {
@@ -141,16 +127,18 @@ fun String.fileExt(): String {
 fun String.fileName(): String {
     val start = lastIndexOf('/') + 1
     val end = indexOfFirst { it == '?' }
-    val encodeFileName = if (end > start) {
-        substring(start, end)
-    } else {
-        substring(start)
-    }
-    return encodeFileName.toDecodedString()
+    val encodeFileName =
+        if (end > start) {
+            substring(start, end)
+        } else {
+            substring(start)
+        }
+    return encodeFileName
+        .toDecodedString()
         .replace("?", "")
         .replace("!", "")
         .replace(":", "_")
-        .replace("\"","_")
+        .replace("\"", "_")
 }
 
 fun String.isImage(): Boolean {
@@ -160,20 +148,20 @@ fun String.isImage(): Boolean {
 fun String.isVideo(): Boolean {
     val ext = fileExt()
     return ext.equals("mp4", ignoreCase = true) ||
-            ext.equals("webm", ignoreCase = true) ||
-            ext.equals("mkv", ignoreCase = true) ||
-            ext.equals("avi", ignoreCase = true) ||
-            ext.equals("mov", ignoreCase = true) ||
-            ext.equals("wmv", ignoreCase = true) ||
-            ext.equals("flv", ignoreCase = true)
+        ext.equals("webm", ignoreCase = true) ||
+        ext.equals("mkv", ignoreCase = true) ||
+        ext.equals("avi", ignoreCase = true) ||
+        ext.equals("mov", ignoreCase = true) ||
+        ext.equals("wmv", ignoreCase = true) ||
+        ext.equals("flv", ignoreCase = true)
 }
 
 fun String.isStillImage(): Boolean {
     val ext = fileExt()
     return ext.equals("jpg", ignoreCase = true) ||
-            ext.equals("png", ignoreCase = true) ||
-            ext.equals("jpeg", ignoreCase = true) ||
-            ext.equals("webp", ignoreCase = true)
+        ext.equals("png", ignoreCase = true) ||
+        ext.equals("jpeg", ignoreCase = true) ||
+        ext.equals("webp", ignoreCase = true)
 }
 
 fun String.isGifImage(): Boolean = fileExt().equals("gif", ignoreCase = true)

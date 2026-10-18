@@ -15,14 +15,13 @@
 
 package com.mattzilla30.mbooru.data.api
 
-import okhttp3.HttpUrl
 import com.mattzilla30.mbooru.data.model.shimmie.PostShimmieResponse
+import okhttp3.HttpUrl
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Url
 
 interface ShimmieApi {
 
-    @GET
-    suspend fun getPosts(@Url httpUrl: HttpUrl): Response<PostShimmieResponse>
+    @GET suspend fun getPosts(@Url httpUrl: HttpUrl): Response<PostShimmieResponse>
 }

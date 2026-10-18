@@ -17,58 +17,20 @@ package com.mattzilla30.mbooru.okhttp
 
 import android.content.Context
 import android.net.Uri
-import java.io.File
-import java.io.IOException
-
 import android.os.StatFs
 import androidx.annotation.VisibleForTesting
-import okhttp3.*
-import com.mattzilla30.mbooru.app.App
-import com.mattzilla30.mbooru.app.Keys.HEADER_REFERER
-import com.mattzilla30.mbooru.app.Keys.HEADER_USER_AGENT
-import com.mattzilla30.mbooru.app.Settings
-import com.mattzilla30.mbooru.app.Values
+import java.io.File
+import java.io.IOException
 import kotlin.math.max
 import kotlin.math.min
+import okhttp3.*
 
-/** A [Downloader] which uses OkHttp to download images.  */
+/** A [Downloader] which uses OkHttp to download images. */
 class OkHttp3Downloader : Downloader {
 
-    @VisibleForTesting
-    internal val client: Call.Factory
+    @VisibleForTesting internal val client: Call.Factory
     private val cache: Cache?
     private var sharedClient = true
-
-    /**
-     * Create new downloader that uses OkHttp. This will install an image cache into your application
-     * cache directory.
-     */
-    constructor(context: Context) : this(createDefaultCacheDir(context))
-
-    constructor(context: Context, useDiskCache: Boolean) : this(createOkHttpClient(
-        createDefaultCacheDir(context), if (useDiskCache) calculateDiskCacheSize(createDefaultCacheDir(context)) else 0L))
-
-    /**
-     * Create new downloader that uses OkHttp. This will install an image cache into your application
-     * cache directory.
-     *
-     * @param maxSize The size limit for the cache.
-     */
-    constructor(context: Context, maxSize: Long) : this(createDefaultCacheDir(context), maxSize)
-
-    /**
-     * Create new downloader that uses OkHttp. This will install an image cache into the specified
-     * directory.
-     *
-     * @param cacheDir The directory in which the cache should be stored
-     * @param maxSize The size limit for the cache.
-     */
-    @JvmOverloads
-    constructor(
-        cacheDir: File,
-        maxSize: Long = calculateDiskCacheSize(cacheDir)) : this(createOkHttpClient(cacheDir, maxSize)) {
-        sharedClient = false
-    }
 
     /**
      * Create a new downloader that uses the specified OkHttp instance. A response cache will not be
@@ -79,7 +41,7 @@ class OkHttp3Downloader : Downloader {
         this.cache = client.cache
     }
 
-    /** Create a new downloader that uses the specified [Call.Factory] instance.  */
+    /** Create a new downloader that uses the specified [Call.Factory] instance. */
     constructor(client: Call.Factory) {
         this.client = client
         this.cache = null
@@ -92,17 +54,13 @@ class OkHttp3Downloader : Downloader {
 
     @Throws(IOException::class)
     override fun load(uri: Uri): Response {
-        val request = Request.Builder()
-            .url(uri.toString())
-            .build()
+        val request = Request.Builder().url(uri.toString()).build()
         return load(request)
     }
 
     @Throws(IOException::class)
     override fun load(url: String): Response {
-        val request = Request.Builder()
-            .url(url)
-            .build()
+        val request = Request.Builder().url(url).build()
         return load(request)
     }
 
@@ -110,8 +68,7 @@ class OkHttp3Downloader : Downloader {
         if (!sharedClient && cache != null) {
             try {
                 cache.close()
-            } catch (ignored: IOException) {
-            }
+            } catch (ignored: IOException) {}
         }
     }
 
@@ -120,8 +77,8 @@ class OkHttp3Downloader : Downloader {
         private const val MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024 // 50MB
 
         /**
-         * Create new downloader that uses OkHttp. This will install an image cache into the specified
-         * directory.
+         * Create new downloader that uses OkHttp. This will install an image cache into the
+         * specified directory.
          */
         private fun createDefaultCacheDir(context: Context): File {
             val cache = File(context.applicationContext.cacheDir, "downloader")
@@ -140,22 +97,9 @@ class OkHttp3Downloader : Downloader {
                 val available = blockCount * blockSize
                 // Target 2% of the total space.
                 size = available / 50
-            } catch (ignored: IllegalArgumentException) {
-            }
+            } catch (ignored: IllegalArgumentException) {}
             // Bound inside min/max size for disk cache.
             return max(min(size, MAX_DISK_CACHE_SIZE.toLong()), MIN_DISK_CACHE_SIZE.toLong())
-        }
-        private fun createOkHttpClient(cacheDir: File, maxSize: Long): OkHttpClient {
-            val builder = OkHttpClient.Builder()
-                .cache(if (maxSize > 0) Cache(cacheDir, maxSize) else null)
-                .cookieJar(AndroidCookieJar)
-                .addNetworkInterceptor(RequestHeaderInterceptor())
-                .addInterceptor(ProgressInterceptor())
-            if (Settings.isBypassWAF) builder.addInterceptor(CloudflareInterceptor(App.app))
-            if (Settings.isDohEnable) {
-                builder.dns(Settings.doh)
-            }
-            return builder.build()
         }
     }
 }

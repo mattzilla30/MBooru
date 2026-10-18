@@ -15,13 +15,12 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
@@ -32,7 +31,11 @@ plugins {
 }
 
 // Supply a google-services.json registered for com.mattzilla30.mbooru to enable Firebase.
-if (file("google-services.json").exists()) {
+val firebaseEnabled =
+    file("google-services.json").exists() &&
+        providers.gradleProperty("enableFirebase").orNull == "true"
+
+if (firebaseEnabled) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
 }
@@ -41,27 +44,42 @@ val releaseStoreFile = file("../.gradle/mbooru-release.jks")
 val storePropertyFile = file("../.gradle/keystore.properties")
 
 val properties = Properties()
+
 if (storePropertyFile.exists()) {
     storePropertyFile.inputStream().use(properties::load)
 }
 
 object Configs {
-    const val APP_VERSION_NAME = "1"
-    const val APP_VERSION_CODE = 1374
+    const val APP_VERSION_NAME = "6"
+    const val APP_VERSION_CODE = 1379
     const val APP_ID = "com.mattzilla30.mbooru"
-    const val COMPILE_SDK_VERSION = 35
-    const val TARGET_SDK_VERSION = 35
+    const val COMPILE_SDK_VERSION = 36
+    const val TARGET_SDK_VERSION = 36
     const val MIN_SDK_VERSION = 21
 
-    val LANGUAGES = listOf(
-        "en", "zh-rCN", "zh-rHK", "zh-rTW",
-        "nl-rNL", "pt-rBR", "es-rES", "pl-rPL",
-        "fr-rFR", "hu-rHU", "ru-rRU", "ja-rJP",
-        "in-rID", "de-rDE", "tr-rTR"
-    )
+    val LANGUAGES =
+        listOf(
+            "en",
+            "zh-rCN",
+            "zh-rHK",
+            "zh-rTW",
+            "nl-rNL",
+            "pt-rBR",
+            "es-rES",
+            "pl-rPL",
+            "fr-rFR",
+            "hu-rHU",
+            "ru-rRU",
+            "ja-rJP",
+            "in-rID",
+            "de-rDE",
+            "tr-rTR",
+        )
 }
 
 android {
+    sourceSets.maybeCreate("nonMinifiedRelease")
+    sourceSets.getByName("test").resources.directories.add("$projectDir/schemas")
     signingConfigs {
         if (storePropertyFile.exists() && releaseStoreFile.exists()) {
             create("release") {
@@ -72,26 +90,26 @@ android {
             }
         }
     }
-    compileSdk = Configs.COMPILE_SDK_VERSION
+    compileSdk =
+        providers
+            .gradleProperty("androidCompileSdk")
+            .map(String::toInt)
+            .getOrElse(Configs.COMPILE_SDK_VERSION)
+    androidResources { localeFilters.addAll(Configs.LANGUAGES) }
     defaultConfig {
         applicationId = Configs.APP_ID
         minSdk = Configs.MIN_SDK_VERSION
         //noinspection EditedTargetSdkVersion
-        targetSdk = Configs.TARGET_SDK_VERSION
+        targetSdk =
+            providers
+                .gradleProperty("androidTargetSdk")
+                .map(String::toInt)
+                .getOrElse(Configs.TARGET_SDK_VERSION)
         versionCode = Configs.APP_VERSION_CODE
         versionName = Configs.APP_VERSION_NAME
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // AGP 8.9's lint model still reads this list rather than androidResources.localeFilters.
-        resourceConfigurations.addAll(Configs.LANGUAGES)
-    }
-    applicationVariants.all {
-        outputs.map {
-            it as BaseVariantOutputImpl
-        }
-            .forEach { output ->
-                output.outputFileName = "MBooru_${defaultConfig.versionName}.apk"
-            }
     }
     buildTypes {
         release {
@@ -99,22 +117,27 @@ android {
             vcsInfo { include = false }
             isShrinkResources = true
             isMinifyEnabled = true
-            val config = try {
-                signingConfigs.getByName("release")
-            } catch (_: UnknownDomainObjectException) {
-                null
-            }
+            val config =
+                try {
+                    signingConfigs.getByName("release")
+                } catch (_: UnknownDomainObjectException) {
+                    null
+                }
             if (config != null) {
                 signingConfig = config
             }
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
         debug {
-            val config = try {
-                signingConfigs.getByName("release")
-            } catch (_: UnknownDomainObjectException) {
-                null
-            }
+            val config =
+                try {
+                    signingConfigs.getByName("release")
+                } catch (_: UnknownDomainObjectException) {
+                    null
+                }
             if (config != null) {
                 signingConfig = config
             }
@@ -124,20 +147,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs = freeCompilerArgs + listOf(
-            "-opt-in=kotlin.ExperimentalStdlibApi",
-            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-            "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "-opt-in=kotlinx.coroutines.FlowPreview",
-            "-opt-in=androidx.paging.ExperimentalPagingApi",
-            "-opt-in=nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
-            "-opt-in=coil.annotation.ExperimentalCoilApi",
-            "-Xjvm-default=all-compatibility"
-        )
-    }
+
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
@@ -152,10 +162,12 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.datastore.preferences)
+    implementation(project(":core:model"))
     baselineProfile(project(":baselineprofile"))
-    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+    implementation(libs.androidx.profileinstaller)
 
-//    coreLibraryDesugaring(libs.desugarJdkLibs)
+    //    coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation(platform(libs.compose.bom))
@@ -174,6 +186,7 @@ dependencies {
     implementation(libs.koin.androidx.workmanager)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.material.material)
@@ -186,7 +199,6 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.androidx.documentfile)
 
-    implementation(libs.androidx.fragment.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.runtime.ktx)
 
@@ -196,13 +208,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
 
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.muzei.api)
     implementation(libs.photoview)
     implementation(libs.subsampling.scale.image.view)
 
@@ -212,30 +222,28 @@ dependencies {
     implementation(libs.zxing.core)
     implementation(libs.barcode.scanning)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
+    if (firebaseEnabled) {
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.analytics)
+        implementation(libs.firebase.crashlytics)
+    }
 
     implementation(libs.gms.oss.licenses)
 
     implementation(libs.retrofit.retrofit)
     implementation(libs.retrofit.converter.kotlinx)
     implementation(libs.okhttp.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
     implementation(libs.okhttp.dnsoverhttps)
     implementation(libs.okio)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.coil.coil)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.coil.gif)
 
     implementation(libs.xmlutil.android.core)
     implementation(libs.xmlutil.android.serialization)
 
     implementation(libs.androidx.media3.exoplayer)
-    implementation(libs.androidx.media3.session)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.datasource.okhttp)
 
@@ -243,6 +251,7 @@ dependencies {
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.work.testing)
     testImplementation(libs.test.junit)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.test.robolectric)
@@ -255,3 +264,49 @@ dependencies {
 }
 
 baselineProfile { automaticGenerationDuringBuild = false }
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        jvmDefault.set(org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode.ENABLE)
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.ExperimentalStdlibApi",
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+            "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.FlowPreview",
+            "-opt-in=androidx.paging.ExperimentalPagingApi",
+            "-opt-in=nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
+            "-opt-in=coil3.annotation.ExperimentalCoilApi",
+        )
+    }
+}
+
+// The profile plugin copies the release manifest when creating its synthetic build type.
+// Restore the offline fixture manifest after that copy; production release stays unchanged.
+androidComponents {
+    finalizeDsl {
+        it.sourceSets
+            .getByName("nonMinifiedRelease")
+            .manifest
+            .srcFile("src/nonMinifiedRelease/AndroidManifest.xml")
+    }
+    onVariants(selector().withBuildType("nonMinifiedRelease")) { variant ->
+        val merged =
+            variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.MERGED_MANIFEST)
+        tasks.register("verifyOfflineProfileManifest") {
+            inputs.file(merged)
+            doLast {
+                check(
+                    merged
+                        .get()
+                        .asFile
+                        .readText()
+                        .contains("com.mattzilla30.mbooru.benchmark.FixtureApp")
+                ) {
+                    "Profile target must use the offline fixture application"
+                }
+            }
+        }
+    }
+}
