@@ -1,8 +1,11 @@
 package com.mattzilla30.mbooru
 
+import com.mattzilla30.mbooru.data.api.ApiInterceptor
 import com.mattzilla30.mbooru.data.api.ShimmieApi
 import com.mattzilla30.mbooru.data.api.createApi
+import com.mattzilla30.mbooru.okhttp.BoundedApiResponseInterceptor
 import kotlinx.coroutines.runBlocking
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -27,15 +30,34 @@ class ShimmieApiTest {
                     .setBody(
                         """
                         <posts count="1" offset="0"><post id="42" preview_url="/preview.jpg" preview_width="120" preview_height="80"
-                            file_url="/image.jpg" file_name="image.jpg" width="1600" height="900" score="3" tags="landscape sky"
+                            file_url="/image.jpg" file_name="image.jpg" width="1600" height="900" score="3" tags="landscape sky caf&eacute; literal&amp;eacute;"
                             date="2026-10-18 00:00:00" author="fixture" rating="s" /></posts>
                         """
                             .trimIndent()
                     )
             )
             val response =
-                createApi<ShimmieApi>(OkHttpClient())
-                    .getPosts(server.url("/api/danbooru/find_posts?limit=2"))
+                createApi<ShimmieApi>(
+                        OkHttpClient.Builder()
+                            .addInterceptor(ApiInterceptor())
+                            .addInterceptor(BoundedApiResponseInterceptor())
+                            .addInterceptor { chain ->
+                                val url =
+                                    chain
+                                        .request()
+                                        .url
+                                        .newBuilder()
+                                        .scheme("http")
+                                        .host(server.hostName)
+                                        .port(server.port)
+                                        .build()
+                                chain.proceed(chain.request().newBuilder().url(url).build())
+                            }
+                            .build()
+                    )
+                    .getPosts(
+                        "https://rule34.paheal.net/api/danbooru/find_posts?limit=2".toHttpUrl()
+                    )
             assertTrue(response.isSuccessful)
             val post =
                 response
@@ -46,7 +68,10 @@ class ShimmieApiTest {
             assertEquals(42, post.id)
             assertEquals(1600, post.width)
             assertEquals(900, post.height)
-            assertEquals(listOf("landscape", "sky"), post.tags.map { it.name })
+            assertEquals(
+                listOf("landscape", "sky", "café", "literal&eacute;"),
+                post.tags.map { it.name },
+            )
             assertEquals("https://fixture.invalid/image.jpg", post.origin)
             assertEquals("2", server.takeRequest().requestUrl!!.queryParameter("limit"))
         }

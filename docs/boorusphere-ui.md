@@ -27,7 +27,9 @@ Muzei work is cancelled on startup when WorkManager is initialized.
 The preset list contains Yande.re, Konachan, Safebooru, e926, e621 and Paheal.
 Their configured post APIs returned posts without authentication during validation.
 APK 5 adds the last three on upgrade without replacing existing configurations
-or restoring deleted older presets. Subsequent launches preserve deletions. Gelbooru's
+or restoring deleted older presets. Subsequent launches preserve deletions.
+Paheal post responses normalize HTML named entities to XML numeric references,
+so accented tags and URLs decode correctly while existing XML escapes are retained. Gelbooru's
 configured API returned HTTP 401 and Sankaku's configured API returned HTTP 403;
 neither configured endpoint was usable anonymously in that check. Danbooru was
 removed at the owner's request. These retired hosts are removed on upgrade,

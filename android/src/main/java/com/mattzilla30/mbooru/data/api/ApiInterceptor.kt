@@ -15,10 +15,12 @@
 
 package com.mattzilla30.mbooru.data.api
 
+import androidx.core.text.HtmlCompat
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.app.Values
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 
 class ApiInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -28,9 +30,43 @@ class ApiInterceptor : Interceptor {
                 .newBuilder()
                 .header(Keys.HEADER_USER_AGENT, Values.MOBILE_USER_AGENT)
                 .build()
-        return chain.proceed(requests)
+        val response = chain.proceed(requests)
+        val body = response.body
+        val pahealPosts =
+            requests.url.host == "rule34.paheal.net" &&
+                requests.url.encodedPath == "/api/danbooru/find_posts"
+        if (!pahealPosts || !response.isSuccessful || body == null) return response
+        // The inner BoundedApiResponseInterceptor bounds this document before it is read.
+        return response
+            .newBuilder()
+            .removeHeader("Content-Length")
+            .body(normalizePahealXml(body.string()).toResponseBody(body.contentType()))
+            .build()
     }
 }
+
+private val namedEntity = Regex("&[A-Za-z][A-Za-z0-9]+;")
+private val xmlEntities = setOf("&amp;", "&lt;", "&gt;", "&quot;", "&apos;")
+
+/** Paheal emits HTML named entities inside XML; numeric references work in XML parsers. */
+internal fun normalizePahealXml(xml: String): String =
+    namedEntity.replace(xml) { match ->
+        if (match.value in xmlEntities) match.value
+        else {
+            val decoded =
+                HtmlCompat.fromHtml(match.value, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+            if (decoded == match.value) match.value
+            else
+                buildString {
+                    var offset = 0
+                    while (offset < decoded.length) {
+                        val point = decoded.codePointAt(offset)
+                        append("&#").append(point).append(';')
+                        offset += Character.charCount(point)
+                    }
+                }
+        }
+    }
 
 class ApiSankakuInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
