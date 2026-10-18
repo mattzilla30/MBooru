@@ -108,6 +108,11 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         if migrated:
             break
         time.sleep(1)
+    if not migrated:
+        print("Migration readiness failed on the isolated artificial fixture. Crash-buffer diagnostics:", flush=True)
+        print(adb("logcat", "-d", "-b", "crash", "-t", "100", check=False), flush=True)
+        with sqlite3.connect(root / "migration-probe/mbooru.db") as db:
+            print("Observed schema version:", db.execute("PRAGMA user_version").fetchone()[0], flush=True)
     assert migrated, "Candidate did not finish credential migration before the deadline"
     snapshot(root / "after")
     with sqlite3.connect(root / "after/databases/mbooru.db") as db:
