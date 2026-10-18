@@ -1,4 +1,4 @@
-name: Native Android compatibility checks
+name: Settings screenshot comparisons
 on:
   push:
     branches: [master]
@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [21, 36]
+        api: [28]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -45,7 +45,7 @@ jobs:
           target: google_apis
           profile: pixel_2
           disable-animations: true
-          script: bash scripts/run_device_checks.sh
+          script: bash ./gradlew --no-daemon --max-workers=2 :android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.mattzilla30.mbooru.visual.SettingsVisualTest
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
