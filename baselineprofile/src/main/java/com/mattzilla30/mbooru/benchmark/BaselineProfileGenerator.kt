@@ -55,9 +55,7 @@ class BaselineProfileGenerator {
                         device.dumpWindowHierarchy(hierarchy)
                         error("Offline post did not appear: " + hierarchy.readText())
                     }
-            var clickable = post
-            while (!clickable.isClickable && clickable.parent != null) clickable = clickable.parent
-            clickable.click()
+            device.clickFresh(By.desc(post.contentDescription))
             check(
                 device.wait(
                     Until.hasObject(By.res("com.mattzilla30.mbooru", "post_media_image")),
@@ -82,10 +80,8 @@ class BaselineProfileGenerator {
                 device.waitForIdle()
                 video = device.findObject(By.desc("Post 2"))
             }
-            var videoAction = requireNotNull(video) { "Offline video post was not reachable" }
-            while (!videoAction.isClickable && videoAction.parent != null) videoAction =
-                videoAction.parent
-            videoAction.click()
+            requireNotNull(video) { "Offline video post was not reachable" }
+            device.clickFresh(By.desc("Post 2"))
             check(
                 device.wait(Until.hasObject(By.res("com.mattzilla30.mbooru", "player_view")), 15000)
             ) {
@@ -93,16 +89,31 @@ class BaselineProfileGenerator {
             }
             device.pressBack()
             device.waitForIdle()
-            val tags =
-                requireNotNull(device.wait(Until.findObject(By.res("browse-tab-tags")), 10000))
-            tags.click()
+            device.clickFresh(By.res("browse-tab-tags"))
             device.waitForIdle()
-            requireNotNull(device.wait(Until.findObject(By.res("browse-tab-posts")), 10000)).click()
+            device.clickFresh(By.res("browse-tab-posts"))
             device.waitForIdle()
-            requireNotNull(device.wait(Until.findObject(By.desc("Open navigation drawer")), 10000))
-                .click()
-            requireNotNull(device.wait(Until.findObject(By.text("Settings")), 10000)).click()
+            device.clickFresh(By.desc("Open navigation drawer"))
+            device.clickFresh(By.text("Settings"))
             device.waitForIdle()
             device.pressBack()
         }
+
+    /** Compose can replace a semantics node between a successful query and the click. */
+    private fun androidx.test.uiautomator.UiDevice.clickFresh(
+        selector: androidx.test.uiautomator.BySelector
+    ) {
+        val deadline = android.os.SystemClock.uptimeMillis() + 15000
+        while (android.os.SystemClock.uptimeMillis() < deadline) {
+            try {
+                var action = wait(Until.findObject(selector), 1000) ?: continue
+                while (!action.isClickable && action.parent != null) action = action.parent
+                action.click()
+                return
+            } catch (_: androidx.test.uiautomator.StaleObjectException) {
+                android.os.SystemClock.sleep(100)
+            }
+        }
+        error("Control did not remain available for a click: $selector")
+    }
 }
