@@ -46,7 +46,7 @@ def launch():
 assert adb("shell", "getprop", "ro.kernel.qemu").strip() == "1", "This fixture is restricted to an emulator"
 assert hashlib.sha256(args.previous.read_bytes()).hexdigest() == BASELINE_SHA256, "Unexpected release-1 baseline"
 adb("root"); adb("wait-for-device")
-assert adb("shell", "id", "-u").strip() == "0", "A rooted google_apis emulator is required"
+assert re.search(r"uid=0(?:\(|\s|$)", adb("shell", "id")), "A rooted google_apis emulator is required"
 # Upgrade/data retention does not require live sites; all account strings are artificial.
 adb("shell", "svc", "wifi", "disable", check=False)
 adb("shell", "svc", "data", "disable", check=False)
@@ -83,7 +83,9 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         if tag == "string":node.text = value
         else:node.set("value", value)
     document.write(preferences, encoding="utf-8", xml_declaration=True)
-    owner = re.search(r"userId=(\d+)", adb("shell", "dumpsys", "package", PACKAGE)).group(1)
+    owner_match = re.search(r"(?:userId|appId)=(\d+)", adb("shell", "dumpsys", "package", PACKAGE))
+    assert owner_match is not None, "Installed fixture package UID was not reported"
+    owner = owner_match.group(1)
     assert owner.isdigit()
     for suffix in ["-wal", "-shm"]:adb("shell", "rm", "-f", f"/data/user/0/{PACKAGE}/databases/mbooru.db{suffix}")
     for local, remote in [(database, f"/data/user/0/{PACKAGE}/databases/mbooru.db"), (preferences, f"/data/user/0/{PACKAGE}/shared_prefs/{preferences.name}")]:
