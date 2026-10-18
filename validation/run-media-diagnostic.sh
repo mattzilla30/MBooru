@@ -30,3 +30,5 @@ import sys
 import re
 assert re.search(r'OK \(\d+ tests?\)', Path('validation/results/instrument.txt').read_text())
 PYCHECK
+
+python3 validation/signed_upgrade.py validation/previous.apk validation/candidate.apk --build-tools "$ANDROID_HOME/build-tools/36.0.0" --out "validation/results/upgrade-api-$1.json"
