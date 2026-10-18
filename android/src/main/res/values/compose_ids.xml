@@ -73,4 +73,5 @@
     <item type="id" name="option_file" />
     <item type="id" name="option_main" />
     <item type="id" name="option_url" />
+    <item name="post_media_image" type="id" />
 </resources>

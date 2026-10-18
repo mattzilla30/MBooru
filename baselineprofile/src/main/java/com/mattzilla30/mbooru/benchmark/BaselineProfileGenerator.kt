@@ -60,13 +60,13 @@ class BaselineProfileGenerator {
             clickable.click()
             check(
                 device.wait(
-                    Until.hasObject(By.clazz("com.github.chrisbanes.photoview.PhotoView")),
+                    Until.hasObject(By.res("com.mattzilla30.mbooru", "post_media_image")),
                     15000,
                 )
             ) {
                 "Still-image detail did not open"
             }
-            device.findObject(By.clazz("com.github.chrisbanes.photoview.PhotoView")).apply {
+            device.findObject(By.res("com.mattzilla30.mbooru", "post_media_image")).apply {
                 pinchOpen(0.5f)
                 pinchClose(0.5f)
             }
@@ -86,7 +86,9 @@ class BaselineProfileGenerator {
             while (!videoAction.isClickable && videoAction.parent != null) videoAction =
                 videoAction.parent
             videoAction.click()
-            check(device.wait(Until.hasObject(By.clazz("androidx.media3.ui.PlayerView")), 15000)) {
+            check(
+                device.wait(Until.hasObject(By.res("com.mattzilla30.mbooru", "player_view")), 15000)
+            ) {
                 "Video detail did not open"
             }
             device.pressBack()

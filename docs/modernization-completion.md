@@ -17,8 +17,12 @@ This records the one-pass implementation against the original 12-phase roadmap. 
 | 10 — releases | Required quality jobs, locks/checksums, pinned actions, SBOM/licenses/OSV, protected signing, provenance and signed-upgrade fixture | 93 Android + 5 core tests; lint zero errors; all 268 runtime components covered by license metadata/reviewed overrides; dated OSV results. Final signed artifact/upgrade evidence below. |
 | 11 — maintenance | Monthly audit/update jobs, preview lane, integer release/check/recovery policy | [Release checklist](release-checklist.md), [support policy](support-policy.md), [hardware acceptance procedure](hardware-validation.md). Recurring future execution cannot be pre-completed. |
 
-## Final execution evidence
+## Execution evidence
 
-- Current toolchain CI: [39094674513](https://github.com/mattzilla30/MBooru/actions/runs/39094674513), source `3d6bd8a5` (running when this checkpoint was written).
-- Current profile generation: [39094675880](https://github.com/mattzilla30/MBooru/actions/runs/39094675880) (running when this checkpoint was written).
+- Clean [verification job in 39095321871](https://github.com/mattzilla30/MBooru/actions/runs/39095321871) passes formatting/static checks, unit tests, lint, release and instrumentation builds. The old device checkout in that run subsequently exposed an imported-BOM checksum gap, which was fixed; the whole old run is not described as green.
+- [39096204368](https://github.com/mattzilla30/MBooru/actions/runs/39096204368): nine native tests pass on API 21 and nine on API 36.
+- [39095789577](https://github.com/mattzilla30/MBooru/actions/runs/39095789577): nine native tests pass on API 28; four intentional missing-golden failures export the first screenshots for review. [39096390923](https://github.com/mattzilla30/MBooru/actions/runs/39096390923) subsequently passes all four reviewed screenshot comparisons and final-setting reachability checks.
+- [Machine-readable device evidence](validation/device-checkpoints.json) records report hashes, actual test names and matching production source trees across these checkpoints.
+- The signed pre-profile candidate passes install-over-release-1 data retention on API 21/28 ([39095233055](https://github.com/mattzilla30/MBooru/actions/runs/39095233055)) and API 36 ([39096493723](https://github.com/mattzilla30/MBooru/actions/runs/39096493723)). Its checksum and the initial fixture failures are in [progress](modernization-progress.md). The final profiled APK gets a separate exact-checksum upgrade run.
+- Profile collection and the final consolidated CI are running from source `4bfdf0e8`: [profile](https://github.com/mattzilla30/MBooru/actions/runs/39096819214), [CI](https://github.com/mattzilla30/MBooru/actions/runs/39096820390). Generation/packaging is not claimed complete until real rules and a passing artifact check exist.
 - The physical acceptance items above are intentionally outstanding. Emulator success does not prove hardware startup/frame/memory performance, TalkBack usability or third-party SAF behavior.

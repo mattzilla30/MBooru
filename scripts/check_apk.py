@@ -30,6 +30,14 @@ permissions = run("aapt", "dump", "permissions", args.apk)
 assert not any(value in permissions for value in ["com.android.vending.BILLING", "permission.AD_ID", "ACCESS_ADSERVICES_AD_ID"])
 checked = []
 with zipfile.ZipFile(args.apk) as archive:
+    assert not any("version-control-info" in name for name in archive.namelist()), "Release embeds stale workspace VCS metadata"
+    profiles = list(Path("android/src/release/generated/baselineProfiles").glob("*.txt"))
+    if profiles:
+        rules = "\n".join(path.read_text() for path in profiles)
+        assert "Lcom/mattzilla30/mbooru/" in rules, "Generated rules contain no application code"
+        assert "/mbooru/benchmark/" not in rules, "Fixture-only classes leaked into release profile rules"
+        assert archive.read("assets/dexopt/baseline.prof").startswith(b"pro\0"), "Release profile is absent or invalid"
+        assert len(archive.read("assets/dexopt/baseline.profm")) > 4, "Release profile metadata is absent"
     for name in archive.namelist():
         if not name.startswith("lib/") or not name.endswith(".so"):
             continue

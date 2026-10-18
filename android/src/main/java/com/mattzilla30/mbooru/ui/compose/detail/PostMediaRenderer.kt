@@ -66,6 +66,12 @@ class PostMediaRenderer(
     init {
         fun shared(target: View) {
             target.transitionName = "post_${post.id}"
+            if (target is PhotoView || target is SubsamplingScaleImageView) {
+                target.id = R.id.post_media_image
+                target.contentDescription = context.getString(R.string.post_accessibility, post.id)
+            } else if (target is PlayerView) {
+                target.contentDescription = context.getString(R.string.post_accessibility, post.id)
+            }
         }
         fun touchZoom(value: Boolean) {
             view.isDismissEnabled = !value
