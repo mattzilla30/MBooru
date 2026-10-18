@@ -24,12 +24,13 @@ Muzei, SauceNAO and WhatAnime integrations have been removed, including their
 activities, provider, work, settings and SauceNAO secret. Previously scheduled
 Muzei work is cancelled on startup when WorkManager is initialized.
 
-The preset list contains Yande.re, Konachan, Safebooru, e926, e621 and Paheal.
+The preset list contains Yande.re, Konachan, Safebooru, e926 and e621.
 Their configured post APIs returned posts without authentication during validation.
-APK 5 adds the last three on upgrade without replacing existing configurations
-or restoring deleted older presets. Subsequent launches preserve deletions.
-Paheal post responses normalize HTML named entities to XML numeric references,
-so accented tags and URLs decode correctly while existing XML escapes are retained. Gelbooru's
+Upgrades add e926 and e621 once without replacing existing configurations or
+restoring deleted older presets. Subsequent launches preserve deletions.
+Paheal is removed from saved sites on upgrade and cannot be re-added through the
+site editor. Its response-specific XML normalization has been removed.
+Gelbooru's
 configured API returned HTTP 401 and Sankaku's configured API returned HTTP 403;
 neither configured endpoint was usable anonymously in that check. Danbooru was
 removed at the owner's request. These retired hosts are removed on upgrade,

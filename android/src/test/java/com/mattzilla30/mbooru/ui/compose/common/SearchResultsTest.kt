@@ -46,6 +46,43 @@ class SearchResultsTest {
     }
 
     @Test
+    fun initialSearchHasOneLoadingIndicatorUntilPostsArrive() {
+        val context = ApplicationProvider.getApplicationContext<SearchFixtureApp>()
+        context.delayPosts = true
+        val intent =
+            Intent(context, SearchActivity::class.java).putExtra(Keys.POST_QUERY, "landscape")
+        try {
+            ActivityScenario.launch<SearchActivity>(intent).use {
+                val loading =
+                    SemanticsMatcher.expectValue(
+                        androidx.compose.ui.semantics.SemanticsProperties.ProgressBarRangeInfo,
+                        androidx.compose.ui.semantics.ProgressBarRangeInfo.Indeterminate,
+                    )
+                compose.waitUntil(10000) {
+                    val nodes =
+                        compose
+                            .onAllNodes(loading)
+                            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                    nodes.isNotEmpty() && context.requests.any { it.encodedPath == "/post.json" }
+                }
+                compose.onAllNodes(loading).assertCountEquals(1)
+                context.releasePosts.countDown()
+                val description = context.getString(R.string.post_accessibility, 2468)
+                compose.waitUntil(10000) {
+                    compose
+                        .onAllNodesWithContentDescription(description)
+                        .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                        .isNotEmpty()
+                }
+                compose.onNodeWithContentDescription(description).assertIsDisplayed()
+                compose.onAllNodes(loading).assertCountEquals(0)
+            }
+        } finally {
+            context.releasePosts.countDown()
+        }
+    }
+
+    @Test
     fun successfulEmptySearchShowsNoResults() {
         val context = ApplicationProvider.getApplicationContext<SearchFixtureApp>()
         context.emptyResults = true
@@ -129,6 +166,8 @@ class SearchFixtureApp : App() {
     val requests = CopyOnWriteArrayList<HttpUrl>()
     @Volatile var postStatus = 200
     @Volatile var emptyResults = false
+    @Volatile var delayPosts = false
+    val releasePosts = java.util.concurrent.CountDownLatch(1)
 
     override fun environmentModules() =
         listOf(
@@ -142,6 +181,14 @@ class SearchFixtureApp : App() {
                             Interceptor { chain ->
                                 val request = chain.request()
                                 requests += request.url
+                                if (delayPosts && request.url.encodedPath == "/post.json") {
+                                    check(
+                                        releasePosts.await(
+                                            20,
+                                            java.util.concurrent.TimeUnit.SECONDS,
+                                        )
+                                    )
+                                }
                                 val body =
                                     if (request.url.encodedPath == "/post.json") {
                                         if (emptyResults) """{"posts":[],"tags":{},"votes":{}}"""

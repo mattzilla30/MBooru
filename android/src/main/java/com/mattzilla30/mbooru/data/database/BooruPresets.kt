@@ -18,7 +18,6 @@ object BooruPresets {
         listOf(
             Booru(name = "e926", host = "e926.net", type = Values.BOORU_TYPE_DAN),
             Booru(name = "e621", host = "e621.net", type = Values.BOORU_TYPE_DAN),
-            Booru(name = "Paheal", host = "rule34.paheal.net", type = Values.BOORU_TYPE_SHIMMIE),
         )
 
     // Return fresh instances: Booru contains mutable settings and database IDs.
@@ -31,7 +30,9 @@ object BooruPresets {
 
     fun isRetiredHost(host: String): Boolean {
         val name = host.lowercase().removePrefix("www.")
-        return name == "danbooru.donmai.us" ||
+        return name == "paheal.net" ||
+            name.endsWith(".paheal.net") ||
+            name == "danbooru.donmai.us" ||
             name == "gelbooru.com" ||
             name == "sankakucomplex.com" ||
             name.endsWith(".sankakucomplex.com") ||

@@ -60,12 +60,12 @@ class BooruPresetsTest {
     }
 
     @Test
-    fun `first launch offers the six anonymous HTTPS presets`() =
+    fun `first launch offers the five anonymous HTTPS presets`() =
         kotlinx.coroutines.runBlocking {
             BooruPresets.installOnce(dao, preferences)
             val sites = dao.getAll()
             assertEquals(
-                listOf("Yande.re", "Konachan", "Safebooru", "e926", "e621", "Paheal"),
+                listOf("Yande.re", "Konachan", "Safebooru", "e926", "e621"),
                 sites.map { it.name },
             )
             assertEquals(
@@ -75,7 +75,6 @@ class BooruPresetsTest {
                     Values.BOORU_TYPE_GEL_LEGACY,
                     Values.BOORU_TYPE_DAN,
                     Values.BOORU_TYPE_DAN,
-                    Values.BOORU_TYPE_SHIMMIE,
                 ),
                 sites.map { it.type },
             )
@@ -84,7 +83,7 @@ class BooruPresetsTest {
                     it.uid > 0 && it.scheme == "https" && it.user == null && it.auth == null
                 }
             )
-            assertEquals(6, sites.map { it.host }.toSet().size)
+            assertEquals(5, sites.map { it.host }.toSet().size)
         }
 
     @Test
@@ -105,11 +104,11 @@ class BooruPresetsTest {
             BooruPresets.installOnce(dao, preferences)
             assertEquals(customized, dao.getBooruByUid(customized.uid))
             assertEquals(custom, dao.getBooruByUid(custom.uid))
-            assertEquals(7, dao.getAll().size)
+            assertEquals(6, dao.getAll().size)
         }
 
     @Test
-    fun `catalog upgrade adds three sites once without replacing customizations or old deletions`() =
+    fun `catalog upgrade adds two sites once without replacing customizations or old deletions`() =
         kotlinx.coroutines.runBlocking {
             preferences.edit().putBoolean("featured_boorus_v1_installed", true).commit()
             val custom =
@@ -124,13 +123,37 @@ class BooruPresetsTest {
             BooruPresets.installOnce(dao, preferences)
             assertEquals(custom.copy(uid = uid), dao.getBooruByUid(uid))
             assertEquals(
-                setOf("e926.net", "e621.net", "rule34.paheal.net"),
+                setOf("e926.net", "e621.net"),
                 dao.getAll().map { it.host }.toSet(),
             )
             dao.delete(dao["https", "e926.net"]!!.uid)
             BooruPresets.installOnce(dao, preferences)
             assertNull(dao["https", "e926.net"])
-            assertEquals(2, dao.getAll().size)
+            assertEquals(1, dao.getAll().size)
+        }
+
+    @Test
+    fun `upgrade removes saved Paheal after both catalog markers were installed`() =
+        kotlinx.coroutines.runBlocking {
+            BooruPresets.installOnce(dao, preferences)
+            val uid =
+                dao.insert(
+                    com.mattzilla30.mbooru.data.model.common.Booru(
+                        name = "Paheal",
+                        host = "rule34.paheal.net",
+                        type = Values.BOORU_TYPE_SHIMMIE,
+                    )
+                )
+            val removed = mutableListOf<Long>()
+            BooruPresets.installOnce(dao, preferences) { id ->
+                removed += id
+                dao.delete(id)
+                Unit
+            }
+            assertEquals(listOf(uid), removed)
+            assertNull(dao.getBooruByUid(uid))
+            assertEquals(5, dao.getAll().size)
+            assertTrue(BooruPresets.isRetiredHost("www.RULE34.paheal.net"))
         }
 
     @Test
@@ -145,8 +168,8 @@ class BooruPresetsTest {
             val uid = BooruPresets.add(dao, preset)
             assertTrue(uid > 0)
             assertEquals(uid, BooruPresets.add(dao, preset))
-            assertEquals(6, dao.getAll().size)
-            val customized = dao.getBooruByUid(uid)!!.copy(name = "My Paheal")
+            assertEquals(5, dao.getAll().size)
+            val customized = dao.getBooruByUid(uid)!!.copy(name = "My e621")
             dao.update(customized)
             assertEquals(uid, BooruPresets.add(dao, preset))
             assertEquals(customized, dao.getBooruByUid(uid))
@@ -160,7 +183,7 @@ class BooruPresetsTest {
             BooruPresets.installOnce(dao, preferences)
             assertTrue(dao.getAll().isEmpty())
             BooruPresets.add(dao, BooruPresets.featured().last())
-            assertEquals("Paheal", dao.getAll().single().name)
+            assertEquals("e621", dao.getAll().single().name)
         }
 
     @Test
@@ -179,9 +202,9 @@ class BooruPresetsTest {
             BooruPresets.installOnce(dao, preferences)
             assertNull(dao.getBooruByUid(sampleUid))
             assertNotNull(dao.getBooruByUid(customUid))
-            assertEquals(7, dao.getAll().size)
+            assertEquals(6, dao.getAll().size)
             BooruPresets.installOnce(dao, preferences)
-            assertEquals(7, dao.getAll().size)
+            assertEquals(6, dao.getAll().size)
         }
 
     @Test
@@ -291,7 +314,7 @@ class BooruPresetsTest {
             assertEquals(3, removed.size)
             assertNotNull(dao.getBooruByUid(custom))
             assertEquals(
-                setOf("custom.invalid", "e926.net", "e621.net", "rule34.paheal.net"),
+                setOf("custom.invalid", "e926.net", "e621.net"),
                 dao.getAll().map { it.host }.toSet(),
             )
             assertTrue(BooruPresets.isRetiredHost("www.GELBOORU.com"))

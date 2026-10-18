@@ -170,22 +170,37 @@ fun PostGrid(
                     }
                 }
             }
-            item(key = "append", span = StaggeredGridItemSpan.FullLine) {
-                PagingStatus(posts.loadState.append, posts::retry)
+            if (posts.itemCount > 0 && !refresh) {
+                item(key = "append", span = StaggeredGridItemSpan.FullLine) {
+                    PagingStatus(posts.loadState.append, posts::retry)
+                }
             }
         }
-        if (posts.itemCount == 0)
-            PagingStatus(
-                posts.loadState.refresh,
-                posts::retry,
-                Modifier.align(Alignment.Center),
-                empty = true,
-            )
+        PostGridLoading(posts, refresh, pull)
         BrowseScrollTop(
             grid.firstVisibleItemIndex > 0,
             { scope.launch { grid.animateScrollToItem(0) } },
             Modifier.align(Alignment.BottomEnd),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+@Suppress("FunctionNaming")
+private fun BoxScope.PostGridLoading(
+    posts: LazyPagingItems<Post>,
+    refresh: Boolean,
+    pull: PullRefreshState,
+) {
+    if (posts.itemCount == 0) {
+        PagingStatus(
+            posts.loadState.refresh,
+            posts::retry,
+            Modifier.align(Alignment.Center),
+            empty = true,
+        )
+    } else {
         PullRefreshIndicator(
             refresh,
             pull,
