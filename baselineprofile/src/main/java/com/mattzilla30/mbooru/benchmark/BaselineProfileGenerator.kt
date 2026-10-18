@@ -27,8 +27,17 @@ class BaselineProfileGenerator {
                 )
             pressHome()
             startActivityAndWait()
+            // Scroll restoration is a product requirement: later collection iterations may
+            // legitimately reopen away from post 1. Choose a fully visible still image.
+            check(device.wait(Until.hasObject(By.res("post_grid")), 30000))
+            check(device.wait(Until.hasObject(By.descStartsWith("Post ")), 30000))
+            device.waitForIdle()
             val post =
-                device.wait(Until.findObject(By.desc("Post 1")), 30000)
+                device.findObjects(By.descStartsWith("Post ")).firstOrNull {
+                    it.contentDescription != "Post 2" &&
+                        it.visibleBounds.top > device.displayHeight / 5 &&
+                        it.visibleBounds.height() > 60
+                }
                     ?: run {
                         val instrumentation =
                             androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
@@ -41,31 +50,45 @@ class BaselineProfileGenerator {
                                         .absolutePath
                             )
                         output.mkdirs()
+                        device.takeScreenshot(java.io.File(output, "profile-missing-post.png"))
                         val hierarchy = java.io.File(output, "profile-missing-post.xml")
                         device.dumpWindowHierarchy(hierarchy)
-                        device.takeScreenshot(java.io.File(output, "profile-missing-post.png"))
                         error("Offline post did not appear: " + hierarchy.readText())
                     }
-            post.click()
-            device.waitForIdle()
-            device
-                .wait(
-                    Until.findObject(By.clazz("com.github.chrisbanes.photoview.PhotoView")),
-                    10000,
+            var clickable = post
+            while (!clickable.isClickable && clickable.parent != null) clickable = clickable.parent
+            clickable.click()
+            check(
+                device.wait(
+                    Until.hasObject(By.clazz("com.github.chrisbanes.photoview.PhotoView")),
+                    15000,
                 )
-                ?.let {
-                    it.pinchOpen(0.5f)
-                    it.pinchClose(0.5f)
-                }
-            // The second fixture is a local video; swiping exercises player construction/release.
-            device.swipe(
-                device.displayWidth * 8 / 10,
-                device.displayHeight / 2,
-                device.displayWidth * 2 / 10,
-                device.displayHeight / 2,
-                30,
-            )
+            ) {
+                "Still-image detail did not open"
+            }
+            device.findObject(By.clazz("com.github.chrisbanes.photoview.PhotoView")).apply {
+                pinchOpen(0.5f)
+                pinchClose(0.5f)
+            }
+            device.pressBack()
+            check(device.wait(Until.hasObject(By.res("post_grid")), 10000))
+            val grid = device.findObject(By.res("post_grid"))
+            repeat(5) { grid.scroll(androidx.test.uiautomator.Direction.UP, 1f) }
             device.waitForIdle()
+            var video = device.findObject(By.desc("Post 2"))
+            var attempts = 0
+            while (video == null && attempts++ < 12) {
+                if (!grid.scroll(androidx.test.uiautomator.Direction.DOWN, .8f)) break
+                device.waitForIdle()
+                video = device.findObject(By.desc("Post 2"))
+            }
+            var videoAction = requireNotNull(video) { "Offline video post was not reachable" }
+            while (!videoAction.isClickable && videoAction.parent != null) videoAction =
+                videoAction.parent
+            videoAction.click()
+            check(device.wait(Until.hasObject(By.clazz("androidx.media3.ui.PlayerView")), 15000)) {
+                "Video detail did not open"
+            }
             device.pressBack()
             device.waitForIdle()
             val tags =
