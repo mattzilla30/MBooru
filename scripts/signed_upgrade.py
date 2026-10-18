@@ -23,7 +23,9 @@ parser.add_argument("--build-tools", type=Path, required=True)
 parser.add_argument("--out", type=Path, required=True)
 args = parser.parse_args()
 def adb(*values, check=True):
-    return subprocess.run(["adb", *map(str, values)], check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
+    if values[0] == "install" or values[:3] == ("shell", "am", "start"):
+        print("Executing fixture ADB:", " ".join(map(str, values)), flush=True)
+    return subprocess.run(["adb", *map(str, values)], check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=120 if values[0] == "install" else 60).stdout
 
 def snapshot(destination):
     destination.mkdir(parents=True, exist_ok=True)
@@ -33,6 +35,7 @@ def snapshot(destination):
 
 def launch():
     result = adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", "-n", PACKAGE + "/.ui.activity.MainActivity")
+    print("Activity launch result:", result, flush=True)
     assert "Error" not in result, "Fixture activity did not launch: " + result
 
     # DataStore and Room initialization run asynchronously. This wait is fixture preparation only.
@@ -113,8 +116,9 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     if not migrated:
         print("Migration readiness failed on the isolated artificial fixture. Crash-buffer diagnostics:", flush=True)
         print(adb("logcat", "-d", "-b", "crash", "-t", "100", check=False), flush=True)
-        adb("shell", "uiautomator", "dump", "/sdcard/upgrade-window.xml", check=False)
-        print(adb("shell", "cat", "/sdcard/upgrade-window.xml", check=False), flush=True)
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        with args.out.with_suffix(".png").open("wb") as screenshot:
+            subprocess.run(["adb", "exec-out", "screencap", "-p"], stdout=screenshot, check=False, timeout=30)
         print(adb("shell", "ls", "-ln", f"/data/user/0/{PACKAGE}/shared_prefs", check=False), flush=True)
         with sqlite3.connect(root / "migration-probe/mbooru.db") as db:
             print("Observed schema version:", db.execute("PRAGMA user_version").fetchone()[0], flush=True)
