@@ -33,9 +33,10 @@ import androidx.core.view.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil.executeBlocking
-import coil.imageLoader
-import coil.request.ImageRequest
+import coil3.executeBlocking
+import coil3.imageLoader
+import coil3.request.*
+import coil3.request.ImageRequest
 import com.mattzilla30.mbooru.BuildConfig
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Keys.POST_POSITION

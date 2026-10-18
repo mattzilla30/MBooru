@@ -30,7 +30,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
 import com.mattzilla30.mbooru.extension.*

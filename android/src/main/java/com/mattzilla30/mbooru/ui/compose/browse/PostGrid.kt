@@ -23,8 +23,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import coil.dispose
-import coil.load
+import coil3.dispose
+import coil3.load
+import coil3.request.*
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.extension.isStillImage

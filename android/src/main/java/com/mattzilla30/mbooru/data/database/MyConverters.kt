@@ -41,6 +41,9 @@ class MyConverters(private val credentials: CredentialRepository) {
         // Public uploader metadata remains in Room; only actual account credentials use the vault.
         if (user.token.isEmpty() && user.accessToken.isEmpty() && user.refreshToken.isEmpty())
             return payload
+        user.credentialReference?.let { reference ->
+            if (credentials.read(reference) == payload) return reference
+        }
         return credentials.store(payload).also { user.credentialReference = it }
     }
 
@@ -56,7 +59,9 @@ class MyConverters(private val credentials: CredentialRepository) {
 
     @TypeConverter
     fun fromAuthToString(auth: AuthCredential?): String? = auth?.let {
-        credentials.store(it.value).also { reference -> it.credentialReference = reference }
+        val previous = it.credentialReference
+        if (previous != null && credentials.read(previous) == it.value) previous
+        else credentials.store(it.value).also { reference -> it.credentialReference = reference }
     }
 
     @TypeConverter

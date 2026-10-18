@@ -80,10 +80,11 @@ abstract class BrowseController(
 
     protected val booruApis by inject<BooruApis>()
     protected val preferences by inject<SharedPreferences>()
+    private val siteManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val booruDao by inject<BooruDao>()
     protected val browse by viewModels<BrowseStateViewModel>()
     private val suggestions by lazy { getSuggestionViewModel(SuggestionRepositoryImpl(booruApis)) }
-    private val boorus by lazy { getBooruViewModel(booruDao) }
+    private val boorus by lazy { getBooruViewModel(booruDao, siteManager) }
     private val saved = owner.savedStateHandle
     protected var currentBooru: Booru? = null
 

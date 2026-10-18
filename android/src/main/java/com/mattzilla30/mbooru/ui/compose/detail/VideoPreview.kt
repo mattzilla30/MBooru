@@ -38,16 +38,18 @@ fun VideoPreview(
         var startJob: kotlinx.coroutines.Job? = null
         fun start() {
             if (!active || startJob?.isActive == true || !holder.playerIsNull()) return
-            startJob = playbackScope.launch {
-                holder.resources.prepare()
-                if (!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return@launch
-                view
-                    ?.takeIf { active }
-                    ?.let { player ->
-                        holder.create(context.applicationContext)
-                        holder.start(context.applicationContext, url.toUri(), player)
-                    }
-            }
+            startJob =
+                playbackScope.launch(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    holder.resources.prepare()
+                    if (!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+                        return@launch
+                    view
+                        ?.takeIf { active }
+                        ?.let { player ->
+                            holder.create(context.applicationContext)
+                            holder.start(context.applicationContext, url.toUri(), player)
+                        }
+                }
         }
         fun stop() {
             startJob?.cancel()

@@ -37,6 +37,12 @@ abstract class BooruDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     protected abstract suspend fun insertNew(booru: Booru): Long
 
+    @Transaction
+    open suspend fun createUnique(booru: Booru): Long {
+        check(get(booru.scheme, booru.host) == null) { "This site is already configured" }
+        return insertNew(booru.copy(uid = 0))
+    }
+
     /** Updating a natural-key match must not cascade-delete its history and filters. */
     @Transaction
     open suspend fun insert(booru: Booru): Long {

@@ -34,7 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.api.BooruApis

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">onlymash ve katkıda bulunanların Flexbooru uygulamasına dayanır.</string>
+    <string name="action_to_top">Başa dön</string>
+    <string name="booru_add_featured">Önerilen site ekle</string>
+    <string name="booru_config_save_failed">Değişiklikler kaydedilemedi. Yeniden deneyin.</string>
+    <string name="image_search_read_failed">Seçilen görsel okunamadı.</string>
+    <string name="navigation_drawer_open">Gezinme menüsünü aç</string>
+    <string name="settings_cache_clear_failed">Önbellek temizlenemedi. Yeniden deneyin.</string>
+</resources>

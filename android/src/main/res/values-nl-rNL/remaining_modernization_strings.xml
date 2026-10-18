@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">Gebaseerd op Flexbooru van onlymash en bijdragers.</string>
+    <string name="action_to_top">Naar boven</string>
+    <string name="booru_add_featured">Aanbevolen website toevoegen</string>
+    <string name="booru_config_save_failed">Wijzigingen konden niet worden opgeslagen. Probeer opnieuw.</string>
+    <string name="image_search_read_failed">De geselecteerde afbeelding kon niet worden gelezen.</string>
+    <string name="navigation_drawer_open">Navigatiemenu openen</string>
+    <string name="settings_cache_clear_failed">De cache kon niet worden gewist. Probeer opnieuw.</string>
+</resources>

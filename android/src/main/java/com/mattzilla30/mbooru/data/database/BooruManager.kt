@@ -30,7 +30,7 @@ class BooruManager(
     @Throws(SQLException::class)
     suspend fun createBooru(booru: Booru): Booru {
         booru.uid = 0
-        val uid = booruDao.insert(booru)
+        val uid = booruDao.createUnique(booru)
         if (uid >= 0) {
             booru.uid = uid
         }
@@ -43,35 +43,40 @@ class BooruManager(
     }
 
     @Throws(SQLException::class)
-    suspend fun updateBooru(booru: Booru): Boolean {
-        val before = booruDao.getBooruByUid(booru.uid)
-        val previous = before?.user?.credentialReference
-        val previousAuth = before?.auth?.credentialReference
-        val updated = booruDao.update(booru) == 1
-        if (
-            updated &&
-                previous != null &&
-                previous != booru.user?.credentialReference &&
-                booruDao.credentialReferences(previous) == 0
+    suspend fun updateBooru(booru: Booru): Boolean =
+        kotlinx.coroutines.withContext(
+            kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable
         ) {
-            credentials.remove(previous)
+            val before = booruDao.getBooruByUid(booru.uid)
+            val previous = before?.user?.credentialReference
+            val previousAuth = before?.auth?.credentialReference
+            val updated = booruDao.update(booru) == 1
+            if (
+                updated &&
+                    previous != null &&
+                    previous != booru.user?.credentialReference &&
+                    booruDao.credentialReferences(previous) == 0
+            ) {
+                credentials.remove(previous)
+            }
+            if (
+                updated &&
+                    previousAuth != null &&
+                    previousAuth != booru.auth?.credentialReference &&
+                    booruDao.credentialReferences(previousAuth) == 0
+            )
+                credentials.remove(previousAuth)
+            if (
+                updated &&
+                    (before?.user != null || before?.auth != null) &&
+                    booru.user == null &&
+                    booru.auth == null
+            )
+                cookies.remove(
+                    okhttp3.HttpUrl.Builder().scheme(before!!.scheme).host(before.host).build()
+                )
+            updated
         }
-        if (
-            updated &&
-                previousAuth != null &&
-                previousAuth != booru.auth?.credentialReference &&
-                booruDao.credentialReferences(previousAuth) == 0
-        )
-            credentials.remove(previousAuth)
-        if (
-            updated &&
-                (before?.user != null || before?.auth != null) &&
-                booru.user == null &&
-                booru.auth == null
-        )
-            cookies.remove(okhttp3.HttpUrl.Builder().scheme(booru.scheme).host(booru.host).build())
-        return updated
-    }
 
     @Throws(IOException::class)
     suspend fun getBooru(scheme: String, host: String): Booru? =
@@ -93,7 +98,19 @@ class BooruManager(
             null
         }
 
-    @Throws(SQLException::class) suspend fun deleteBooru(uid: Long) = booruDao.delete(uid) == 1
+    @Throws(SQLException::class)
+    suspend fun deleteBooru(uid: Long): Boolean =
+        kotlinx.coroutines.withContext(
+            kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable
+        ) {
+            val site = booruDao.getBooruByUid(uid) ?: return@withContext false
+            if (booruDao.delete(uid) != 1) return@withContext false
+            listOfNotNull(site.user?.credentialReference, site.auth?.credentialReference).forEach {
+                if (booruDao.credentialReferences(it) == 0) credentials.remove(it)
+            }
+            cookies.remove(okhttp3.HttpUrl.Builder().scheme(site.scheme).host(site.host).build())
+            true
+        }
 
     @Throws(SQLException::class) suspend fun deleteAll() = booruDao.deleteAll()
 

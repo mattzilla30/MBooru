@@ -8,9 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -90,8 +87,9 @@ fun BrowseScreen(
                 ) {
                     IconButton(onClick = { if (state.mode != 0) onMode(0) else onNavigate() }) {
                         Icon(
-                            if (state.mode == 0 && bottomPadding) Icons.Default.Menu
-                            else Icons.AutoMirrored.Filled.ArrowBack,
+                            if (state.mode == 0 && bottomPadding)
+                                painterResource(R.drawable.ic_menu_24dp)
+                            else painterResource(R.drawable.ic_arrow_back_24dp),
                             contentDescription =
                                 stringResource(
                                     if (state.mode == 0 && bottomPadding)

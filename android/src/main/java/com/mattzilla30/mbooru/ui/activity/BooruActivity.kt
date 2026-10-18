@@ -55,6 +55,7 @@ import org.koin.android.ext.android.inject
 
 class BooruActivity : BaseActivity() {
 
+    private val siteManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val booruDao by inject<BooruDao>()
     private val preferences by inject<android.content.SharedPreferences>()
 
@@ -82,7 +83,7 @@ class BooruActivity : BaseActivity() {
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_manage_boorus)
-        booruViewModel = getBooruViewModel(booruDao)
+        booruViewModel = getBooruViewModel(booruDao, siteManager)
         lifecycleScope.launch { BooruPresets.installOnce(booruDao, preferences) }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

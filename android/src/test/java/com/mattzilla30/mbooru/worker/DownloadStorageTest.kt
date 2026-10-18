@@ -195,7 +195,7 @@ private class OpaqueProvider : DocumentsProvider() {
         return MatrixCursor(columns).apply {
             addRow(
                 columns
-                    .map { column ->
+                    .map<String, Any?> { column ->
                         when (column) {
                             DocumentsContract.Document.COLUMN_DOCUMENT_ID -> documentId
                             DocumentsContract.Document.COLUMN_DISPLAY_NAME -> names[documentId]

@@ -105,63 +105,71 @@ class CloudflareInterceptor(private val context: Context, private val cookies: A
                 latch.countDown()
                 return@execute
             }
-            webview = createWebView(originalRequest)
+            try {
+                webview = createWebView(originalRequest)
 
-            webview?.webViewClient =
-                object : WebViewClientCompat() {
-                    private fun outsideOrigin(url: String): Boolean {
-                        val target = url.toHttpUrlOrNull() ?: return true
-                        if (target.scheme == "https" && target.host == "challenges.cloudflare.com")
-                            return false
-                        return target.scheme != origin.scheme ||
-                            target.host != origin.host ||
-                            target.port != origin.port
-                    }
-
-                    override fun shouldOverrideUrlCompat(view: WebView, url: String) =
-                        outsideOrigin(url)
-
-                    override fun onPageFinished(view: WebView, url: String) {
-                        if (closed.get()) return
-
-                        fun isCloudFlareBypassed(): Boolean {
-                            return cookies
-                                .get(origRequestUrl.toHttpUrl())
-                                .firstOrNull { it.name == "cf_clearance" }
-                                .let { it != null && it != oldCookie }
+                webview?.webViewClient =
+                    object : WebViewClientCompat() {
+                        private fun outsideOrigin(url: String): Boolean {
+                            val target = url.toHttpUrlOrNull() ?: return true
+                            if (
+                                target.scheme == "https" &&
+                                    target.host == "challenges.cloudflare.com"
+                            )
+                                return false
+                            return target.scheme != origin.scheme ||
+                                target.host != origin.host ||
+                                target.port != origin.port
                         }
 
-                        if (isCloudFlareBypassed()) {
-                            cloudflareBypassed = true
-                            latch.countDown()
-                        }
+                        override fun shouldOverrideUrlCompat(view: WebView, url: String) =
+                            outsideOrigin(url)
 
-                        if (url == origRequestUrl && !challengeFound) {
-                            // The first request didn't return the challenge, abort.
-                            latch.countDown()
-                        }
-                    }
+                        override fun onPageFinished(view: WebView, url: String) {
+                            if (closed.get()) return
 
-                    override fun onReceivedErrorCompat(
-                        view: WebView,
-                        errorCode: Int,
-                        description: String?,
-                        failingUrl: String,
-                        isMainFrame: Boolean,
-                    ) {
-                        if (isMainFrame) {
-                            if (errorCode in ERROR_CODES) {
-                                // Found the Cloudflare challenge page.
-                                challengeFound = true
-                            } else {
-                                // Unlock thread, the challenge wasn't found.
+                            fun isCloudFlareBypassed(): Boolean {
+                                return cookies
+                                    .get(origRequestUrl.toHttpUrl())
+                                    .firstOrNull { it.name == "cf_clearance" }
+                                    .let { it != null && it != oldCookie }
+                            }
+
+                            if (isCloudFlareBypassed()) {
+                                cloudflareBypassed = true
+                                latch.countDown()
+                            }
+
+                            if (url == origRequestUrl && !challengeFound) {
+                                // The first request didn't return the challenge, abort.
                                 latch.countDown()
                             }
                         }
-                    }
-                }
 
-            webview?.loadUrl(origRequestUrl, headers)
+                        override fun onReceivedErrorCompat(
+                            view: WebView,
+                            errorCode: Int,
+                            description: String?,
+                            failingUrl: String,
+                            isMainFrame: Boolean,
+                        ) {
+                            if (isMainFrame) {
+                                if (errorCode in ERROR_CODES) {
+                                    // Found the Cloudflare challenge page.
+                                    challengeFound = true
+                                } else {
+                                    // Unlock thread, the challenge wasn't found.
+                                    latch.countDown()
+                                }
+                            }
+                        }
+                    }
+
+                webview?.loadUrl(origRequestUrl, headers)
+            } catch (_: Exception) {
+                // WebView can disappear while its provider is updating. Fail the request safely.
+                latch.countDown()
+            }
         }
 
         try {

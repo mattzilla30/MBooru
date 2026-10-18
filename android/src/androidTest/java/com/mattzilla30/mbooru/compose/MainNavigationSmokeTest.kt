@@ -29,6 +29,7 @@ class MainNavigationSmokeTest {
 
     @Test
     fun drawerSettingsAndActivityRecreationKeepWorking() {
+        awaitDrawer()
         compose
             .onNodeWithContentDescription(
                 compose.activity.getString(R.string.navigation_drawer_open)
@@ -38,10 +39,21 @@ class MainNavigationSmokeTest {
         compose.onNodeWithTag(Settings.GRID_ROUNDED_KEY).assertExists().performClick()
         Espresso.pressBack()
         compose.activityRule.scenario.recreate()
+        awaitDrawer()
         compose
             .onNodeWithContentDescription(
                 compose.activity.getString(R.string.navigation_drawer_open)
             )
             .assertIsDisplayed()
+    }
+
+    private fun awaitDrawer() {
+        val description = compose.activity.getString(R.string.navigation_drawer_open)
+        compose.waitUntil(20000) {
+            compose
+                .onAllNodesWithContentDescription(description)
+                .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                .isNotEmpty()
+        }
     }
 }

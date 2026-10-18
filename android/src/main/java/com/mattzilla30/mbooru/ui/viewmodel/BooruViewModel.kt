@@ -27,7 +27,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class BooruViewModel(private val booruDao: BooruDao) : androidx.lifecycle.ViewModel() {
+class BooruViewModel(
+    private val booruDao: BooruDao,
+    private val manager: com.mattzilla30.mbooru.data.database.BooruManager,
+) : androidx.lifecycle.ViewModel() {
 
     private val selected = MutableStateFlow(-1L)
     val selectedUid = selected.asStateFlow()
@@ -60,13 +63,13 @@ class BooruViewModel(private val booruDao: BooruDao) : androidx.lifecycle.ViewMo
     }
 
     fun createBooru(booru: Booru) {
-        viewModelScope.launch { booruDao.insert(booru) }
+        viewModelScope.launch { manager.createBooru(booru) }
     }
 
     fun createBoorus(boorus: List<Booru>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                booruDao.insert(boorus)
+                manager.createBoorus(boorus)
             } catch (failure: Exception) {
                 if (failure is kotlinx.coroutines.CancellationException) throw failure
             }
@@ -78,7 +81,7 @@ class BooruViewModel(private val booruDao: BooruDao) : androidx.lifecycle.ViewMo
     fun updateBooru(booru: Booru) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                booruDao.update(booru)
+                manager.updateBooru(booru)
             } catch (failure: Exception) {
                 if (failure is kotlinx.coroutines.CancellationException) throw failure
             }
@@ -88,7 +91,7 @@ class BooruViewModel(private val booruDao: BooruDao) : androidx.lifecycle.ViewMo
     fun deleteBooru(uid: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                booruDao.delete(uid)
+                manager.deleteBooru(uid)
             } catch (failure: Exception) {
                 if (failure is kotlinx.coroutines.CancellationException) throw failure
             }

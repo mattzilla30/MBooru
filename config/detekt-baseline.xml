@@ -13,7 +13,6 @@
     <ID>ConstructorParameterNaming:ResultData.kt$ResultData$@SerialName("author_name") var author_name: String? = null</ID>
     <ID>ConstructorParameterNaming:ResultData.kt$ResultData$@SerialName("author_url") var author_url: String? = null</ID>
     <ID>CyclomaticComplexMethod:AccountConfigViewModel.kt$AccountConfigViewModel$fun submit()</ID>
-    <ID>CyclomaticComplexMethod:BaseActivity.kt$BaseActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>CyclomaticComplexMethod:BooruEditorScreen.kt$@Composable fun BooruEditorScreen(state: BooruEditorState, field: (String, String) -> Unit)</ID>
     <ID>CyclomaticComplexMethod:BrowseScreen.kt$@Composable fun BrowseScreen( state: BrowseUiState, hint: String, suggestions: List&lt;String>, onQuery: (String) -> Unit, onMode: (Int) -> Unit, onSearch: (String) -> Unit, onNavigate: () -> Unit, onMenu: (AppActionKey) -> Unit, onAddToMuzei: (String) -> Unit, bottomPadding: Boolean, autoHideBottomBar: Boolean = false, filters: @Composable () -> Unit = {}, content: @Composable (Modifier) -> Unit, )</ID>
     <ID>CyclomaticComplexMethod:CatalogRows.kt$fun tagCategoryLabel(tag: Tag): Int</ID>
@@ -32,6 +31,7 @@
     <ID>CyclomaticComplexMethod:SauceNaoActivity.kt$SauceNaoActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
     <ID>CyclomaticComplexMethod:SettingsScreen.kt$@Composable fun SettingsScreen( state: SettingsUiState, onToggle: (String, Boolean) -> Unit, onChoose: (String, String, List&lt;String>) -> Unit, onExpand: () -> Unit, onPickDirectory: () -> Unit, onClearCache: () -> Unit, onRetrySave: () -> Unit = {}, )</ID>
     <ID>CyclomaticComplexMethod:TagScreenController.kt$TagScreenController$override fun onMenuAction(menuItem: AppActionKey)</ID>
+    <ID>CyclomaticComplexMethod:TreeUriExt.kt$private suspend fun PathActivity.getFileUri( dirName: String, fileName: String, staged: Boolean = false, ): Uri?</ID>
     <ID>EmptyFunctionBlock:DefaultDatabaseProvider.kt$DefaultDatabaseProvider${}</ID>
     <ID>EmptyFunctionBlock:DetailActivity.kt$DetailActivity${}</ID>
     <ID>EmptyFunctionBlock:LinkTransformationMethod.kt$LinkTransformationMethod${}</ID>
@@ -124,6 +124,7 @@
     <ID>LongMethod:DetailScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun DetailScreen( posts: LazyPagingItems&lt;Post>, state: DetailUiState, booru: Booru, size: String, dismiss: DismissFrameLayout.OnDismissListener, select: (Post, Int) -> Unit, ready: () -> Unit, back: () -> Unit, toggleBars: () -> Unit, longActions: () -> Unit, closeLongActions: () -> Unit, action: (AppActionKey) -> Unit, info: () -> Unit, download: () -> Unit, save: () -> Unit, favorite: () -> Unit, longAction: (Int) -> Unit, )</ID>
     <ID>LongMethod:DownloadTransfer.kt$internal suspend fun transferDownload( context: Context, queue: DownloadDao, workId: String, url: String, destination: Uri, client: okhttp3.OkHttpClient, )</ID>
     <ID>LongMethod:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPool(): Boolean</ID>
+    <ID>LongMethod:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPost(): Boolean</ID>
     <ID>LongMethod:DownloadsActivity.kt$DownloadsActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
     <ID>LongMethod:InfoDialog.kt$InfoDialog$@OptIn(ExperimentalFoundationApi::class) override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?, ): View</ID>
     <ID>LongMethod:MainActivity.kt$MainActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
@@ -168,6 +169,7 @@
     <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$29</ID>
     <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$30</ID>
     <ID>MagicNumber:App.kt$App$26</ID>
+    <ID>MagicNumber:App.kt$App$28</ID>
     <ID>MagicNumber:ArtistScreenController.kt$ArtistScreenController$20</ID>
     <ID>MagicNumber:Booru.kt$Booru.Companion$5</ID>
     <ID>MagicNumber:Booru.kt$Booru.Companion$6</ID>
@@ -252,7 +254,6 @@
     <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$0.01f</ID>
     <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$1024</ID>
     <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$2</ID>
-    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$28</ID>
     <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$48</ID>
     <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer.&lt;no name provided>$0.01f</ID>
     <ID>MagicNumber:PostMoe.kt$PostMoe$3</ID>
@@ -302,7 +303,6 @@
     <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$100</ID>
     <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$1000</ID>
     <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$16f</ID>
-    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$28</ID>
     <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$50</ID>
     <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$9f</ID>
     <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity.AnimePlayerDialog$16f</ID>
@@ -359,6 +359,7 @@
     <ID>SwallowedException:Extensions.kt$ex: ActivityNotFoundException</ID>
     <ID>SwallowedException:WebViewInterceptor.kt$e: Throwable</ID>
     <ID>ThrowsCount:CloudflareInterceptor.kt$CloudflareInterceptor$@SuppressLint("SetJavaScriptEnabled") private fun resolveWithWebView( originalRequest: Request, oldCookie: Cookie?, cancelled: () -> Boolean, )</ID>
+    <ID>ThrowsCount:DownloadPublication.kt$internal fun publishDownload(context: Context, part: Uri, requestedName: String): Uri</ID>
     <ID>TooGenericExceptionCaught:AccountConfigViewModel.kt$AccountConfigViewModel$error: Exception</ID>
     <ID>TooGenericExceptionCaught:AndroidCookieJar.kt$AndroidCookieJar$failure: Exception</ID>
     <ID>TooGenericExceptionCaught:AndroidCredentialCipher.kt$AndroidCredentialCipher$failure: Exception</ID>
@@ -438,6 +439,7 @@
     <ID>WildcardImport:ActivityAppBar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ActivityAppBar.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ActivityAppBar.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:App.kt$import coil3.request.*</ID>
     <ID>WildcardImport:ArtistScreenController.kt$import com.mattzilla30.mbooru.ui.compose.browse.*</ID>
     <ID>WildcardImport:ArtistViewModel.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:BaseActivity.kt$import androidx.compose.runtime.*</ID>
@@ -485,6 +487,7 @@
     <ID>WildcardImport:Connectivity.kt$import androidx.compose.ui.semantics.*</ID>
     <ID>WildcardImport:CopyrightActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
     <ID>WildcardImport:CoroutinesExt.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:CustomDecoder.kt$import coil3.request.*</ID>
     <ID>WildcardImport:CustomRegionDecoder.kt$import android.graphics.*</ID>
     <ID>WildcardImport:Danbooru1Api.kt$import retrofit2.http.*</ID>
     <ID>WildcardImport:DanbooruApi.kt$import com.mattzilla30.mbooru.data.model.danbooru.*</ID>
@@ -494,6 +497,7 @@
     <ID>WildcardImport:DataStorePreferences.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:DetailActivity.kt$import android.view.*</ID>
     <ID>WildcardImport:DetailActivity.kt$import androidx.core.view.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import coil3.request.*</ID>
     <ID>WildcardImport:DetailActivity.kt$import com.mattzilla30.mbooru.extension.*</ID>
     <ID>WildcardImport:DetailActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
     <ID>WildcardImport:DetailActivity.kt$import java.io.*</ID>
@@ -545,6 +549,7 @@
     <ID>WildcardImport:MuzeiActivity.kt$import com.mattzilla30.mbooru.ui.viewmodel.*</ID>
     <ID>WildcardImport:MuzeiArtWorker.kt$import androidx.work.*</ID>
     <ID>WildcardImport:MuzeiDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:MuzeiProvider.kt$import coil3.request.*</ID>
     <ID>WildcardImport:MuzeiViewModel.kt$import kotlinx.coroutines.*</ID>
     <ID>WildcardImport:MuzeiViewModel.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:MyDatabase.kt$import androidx.room.*</ID>
@@ -565,9 +570,11 @@
     <ID>WildcardImport:PostGrid.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:PostGrid.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:PostGrid.kt$import androidx.compose.ui.semantics.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import coil3.request.*</ID>
     <ID>WildcardImport:PostInfo.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:PostInfo.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:PostMedia.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PostMediaRenderer.kt$import coil3.request.*</ID>
     <ID>WildcardImport:PostMediaRenderer.kt$import com.mattzilla30.mbooru.extension.*</ID>
     <ID>WildcardImport:PostRepositoryImpl.kt$import androidx.paging.*</ID>
     <ID>WildcardImport:PostScreenController.kt$import android.content.*</ID>
@@ -604,6 +611,7 @@
     <ID>WildcardImport:WhatAnimeActivity.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:WhatAnimeActivity.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:WhatAnimeActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:WhatAnimeActivity.kt$import coil3.request.*</ID>
     <ID>WildcardImport:WhatAnimeActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
     <ID>WildcardImport:WindowExt.kt$import androidx.core.view.*</ID>
   </CurrentIssues>

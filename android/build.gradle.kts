@@ -20,7 +20,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
@@ -79,7 +79,7 @@ object Configs {
 
 android {
     sourceSets.maybeCreate("nonMinifiedRelease")
-    sourceSets.getByName("test").resources.srcDir("$projectDir/schemas")
+    sourceSets.getByName("test").resources.directories.add("$projectDir/schemas")
     signingConfigs {
         if (storePropertyFile.exists() && releaseStoreFile.exists()) {
             create("release") {
@@ -90,18 +90,26 @@ android {
             }
         }
     }
-    compileSdk = Configs.COMPILE_SDK_VERSION
+    compileSdk =
+        providers
+            .gradleProperty("androidCompileSdk")
+            .map(String::toInt)
+            .getOrElse(Configs.COMPILE_SDK_VERSION)
+    androidResources { localeFilters.addAll(Configs.LANGUAGES) }
     defaultConfig {
         applicationId = Configs.APP_ID
         minSdk = Configs.MIN_SDK_VERSION
         //noinspection EditedTargetSdkVersion
-        targetSdk = Configs.TARGET_SDK_VERSION
+        targetSdk =
+            providers
+                .gradleProperty("androidTargetSdk")
+                .map(String::toInt)
+                .getOrElse(Configs.TARGET_SDK_VERSION)
         versionCode = Configs.APP_VERSION_CODE
         versionName = Configs.APP_VERSION_NAME
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // AGP 8.9's lint model still reads this list rather than androidResources.localeFilters.
-        resourceConfigurations.addAll(Configs.LANGUAGES)
     }
     buildTypes {
         release {
@@ -139,22 +147,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs =
-            freeCompilerArgs +
-                listOf(
-                    "-opt-in=kotlin.ExperimentalStdlibApi",
-                    "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-                    "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
-                    "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                    "-opt-in=kotlinx.coroutines.FlowPreview",
-                    "-opt-in=androidx.paging.ExperimentalPagingApi",
-                    "-opt-in=nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
-                    "-opt-in=coil.annotation.ExperimentalCoilApi",
-                    "-Xjvm-default=all-compatibility",
-                )
-    }
+
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
@@ -169,10 +162,10 @@ android {
 }
 
 dependencies {
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    implementation(libs.androidx.datastore.preferences)
     implementation(project(":core:model"))
     baselineProfile(project(":baselineprofile"))
-    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+    implementation(libs.androidx.profileinstaller)
 
     //    coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
@@ -193,7 +186,7 @@ dependencies {
     implementation(libs.koin.androidx.workmanager)
 
     implementation(libs.kotlinx.coroutines.android)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.material.material)
@@ -215,7 +208,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
 
@@ -242,18 +234,17 @@ dependencies {
     implementation(libs.retrofit.retrofit)
     implementation(libs.retrofit.converter.kotlinx)
     implementation(libs.okhttp.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
     implementation(libs.okhttp.dnsoverhttps)
     implementation(libs.okio)
 
     implementation(libs.coil.coil)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.coil.gif)
 
     implementation(libs.xmlutil.android.core)
     implementation(libs.xmlutil.android.serialization)
 
     implementation(libs.androidx.media3.exoplayer)
-    implementation(libs.androidx.media3.session)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.datasource.okhttp)
 
@@ -261,7 +252,7 @@ dependencies {
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation("androidx.work:work-testing:2.10.1")
+    testImplementation(libs.androidx.work.testing)
     testImplementation(libs.test.junit)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.test.robolectric)
@@ -274,3 +265,20 @@ dependencies {
 }
 
 baselineProfile { automaticGenerationDuringBuild = false }
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        jvmDefault.set(org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode.ENABLE)
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.ExperimentalStdlibApi",
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+            "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.FlowPreview",
+            "-opt-in=androidx.paging.ExperimentalPagingApi",
+            "-opt-in=nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
+            "-opt-in=coil3.annotation.ExperimentalCoilApi",
+        )
+    }
+}

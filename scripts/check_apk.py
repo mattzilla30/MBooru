@@ -24,6 +24,8 @@ version = re.search(r'APP_VERSION_NAME\s*=\s*"(\d+)"', source).group(1)
 code = re.search(r'APP_VERSION_CODE\s*=\s*(\d+)', source).group(1)
 assert f"name='com.mattzilla30.mbooru' versionCode='{code}' versionName='{version}'" in badging
 assert "sdkVersion:'21'" in badging
+target = re.search(r'TARGET_SDK_VERSION\s*=\s*(\d+)', source).group(1)
+assert f"targetSdkVersion:'{target}'" in badging
 permissions = run("aapt", "dump", "permissions", args.apk)
 assert not any(value in permissions for value in ["com.android.vending.BILLING", "permission.AD_ID", "ACCESS_ADSERVICES_AD_ID"])
 checked = []

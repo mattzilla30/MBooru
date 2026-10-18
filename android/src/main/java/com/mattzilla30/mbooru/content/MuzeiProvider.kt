@@ -17,13 +17,15 @@ package com.mattzilla30.mbooru.content
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import coil.decode.DecodeResult
-import coil.decode.Decoder
-import coil.executeBlocking
-import coil.imageLoader
-import coil.request.CachePolicy
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.asImage
+import coil3.decode.DecodeResult
+import coil3.decode.Decoder
+import coil3.executeBlocking
+import coil3.imageLoader
+import coil3.request.*
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.mattzilla30.mbooru.worker.MuzeiArtWorker
@@ -52,7 +54,7 @@ class MuzeiProvider : MuzeiArtProvider() {
                     .diskCacheKey(key)
                     .allowConversionToBitmap(false)
                     .decoderFactory { _, _, _ ->
-                        Decoder { DecodeResult(ColorDrawable(Color.BLACK), false) }
+                        Decoder { DecodeResult(ColorDrawable(Color.BLACK).asImage(), false) }
                     }
                     .build()
             val result = context.imageLoader.executeBlocking(request)

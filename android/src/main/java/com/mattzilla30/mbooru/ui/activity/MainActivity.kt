@@ -53,8 +53,9 @@ import org.koin.android.ext.android.inject
 
 class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private val preferences by inject<SharedPreferences>()
+    private val siteManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val booruDao by inject<BooruDao>()
-    private val boorus by lazy { getBooruViewModel(booruDao) }
+    private val boorus by lazy { getBooruViewModel(booruDao, siteManager) }
     private val shell by viewModels<MainShellViewModel>()
     private val updater by inject<com.mattzilla30.mbooru.data.api.AppUpdaterRepository>()
     internal var activeBrowse: BrowseNavigation? = null
@@ -144,32 +145,25 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private fun openDestination(key: DrawerDestination) {
         val booru = boorus.currentBooru
+        val capabilities =
+            com.mattzilla30.mbooru.core.model.BooruEngine.fromLegacyId(booru?.type ?: -1)
+                .capabilities
         val destination =
             when (key) {
                 DrawerDestination.Sites -> BooruActivity::class.java
                 DrawerDestination.Account -> {
                     if (booru == null) return
-                    if (booru.type == Values.BOORU_TYPE_SHIMMIE) return notSupported()
+                    if (!capabilities.accounts) return notSupported()
                     if (booru.user == null) AccountConfigActivity::class.java
                     else AccountActivity::class.java
                 }
                 DrawerDestination.Comments ->
-                    if (booru?.type != Values.BOORU_TYPE_SHIMMIE) CommentActivity::class.java
+                    if (capabilities.comments) CommentActivity::class.java
                     else return notSupported()
                 DrawerDestination.History ->
                     if (booru != null) HistoryActivity::class.java else return
                 DrawerDestination.Blacklist ->
-                    if (
-                        booru?.type in
-                            arrayOf(
-                                Values.BOORU_TYPE_MOE,
-                                Values.BOORU_TYPE_DAN,
-                                Values.BOORU_TYPE_DAN1,
-                                Values.BOORU_TYPE_GEL,
-                                Values.BOORU_TYPE_GEL_LEGACY,
-                            )
-                    )
-                        TagBlacklistActivity::class.java
+                    if (capabilities.tagFilters) TagBlacklistActivity::class.java
                     else return notSupported()
                 DrawerDestination.Muzei -> MuzeiActivity::class.java
                 DrawerDestination.SauceNao -> SauceNaoActivity::class.java

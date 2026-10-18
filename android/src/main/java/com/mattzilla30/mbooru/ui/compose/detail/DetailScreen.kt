@@ -6,8 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -111,7 +109,7 @@ fun DetailScreen(
             ) {
                 IconButton(onClick = back) {
                     Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
+                        painterResource(R.drawable.ic_arrow_back_24dp),
                         stringResource(androidx.appcompat.R.string.abc_action_bar_up_description),
                         tint = Color.White,
                     )

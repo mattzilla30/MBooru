@@ -19,8 +19,6 @@ import android.os.Bundle
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,8 +38,9 @@ import com.mattzilla30.mbooru.ui.viewmodel.getBooruViewModel
 import org.koin.android.ext.android.inject
 
 class TagBlacklistActivity : BaseActivity() {
+    private val siteManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val booruDao by inject<BooruDao>()
-    private val model by lazy { getBooruViewModel(booruDao) }
+    private val model by lazy { getBooruViewModel(booruDao, siteManager) }
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_tag_blacklist)
@@ -111,7 +110,10 @@ class TagBlacklistActivity : BaseActivity() {
                     onClick = { if (booru != null) adding = true },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 ) {
-                    Icon(Icons.Default.Add, stringResource(R.string.tag_blacklist_add))
+                    Icon(
+                        painterResource(R.drawable.ic_add_24dp),
+                        stringResource(R.string.tag_blacklist_add),
+                    )
                 }
             }
             if (adding)

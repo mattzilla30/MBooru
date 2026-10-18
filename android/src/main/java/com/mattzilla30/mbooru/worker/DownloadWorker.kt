@@ -29,8 +29,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.work.*
-import coil.disk.DiskCache
-import coil.imageLoader
+import coil3.disk.DiskCache
+import coil3.imageLoader
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.data.database.dao.DownloadDao
@@ -54,7 +54,6 @@ import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import okhttp3.internal.closeQuietly
 import org.koin.core.component.inject
 
 class DownloadWorker(
@@ -321,6 +320,13 @@ class DownloadWorker(
                         output.use { copyDownload(input, it) }
                     }
                 }
+                queue.progress(
+                    this@DownloadWorker.id.toString(),
+                    file.length(),
+                    file.length(),
+                    null,
+                    null,
+                )
             } else transfer(url, desUri)
             notifyDownload(
                 notificationManager,
@@ -339,7 +345,7 @@ class DownloadWorker(
             return false
         } finally {
             ProgressInterceptor.removeListener(url)
-            snapshot?.closeQuietly()
+            runCatching { snapshot?.close() }
         }
     }
 
@@ -513,14 +519,7 @@ class DownloadWorker(
             Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(
                     desUri,
-                    androidx.documentfile.provider.DocumentFile.fromSingleUri(
-                            applicationContext,
-                            desUri,
-                        )
-                        ?.name
-                        ?.getMimeType()
-                        .orEmpty()
-                        .ifBlank { "*/*" },
+                    inputData.getString(FINAL_NAME_KEY)?.getMimeType().orEmpty().ifBlank { "*/*" },
                 )
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 clipData = android.content.ClipData.newRawUri("download", desUri)

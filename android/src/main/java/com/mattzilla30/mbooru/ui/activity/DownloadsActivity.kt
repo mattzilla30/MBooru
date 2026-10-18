@@ -160,8 +160,8 @@ class DownloadsActivity : BaseActivity() {
                 Intent(Intent.ACTION_VIEW)
                     .setDataAndType(
                         uri,
-                        androidx.documentfile.provider.DocumentFile.fromSingleUri(this, uri)
-                            ?.name
+                        androidx.work.Data.fromByteArray(item.request)
+                            .getString("final_name")
                             ?.getMimeType()
                             .orEmpty()
                             .ifBlank { "*/*" },

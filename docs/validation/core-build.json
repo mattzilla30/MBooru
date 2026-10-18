@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-18T03:43:52.168013+00:00",
+  "gradle": "9.6.0",
+  "jdk": "21",
+  "workers": 2,
+  "command": [
+    "./gradlew",
+    "--max-workers=2",
+    "--configuration-cache",
+    "--rerun-tasks",
+    ":core:model:test"
+  ],
+  "observations": [
+    {
+      "run": "first",
+      "wallSeconds": 7.903,
+      "exitCode": 0,
+      "configurationCacheReused": false
+    },
+    {
+      "run": "reused",
+      "wallSeconds": 3.462,
+      "exitCode": 0,
+      "configurationCacheReused": true
+    }
+  ],
+  "interpretation": "Warm local JVM-module observations; no controlled pre-extraction comparison or Android performance claim.",
+  "coreSources": {
+    "core/model/src/main/kotlin/com/mattzilla30/mbooru/core/model/EngineCapabilities.kt": "a2eddb3aabd3399b3579d0ce62851bd32f43313d5cc2f165c5c794b2e60e0451",
+    "core/model/src/main/kotlin/com/mattzilla30/mbooru/core/model/NetworkFailure.kt": "f92c5851851b8d82403b5bd5d6511e99282eff3d3182259d4ac7e3ef83149b0a",
+    "core/model/src/main/kotlin/com/mattzilla30/mbooru/core/model/ResumePolicy.kt": "72ac3a9e17e9ef4f60af45140be76d5573af66eff52d91b635f78e3f68b788d9"
+  }
+}

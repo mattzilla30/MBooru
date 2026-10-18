@@ -11,6 +11,9 @@ enum class BooruEngine(val legacyId: Int, val capabilities: EngineCapabilities) 
             tags = true,
             artists = true,
             accounts = true,
+            comments = true,
+            favoriteWrites = true,
+            tagFilters = true,
         ),
     ),
     MOEBOORU(
@@ -21,6 +24,9 @@ enum class BooruEngine(val legacyId: Int, val capabilities: EngineCapabilities) 
             tags = true,
             artists = true,
             accounts = true,
+            comments = true,
+            favoriteWrites = true,
+            tagFilters = true,
             poolArchives = true,
         ),
     ),
@@ -32,12 +38,31 @@ enum class BooruEngine(val legacyId: Int, val capabilities: EngineCapabilities) 
             tags = true,
             artists = true,
             accounts = true,
+            comments = true,
+            favoriteWrites = true,
+            tagFilters = true,
         ),
     ),
-    GELBOORU(3, EngineCapabilities(tags = true, accounts = true)),
-    SANKAKU(4, EngineCapabilities(popular = true, pools = true, tags = true, accounts = true)),
+    GELBOORU(
+        3,
+        EngineCapabilities(tags = true, accounts = true, comments = true, tagFilters = true),
+    ),
+    SANKAKU(
+        4,
+        EngineCapabilities(
+            popular = true,
+            pools = true,
+            tags = true,
+            accounts = true,
+            comments = true,
+            favoriteWrites = true,
+        ),
+    ),
     SHIMMIE(5, EngineCapabilities()),
-    GELBOORU_LEGACY(6, EngineCapabilities(tags = true, accounts = true)),
+    GELBOORU_LEGACY(
+        6,
+        EngineCapabilities(tags = true, accounts = true, comments = true, tagFilters = true),
+    ),
     UNKNOWN(-1, EngineCapabilities());
 
     companion object {
@@ -52,5 +77,8 @@ data class EngineCapabilities(
     val tags: Boolean = false,
     val artists: Boolean = false,
     val accounts: Boolean = false,
+    val comments: Boolean = false,
+    val favoriteWrites: Boolean = false,
+    val tagFilters: Boolean = false,
     val poolArchives: Boolean = false,
 )

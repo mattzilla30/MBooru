@@ -103,11 +103,7 @@ abstract class BaseActivity : AppCompatActivity() {
             else -> R.style.AppTheme_Black_NoActionBar_Animation
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
+    private fun applyStoredTheme() {
         if (this !is DetailActivity) {
             if (resources.configuration.isNightEnable() && !settings.isNightThemeDark) {
                 setTheme(getThemeRes())
@@ -117,6 +113,14 @@ abstract class BaseActivity : AppCompatActivity() {
             if (!resources.configuration.isNightEnable() || settings.isNightThemeDark)
                 setTheme(R.style.AppTheme_NoActionBar_Animation)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        applyStoredTheme()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         lifecycleScope.launch {
@@ -125,6 +129,8 @@ abstract class BaseActivity : AppCompatActivity() {
                 durablePreferences.awaitReady()
                 if (!isFinishing && !isDestroyed) {
                     androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(settings.nightMode)
+                    // Cold DataStore initialization must also restore the saved black/dark palette.
+                    applyStoredTheme()
                     onSettingsReady(savedInstanceState)
                 }
             } catch (cancelled: kotlinx.coroutines.CancellationException) {

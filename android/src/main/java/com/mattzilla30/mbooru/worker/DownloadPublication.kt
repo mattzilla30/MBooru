@@ -11,6 +11,12 @@ internal fun publishDownload(context: Context, part: Uri, requestedName: String)
     val name =
         requestedName.replace(Regex("[\\\\/\\x00-\\x1f]"), "_").take(180).ifBlank { "download" }
     // Providers must disambiguate name collisions. Never delete an existing completed file.
-    return DocumentsContract.renameDocument(resolver, part, name)
-        ?: throw IOException("Provider cannot publish the partial download")
+    return try {
+        DocumentsContract.renameDocument(resolver, part, name)
+            ?: throw IOException("Provider cannot publish the partial download")
+    } catch (failure: UnsupportedOperationException) {
+        throw IOException("Provider cannot publish the partial download", failure)
+    } catch (failure: IllegalArgumentException) {
+        throw IOException("Destination is unavailable", failure)
+    }
 }

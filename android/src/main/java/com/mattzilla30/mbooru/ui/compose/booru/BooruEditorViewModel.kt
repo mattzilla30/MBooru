@@ -27,12 +27,14 @@ data class BooruEditorState(
     val values: Map<String, String>,
     val busy: Boolean = false,
     val error: Int? = null,
+    val available: Boolean = true,
 )
 
 class BooruEditorViewModel(
     private val dao: BooruDao,
-    uid: Long,
+    private val uid: Long,
     private val saved: SavedStateHandle,
+    private val manager: com.mattzilla30.mbooru.data.database.BooruManager,
 ) : ViewModel() {
     private var original =
         Booru(
@@ -59,6 +61,16 @@ class BooruEditorViewModel(
         viewModelScope.launch {
             try {
                 val loaded = withContext(Dispatchers.IO) { dao.getBooruByUid(uid) }
+                if (uid > 0 && loaded == null) {
+                    mutable.update {
+                        it.copy(
+                            busy = false,
+                            available = false,
+                            error = R.string.booru_config_save_failed,
+                        )
+                    }
+                    return@launch
+                }
                 if (loaded != null) original = loaded
                 mutable.value =
                     BooruEditorState(
@@ -67,7 +79,13 @@ class BooruEditorViewModel(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                mutable.update { it.copy(error = R.string.booru_config_save_failed) }
+                mutable.update {
+                    it.copy(
+                        busy = false,
+                        available = false,
+                        error = R.string.booru_config_save_failed,
+                    )
+                }
             }
         }
     }
@@ -77,13 +95,13 @@ class BooruEditorViewModel(
     val completion = complete.receiveAsFlow()
 
     fun field(key: String, value: String) {
-        if (mutable.value.busy) return
+        if (mutable.value.busy || !mutable.value.available) return
         mutable.update { it.copy(values = it.values + (key to value), error = null) }
         saved["fields"] = HashMap(mutable.value.values)
     }
 
     fun save() {
-        if (mutable.value.busy) return
+        if (mutable.value.busy || !mutable.value.available) return
         val values = mutable.value.values
         val type = booruTypes[values["type"]] ?: Values.BOORU_TYPE_MOE
         val error = validateBooru(values, type)
@@ -99,14 +117,29 @@ class BooruEditorViewModel(
                 type = type,
                 path = if (type == Values.BOORU_TYPE_SHIMMIE) values["path"] else null,
                 hashSalt = if (type == Values.BOORU_TYPE_DAN1) values["hashSalt"].orEmpty() else "",
+                user =
+                    original.user.takeIf {
+                        original.host == values["host"] &&
+                            original.scheme == values["scheme"] &&
+                            original.type == type
+                    },
+                auth =
+                    original.auth.takeIf {
+                        original.host == values["host"] &&
+                            original.scheme == values["scheme"] &&
+                            original.type == type
+                    },
             )
-        persist { if (updated.uid == 0L) dao.insert(updated) else dao.update(updated) }
+        persist {
+            if (updated.uid == 0L) manager.createBooru(updated)
+            else check(manager.updateBooru(updated))
+        }
     }
 
-    fun delete() = persist { dao.delete(original.uid) }
+    fun delete() = persist { manager.deleteBooru(original.uid) }
 
     private fun persist(block: suspend () -> Unit) {
-        if (mutable.value.busy) return
+        if (mutable.value.busy || !mutable.value.available) return
         mutable.update { it.copy(busy = true) }
         viewModelScope.launch {
             try {

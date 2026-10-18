@@ -6,6 +6,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
 }
 
-dependencies { testImplementation("junit:junit:4.13.2") }
+dependencies { testImplementation(libs.test.junit) }
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(17) }

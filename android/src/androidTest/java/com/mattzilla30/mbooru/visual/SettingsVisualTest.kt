@@ -83,12 +83,12 @@ class SettingsVisualTest {
         }
         compose.waitForIdle()
         val image = compose.onNodeWithTag("golden-frame").captureToImage().asAndroidBitmap()
-        val output =
-            File(compose.activity.getExternalFilesDir(null), "screenshots/$name.png").apply {
-                parentFile!!.mkdirs()
-            }
-        output.outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) }
         val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val directory =
+            InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")
+                ?: File(compose.activity.getExternalFilesDir(null), "test_data").absolutePath
+        val output = File(directory, "screenshots/$name.png").apply { parentFile!!.mkdirs() }
+        output.outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) }
         val expected =
             instrumentation.context.assets
                 .open("goldens/$name.png")

@@ -9,6 +9,8 @@ import org.junit.Rule
 import org.junit.Test
 
 /** Offline protocol boundaries. No fixtures depend on a live site's availability. */
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(application = android.app.Application::class, sdk = [28])
 class EngineProtocolTest {
     @get:Rule val server = MockWebServer()
     private val client = OkHttpClient.Builder().retryOnConnectionFailure(false).build()

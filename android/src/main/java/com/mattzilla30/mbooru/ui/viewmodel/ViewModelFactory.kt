@@ -33,12 +33,15 @@ import com.mattzilla30.mbooru.data.repository.tag.TagRepository
 import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepository
 import com.mattzilla30.mbooru.extension.getViewModel
 
-fun ViewModelStoreOwner.getBooruViewModel(booruDao: BooruDao): BooruViewModel =
+fun ViewModelStoreOwner.getBooruViewModel(
+    booruDao: BooruDao,
+    manager: com.mattzilla30.mbooru.data.database.BooruManager,
+): BooruViewModel =
     getViewModel(
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return BooruViewModel(booruDao) as T
+                return BooruViewModel(booruDao, manager) as T
             }
         }
     )

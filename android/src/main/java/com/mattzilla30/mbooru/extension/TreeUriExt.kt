@@ -90,6 +90,10 @@ private suspend fun PathActivity.getFileUri(
                 null
             } catch (_: java.io.IOException) {
                 null
+            } catch (_: IllegalArgumentException) {
+                null
+            } catch (_: UnsupportedOperationException) {
+                null
             }
         }
     if (result == null)

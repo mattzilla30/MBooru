@@ -18,20 +18,24 @@ package com.mattzilla30.mbooru.app
 import android.app.Application
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import coil.ImageLoader
-import coil.ImageLoaderFactory
-import coil.disk.DiskCache
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.asImage
+import coil3.disk.DiskCache
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import coil3.request.*
 import com.google.android.material.color.DynamicColors
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.common.di.commonModules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path.Companion.toOkioPath
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
-open class App : Application(), ImageLoaderFactory {
+open class App : Application(), SingletonImageLoader.Factory {
     private val settings by inject<SettingsRepository>()
 
     companion object {
@@ -86,17 +90,21 @@ open class App : Application(), ImageLoaderFactory {
         }
     }
 
-    override fun newImageLoader(): ImageLoader {
+    override fun newImageLoader(context: android.content.Context): ImageLoader {
         val transport by inject<com.mattzilla30.mbooru.data.api.HttpTransport>()
         val diskCache =
             DiskCache.Builder()
-                .directory(cacheDir.resolve("image_cache"))
+                .directory(cacheDir.resolve("image_cache").toOkioPath())
                 .maxSizeBytes(CACHE_MAX_BYTES)
                 .build()
         return ImageLoader.Builder(this)
             .diskCache(diskCache)
             .allowHardware(false)
-            .okHttpClient(transport.mediaClient())
+            .components {
+                add(OkHttpNetworkFetcherFactory(callFactory = { transport.mediaClient() }))
+                if (Build.VERSION.SDK_INT >= 28) add(coil3.gif.AnimatedImageDecoder.Factory())
+                else add(coil3.gif.GifDecoder.Factory())
+            }
             .crossfade(
                 if (Build.VERSION.SDK_INT >= 26)
                     android.animation.ValueAnimator.areAnimatorsEnabled()
@@ -107,7 +115,13 @@ open class App : Application(), ImageLoaderFactory {
                         1f,
                     ) > 0f
             )
-            .error(R.drawable.ic_placeholder_error)
+            .error {
+                androidx.appcompat.content.res.AppCompatResources.getDrawable(
+                        it.context,
+                        R.drawable.ic_placeholder_error,
+                    )
+                    ?.asImage()
+            }
             .build()
     }
 }

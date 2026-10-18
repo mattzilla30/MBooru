@@ -1,8 +1,6 @@
 package com.mattzilla30.mbooru.ui.compose.common
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalDensity
@@ -48,7 +46,7 @@ fun ActivityAppBar(activity: BaseActivity) {
         navigationIcon = {
             IconButton(onClick = { activity.onAction(AppActionKey.Back) }) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
+                    painterResource(R.drawable.ic_arrow_back_24dp),
                     stringResource(androidx.appcompat.R.string.abc_action_bar_up_description),
                 )
             }

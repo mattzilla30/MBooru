@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.test)
-    alias(libs.plugins.kotlin.android)
+
     alias(libs.plugins.baselineprofile)
 }
 
@@ -18,14 +18,33 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
 }
 
 baselineProfile { useConnectedDevices = true }
 
 dependencies {
-    implementation("androidx.test.ext:junit:1.2.1")
-    implementation("androidx.test:runner:1.6.2")
-    implementation("androidx.test.uiautomator:uiautomator:2.3.0")
-    implementation("androidx.benchmark:benchmark-macro-junit4:1.3.4")
+    implementation(libs.androidx.test.ext.junit)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.uiautomator)
+    implementation(libs.androidx.benchmark.macro)
+}
+
+kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
+
+// APK-under-test resolution must use the Android platform consistently for multiplatform XML DTOs.
+configurations
+    .matching { it.name.endsWith("TestedApks") }
+    .configureEach {
+        attributes.attribute(
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.attribute,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm,
+        )
+    }
+
+tasks.register("verifyProfileDependencies") {
+    val tested = configurations.named("nonMinifiedReleaseTestedApks")
+    inputs.files(tested)
+    doLast {
+        check(inputs.files.files.isNotEmpty()) { "Profile runtime dependencies did not resolve" }
+    }
 }

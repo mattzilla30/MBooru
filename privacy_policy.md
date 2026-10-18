@@ -18,6 +18,6 @@ Downloads use a folder you grant through Android's document picker. Queue entrie
 
 ## Diagnostics and third parties
 
-Default builds do not automatically upload crash reports or usage analytics. API logging is disabled to avoid leaking query credentials. Reports you voluntarily share may contain personal information; review them first. Optional integrations such as Muzei and external websites have their own privacy policies. No TLS certificate-validation bypass is implemented.
+MBooru does not operate a telemetry backend or automatically upload crash reports. Camera scanning uses Google ML Kit, whose SDK collects device, application, installation and performance metadata for diagnostics and usage analytics as described in [Google’s ML Kit data disclosure](https://developers.google.com/ml-kit/android-data-disclosure). Barcode images are processed on the device. API logging is disabled to avoid leaking query credentials. Reports you voluntarily share may contain personal information; review them first. Optional integrations such as Muzei and external websites have their own privacy policies. No TLS certificate-validation bypass is implemented.
 
 Contact <mattzilla30@gmail.com> with privacy questions. Changes to this policy are versioned in the source repository.

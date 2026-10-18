@@ -69,7 +69,7 @@ fun BooruEditorScreen(state: BooruEditorState, field: (String, String) -> Unit) 
                                 "hashSalt" -> R.drawable.ic_enhanced_encryption_24dp
                                 else -> 0
                             },
-                        enabled = !state.busy,
+                        enabled = !state.busy && state.available,
                         onClick = {
                             editing = key
                             draft = value

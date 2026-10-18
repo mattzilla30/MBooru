@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -235,6 +236,104 @@ class ComposeMigrationSmokeTest {
         }
         compose.activityRule.scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
         compose.waitUntil(30000, ::ready)
+    }
+
+    @Test
+    fun jpegWebpTransparencyAndAnimatedGifUseTheSharedLoader() {
+        val files = mutableListOf<File>()
+        val bitmap = Bitmap.createBitmap(256, 128, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.TRANSPARENT)
+        Canvas(bitmap)
+            .drawRect(
+                32f,
+                16f,
+                224f,
+                112f,
+                android.graphics.Paint().apply { color = Color.rgb(60, 120, 170) },
+            )
+        @Suppress("DEPRECATION")
+        for ((extension, format) in
+            listOf(
+                "jpg" to Bitmap.CompressFormat.JPEG,
+                "png" to Bitmap.CompressFormat.PNG,
+                "webp" to Bitmap.CompressFormat.WEBP,
+            )) {
+            files +=
+                File(compose.activity.cacheDir, "format-fixture.$extension").also { file ->
+                    file.outputStream().use { bitmap.compress(format, 90, it) }
+                }
+        }
+        bitmap.recycle()
+        files +=
+            File(compose.activity.cacheDir, "format-fixture.gif").also { file ->
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                    .context
+                    .assets
+                    .open("viewer-fixture.gif")
+                    .use { input -> file.outputStream().use { input.copyTo(it) } }
+            }
+        var current by mutableStateOf(sample(1000, files.first().toUri().toString()))
+        compose.setContent {
+            MBooruTheme {
+                PostMedia(
+                    current,
+                    booru,
+                    "sample",
+                    true,
+                    dismiss,
+                    {},
+                    {},
+                    {},
+                    Modifier.fillMaxSize(),
+                )
+            }
+        }
+        var animation: android.graphics.drawable.Animatable? = null
+        files.forEachIndexed { index, file ->
+            val id = 1000 + index
+            compose.runOnIdle { current = sample(id, file.toUri().toString()) }
+            compose.waitUntil(20000) {
+                var ready = false
+                compose.runOnUiThread {
+                    val photo = compose.activity.window.decorView.find<PhotoView>()
+                    ready =
+                        photo != null &&
+                            photo.transitionName == "post_$id" &&
+                            photo.drawable != null
+                    if (file.extension == "gif")
+                        ready =
+                            ready &&
+                                (photo?.drawable as? android.graphics.drawable.Animatable)
+                                    ?.isRunning == true
+                }
+                ready
+            }
+            compose.runOnIdle {
+                val drawable =
+                    checkNotNull(compose.activity.window.decorView.find<PhotoView>()?.drawable)
+                assertTrue(
+                    "Small media must keep a bounded decoded size",
+                    drawable.intrinsicWidth in
+                        1..compose.activity.resources.displayMetrics.widthPixels,
+                )
+                if (file.extension == "png" || file.extension == "webp") {
+                    val decoded = drawable.toBitmap()
+                    assertEquals(
+                        "Transparency must survive decoding",
+                        0,
+                        Color.alpha(decoded.getPixel(0, 0)),
+                    )
+                }
+                if (file.extension == "gif")
+                    animation = drawable as android.graphics.drawable.Animatable
+            }
+        }
+        compose.runOnIdle { current = sample(2000, files.first().toUri().toString()) }
+        compose.waitUntil(10000) {
+            var stopped = false
+            compose.runOnUiThread { stopped = animation?.isRunning == false }
+            stopped
+        }
     }
 
     private fun imageFile(name: String, width: Int, height: Int): File {

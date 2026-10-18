@@ -43,12 +43,13 @@ class BooruConfigActivity : BaseActivity() {
         const val EXTRA_BOORU_UID = "extra_booru_uid"
     }
 
+    private val manager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
     private val dao by inject<BooruDao>()
     private val model by
         viewModels<BooruEditorViewModel> {
             val uid = intent.getLongExtra(BooruConfigActivity.EXTRA_BOORU_UID, -1)
             viewModelFactory {
-                initializer { BooruEditorViewModel(dao, uid, createSavedStateHandle()) }
+                initializer { BooruEditorViewModel(dao, uid, createSavedStateHandle(), manager) }
             }
         }
     private var confirmDelete by mutableStateOf(false)
@@ -108,6 +109,8 @@ class BooruConfigActivity : BaseActivity() {
     @androidx.compose.runtime.Composable
     override fun appActions(): List<AppAction> {
         val state by model.state.collectAsStateWithLifecycle()
-        return AppMenu.BooruConfig.actions().map { it.copy(enabled = !state.busy) }
+        return AppMenu.BooruConfig.actions().map {
+            it.copy(enabled = !state.busy && state.available)
+        }
     }
 }

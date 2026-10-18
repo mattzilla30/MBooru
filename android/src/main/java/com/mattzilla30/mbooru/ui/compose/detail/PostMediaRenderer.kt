@@ -1,7 +1,6 @@
 package com.mattzilla30.mbooru.ui.compose.detail
 
 import android.content.Context
-import android.os.Build
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +12,14 @@ import android.widget.TextView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.media3.ui.PlayerView
-import coil.ImageLoader
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.disk.DiskCache
-import coil.imageLoader
-import coil.request.CachePolicy
-import coil.request.Disposable
-import coil.request.ImageRequest
+import coil3.ImageLoader
+import coil3.asDrawable
+import coil3.disk.DiskCache
+import coil3.imageLoader
+import coil3.request.*
+import coil3.request.CachePolicy
+import coil3.request.Disposable
+import coil3.request.ImageRequest
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.chrisbanes.photoview.PhotoView
@@ -54,7 +53,6 @@ class PostMediaRenderer(
 
     private var request: Disposable? = null
     private var retryAction: (() -> Unit)? = null
-    private var ownedLoader: ImageLoader? = null
     private var snapshot: DiskCache.Snapshot? = null
     private var tiled: SubsamplingScaleImageView? = null
     private var photo: PhotoView? = null
@@ -181,7 +179,11 @@ class PostMediaRenderer(
                                         )
                                     else
                                         image.setImage(
-                                            ImageSource.bitmap(result.drawable.toBitmap())
+                                            ImageSource.bitmap(
+                                                result.image
+                                                    .asDrawable(context.resources)
+                                                    .toBitmap()
+                                            )
                                         )
                                 },
                                 onError = { _, _ -> showError() },
@@ -205,17 +207,7 @@ class PostMediaRenderer(
                 photo = image
                 view.addView(image)
                 view.addView(progress)
-                val loader =
-                    if (url.isGifImage())
-                        context.imageLoader
-                            .newBuilder()
-                            .components {
-                                if (Build.VERSION.SDK_INT >= 28) add(ImageDecoderDecoder.Factory())
-                                else add(GifDecoder.Factory())
-                            }
-                            .build()
-                            .also { ownedLoader = it }
-                    else context.imageLoader
+                val loader = context.imageLoader
                 // A target crossfade replaces the drawable at completion, which resets PhotoView's
                 // supplemental matrix and can discard a pinch started while the image appears.
                 load(
@@ -262,7 +254,6 @@ class PostMediaRenderer(
         tiled?.recycle()
         snapshot?.close()
         snapshot = null
-        ownedLoader?.shutdown()
         playerView?.onPause()
         playerView?.player = null
         view.setDismissListener(null)

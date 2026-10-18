@@ -92,26 +92,23 @@ class PlayerHolder(
         player?.apply {
             setMediaSource(mediaSource)
             prepare()
-            playWhenReady = true
             // Restore state (after onResume()/onStart())
             currentPlayerState?.apply {
                 // Start playback when media has buffered enough
                 seekTo(window, position)
+                playWhenReady = whenReady
             }
         }
     }
 
     fun pause() {
         player?.apply {
-            if (playWhenReady) {
-                currentPlayerState?.apply {
-                    position = currentPosition
-                    window = currentMediaItemIndex
-                    whenReady = playWhenReady
-                }
-                playWhenReady = false
-                playbackState
+            currentPlayerState?.apply {
+                position = currentPosition
+                window = currentMediaItemIndex
+                whenReady = playWhenReady
             }
+            playWhenReady = false
         }
     }
 
@@ -129,6 +126,7 @@ class PlayerHolder(
     }
 
     fun release() {
+        pause()
         player?.release()
         player = null
     }

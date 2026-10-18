@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import coil.compose.AsyncImage
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.imageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.asDrawable
+import coil3.compose.AsyncImage
+import coil3.imageLoader
+import coil3.request.*
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mattzilla30.mbooru.R
@@ -138,36 +138,22 @@ class WhatAnimeActivity : BaseActivity() {
             try {
                 val bytes =
                     withContext(Dispatchers.IO) {
-                        val loader =
-                            imageLoader
-                                .newBuilder()
-                                .components {
-                                    if (android.os.Build.VERSION.SDK_INT >= 28)
-                                        add(ImageDecoderDecoder.Factory())
-                                    else add(GifDecoder.Factory())
-                                }
-                                .build()
-                        try {
-                            val result =
-                                loader.execute(
-                                    ImageRequest.Builder(this@WhatAnimeActivity)
-                                        .data(uri)
-                                        .allowHardware(false)
-                                        .build()
-                                ) as? SuccessResult
-                            result?.drawable?.toBitmap()?.let { bitmap ->
-                                ByteArrayOutputStream().use { stream ->
-                                    bitmap.compress(
-                                        Bitmap.CompressFormat.JPEG,
-                                        if (bitmap.width > 1000 || bitmap.height > 1000) 50
-                                        else 100,
-                                        stream,
-                                    )
-                                    stream.toByteArray()
-                                }
+                        val result =
+                            imageLoader.execute(
+                                ImageRequest.Builder(this@WhatAnimeActivity)
+                                    .data(uri)
+                                    .allowHardware(false)
+                                    .build()
+                            ) as? SuccessResult
+                        result?.image?.asDrawable(resources)?.toBitmap()?.let { bitmap ->
+                            ByteArrayOutputStream().use { stream ->
+                                bitmap.compress(
+                                    Bitmap.CompressFormat.JPEG,
+                                    if (bitmap.width > 1000 || bitmap.height > 1000) 50 else 100,
+                                    stream,
+                                )
+                                stream.toByteArray()
                             }
-                        } finally {
-                            loader.shutdown()
                         }
                     }
                 if (bytes != null) model.fetch(bytes)

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">Az onlymash és közreműködői által készített Flexbooru alapján.</string>
+    <string name="action_to_top">Ugrás a tetejére</string>
+    <string name="booru_add_featured">Ajánlott oldal hozzáadása</string>
+    <string name="booru_config_save_failed">A módosítások nem menthetők. Próbáld újra.</string>
+    <string name="image_search_read_failed">A kiválasztott kép nem olvasható.</string>
+    <string name="navigation_drawer_open">Navigációs menü megnyitása</string>
+    <string name="settings_cache_clear_failed">A gyorsítótár nem törölhető. Próbáld újra.</string>
+</resources>
