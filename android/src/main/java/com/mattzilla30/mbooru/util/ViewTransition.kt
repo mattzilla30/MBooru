@@ -53,8 +53,11 @@ class ViewTransition(vararg views: View) {
         val length = views.size
         if (shownView >= length || shownView < 0) {
             throw IndexOutOfBoundsException(
-                "Only " + length + " view(s) in " +
-                        "the ViewTransition, but attempt to show " + shownView
+                "Only " +
+                    length +
+                    " view(s) in " +
+                    "the ViewTransition, but attempt to show " +
+                    shownView
             )
         }
         return if (shownViewIndex != shownView) {
@@ -92,26 +95,32 @@ class ViewTransition(vararg views: View) {
     }
 
     private fun startAnimations(hiddenView: View, shownView: View) {
-        animator1 = ObjectAnimator.ofFloat(hiddenView, "alpha", 0f).apply {
-            duration = ANIMATE_TIME
-            addListener(object : SimpleAnimatorListener() {
-                override fun onAnimationEnd(animation: Animator) {
-                    hiddenView.visibility = View.GONE
-                    animator1 = null
-                }
-            })
-            start()
-        }
+        animator1 =
+            ObjectAnimator.ofFloat(hiddenView, "alpha", 0f).apply {
+                duration = ANIMATE_TIME
+                addListener(
+                    object : SimpleAnimatorListener() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            hiddenView.visibility = View.GONE
+                            animator1 = null
+                        }
+                    }
+                )
+                start()
+            }
         shownView.visibility = View.VISIBLE
-        animator2 = ObjectAnimator.ofFloat(shownView, "alpha", 1f).apply {
-            duration = ANIMATE_TIME
-            addListener(object : SimpleAnimatorListener() {
-                override fun onAnimationEnd(animation: Animator) {
-                    animator2 = null
-                }
-            })
-            start()
-        }
+        animator2 =
+            ObjectAnimator.ofFloat(shownView, "alpha", 1f).apply {
+                duration = ANIMATE_TIME
+                addListener(
+                    object : SimpleAnimatorListener() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            animator2 = null
+                        }
+                    }
+                )
+                start()
+            }
     }
 
     interface OnShowViewListener {

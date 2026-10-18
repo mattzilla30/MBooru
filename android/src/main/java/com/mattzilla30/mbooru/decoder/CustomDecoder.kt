@@ -27,11 +27,12 @@ import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
 
 class CustomDecoder : ImageDecoder {
     override fun decode(context: Context, uri: Uri): Bitmap {
-        val request = ImageRequest.Builder(context)
-            .data(uri)
-            .allowConversionToBitmap(true)
-            .allowHardware(false)
-            .build()
+        val request =
+            ImageRequest.Builder(context)
+                .data(uri)
+                .allowConversionToBitmap(true)
+                .allowHardware(false)
+                .build()
         val result = context.imageLoader.executeBlocking(request) as SuccessResult
         return (result.drawable as BitmapDrawable).bitmap
     }

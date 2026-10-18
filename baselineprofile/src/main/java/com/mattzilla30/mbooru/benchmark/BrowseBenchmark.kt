@@ -15,18 +15,26 @@ import org.junit.runner.RunWith
 @LargeTest
 class BrowseBenchmark {
     @get:Rule val benchmark = MacrobenchmarkRule()
-    @Test fun coldStartupAndTabs() = benchmark.measureRepeated(
-        packageName = "com.mattzilla30.mbooru",
-        metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
-        compilationMode = CompilationMode.Partial(), startupMode = StartupMode.COLD, iterations = 5,
-        setupBlock = {
-            if (android.os.Build.VERSION.SDK_INT >= 33) device.executeShellCommand("pm grant com.mattzilla30.mbooru android.permission.POST_NOTIFICATIONS")
-            pressHome()
-        },
-    ) {
-        startActivityAndWait()
-        requireNotNull(device.wait(Until.findObject(By.res("browse-tab-tags")), 10000)).click()
-        device.waitForIdle()
-        requireNotNull(device.wait(Until.findObject(By.res("browse-tab-posts")), 10000)).click()
-    }
+
+    @Test
+    fun coldStartupAndTabs() =
+        benchmark.measureRepeated(
+            packageName = "com.mattzilla30.mbooru",
+            metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
+            compilationMode = CompilationMode.Partial(),
+            startupMode = StartupMode.COLD,
+            iterations = 5,
+            setupBlock = {
+                if (android.os.Build.VERSION.SDK_INT >= 33)
+                    device.executeShellCommand(
+                        "pm grant com.mattzilla30.mbooru android.permission.POST_NOTIFICATIONS"
+                    )
+                pressHome()
+            },
+        ) {
+            startActivityAndWait()
+            requireNotNull(device.wait(Until.findObject(By.res("browse-tab-tags")), 10000)).click()
+            device.waitForIdle()
+            requireNotNull(device.wait(Until.findObject(By.res("browse-tab-posts")), 10000)).click()
+        }
 }

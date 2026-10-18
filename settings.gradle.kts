@@ -34,6 +34,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MBooru"
+
 include(":android")
 
 include(":baselineprofile")

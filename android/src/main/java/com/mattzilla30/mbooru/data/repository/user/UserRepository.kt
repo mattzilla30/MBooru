@@ -21,9 +21,14 @@ import com.mattzilla30.mbooru.extension.NetResult
 
 interface UserRepository {
     suspend fun findUserByName(username: String, booru: Booru): NetResult<User>
+
     suspend fun findUserById(id: Int, booru: Booru): NetResult<User>
+
     suspend fun gelLogin(username: String, password: String, booru: Booru): NetResult<User>
+
     suspend fun sankakuLogin(username: String, password: String, booru: Booru): NetResult<User>
+
     suspend fun sankakuRefreshToken(refreshToken: String, booru: Booru): NetResult<User>
+
     suspend fun moeCheck(username: String, password: String, booru: Booru): NetResult<User>
 }

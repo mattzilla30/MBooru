@@ -23,7 +23,6 @@ fun Closeable.safeCloseQuietly() {
     } catch (_: IOException) {
         // Ignore
     }
-
 }
 
 fun InputStream.copyTo(out: OutputStream?): Long {

@@ -9,8 +9,7 @@ import com.mattzilla30.mbooru.data.model.common.Next
 @Dao
 interface NextDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(next: Next): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(next: Next): Long
 
     @Query("SELECT * FROM `next` WHERE `booru_uid` = :booruUid AND `query` = :query")
     suspend fun getNext(booruUid: Long, query: String): Next?

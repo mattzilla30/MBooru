@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
 class PostInfoViewModel(dao: PostDao, booruUid: Long, postId: Int) : ViewModel() {
-    val post = dao.observeFirstPost(booruUid, postId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val post =
+        dao.observeFirstPost(booruUid, postId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 }

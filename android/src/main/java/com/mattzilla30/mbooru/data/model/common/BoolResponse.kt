@@ -18,8 +18,4 @@ package com.mattzilla30.mbooru.data.model.common
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class BoolResponse(
-    @SerialName("success")
-    val success: Boolean = false
-)
+@Serializable data class BoolResponse(@SerialName("success") val success: Boolean = false)

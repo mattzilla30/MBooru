@@ -34,24 +34,26 @@ class TagFilterManager(private val tagFilterDao: TagFilterDao) {
     suspend fun updateTagFilter(tag: TagFilter): Boolean = tagFilterDao.update(tag) == 1
 
     @Throws(IOException::class)
-    suspend fun getTagFilterByBooruUid(booruUid: Long): List<TagFilter>? = try {
-        tagFilterDao.getTagByBooruUid(booruUid)
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        ex.printStackTrace()
-        null
-    }
+    suspend fun getTagFilterByBooruUid(booruUid: Long): List<TagFilter>? =
+        try {
+            tagFilterDao.getTagByBooruUid(booruUid)
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            ex.printStackTrace()
+            null
+        }
 
     @Throws(IOException::class)
-    suspend fun getTagFilterByTagFilterUid(uid: Long): TagFilter? = try {
-        tagFilterDao.getTagByTagUid(uid)
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        ex.printStackTrace()
-        null
-    }
+    suspend fun getTagFilterByTagFilterUid(uid: Long): TagFilter? =
+        try {
+            tagFilterDao.getTagByTagUid(uid)
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            ex.printStackTrace()
+            null
+        }
 
     @Throws(SQLException::class)
     suspend fun deleteTagFilter(tag: TagFilter) {
@@ -63,16 +65,16 @@ class TagFilterManager(private val tagFilterDao: TagFilterDao) {
         tagFilterDao.delete(tags)
     }
 
-    @Throws(SQLException::class)
-    suspend fun deleteAll() = tagFilterDao.deleteAll()
+    @Throws(SQLException::class) suspend fun deleteAll() = tagFilterDao.deleteAll()
 
     @Throws(IOException::class)
-    suspend fun getAllTagFilters(): List<TagFilter>? = try {
-        tagFilterDao.getAll()
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        ex.printStackTrace()
-        null
-    }
+    suspend fun getAllTagFilters(): List<TagFilter>? =
+        try {
+            tagFilterDao.getAll()
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            ex.printStackTrace()
+            null
+        }
 }

@@ -10,10 +10,15 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(with = AuthCredentialSerializer::class)
 data class AuthCredential(val value: String) {
     var credentialReference: String? = null
+
     override fun toString() = "AuthCredential(redacted)"
 }
+
 object AuthCredentialSerializer : KSerializer<AuthCredential> {
     override val descriptor = PrimitiveSerialDescriptor("AuthCredential", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, value: AuthCredential) = encoder.encodeString(value.value)
+
+    override fun serialize(encoder: Encoder, value: AuthCredential) =
+        encoder.encodeString(value.value)
+
     override fun deserialize(decoder: Decoder) = AuthCredential(decoder.decodeString())
 }

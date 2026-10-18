@@ -24,13 +24,14 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 fun Context.getSignMd5(): String? {
-    val paramArrayOfByte = try {
-        getSignature()?.toByteArray()
-    } catch (_: NoSuchAlgorithmException) {
-        null
-    } catch (_: NullPointerException) {
-        null
-    } ?: return null
+    val paramArrayOfByte =
+        try {
+            getSignature()?.toByteArray()
+        } catch (_: NoSuchAlgorithmException) {
+            null
+        } catch (_: NullPointerException) {
+            null
+        } ?: return null
     val localMessageDigest = MessageDigest.getInstance("MD5")
     localMessageDigest.update(paramArrayOfByte)
     return toHexString(localMessageDigest.digest())
@@ -40,7 +41,8 @@ fun Context.getSignMd5(): String? {
 @SuppressLint("PackageManagerGetSignatures")
 private fun Context.getSignature(): Signature? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+        val packageInfo =
+            packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
         val signingInfo = packageInfo.signingInfo ?: return null
         if (signingInfo.hasMultipleSigners()) {
             signingInfo.apkContentsSigners?.firstOrNull()
@@ -69,17 +71,25 @@ private fun toHexString(paramArrayOfByte: ByteArray?): String? {
         i++
     }
 }
+
 /** Match the currently installed signer, independently of the former publisher's certificate. */
 fun Context.matchesPlaySigningCertificate(expected: String): Boolean {
     val normalized = expected.replace(":", "").trim().uppercase(java.util.Locale.ROOT)
     if (!normalized.matches(Regex("[0-9A-F]{64}"))) return false
-    val signature = if (Build.VERSION.SDK_INT >= 28) {
-        packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
-            .signingInfo?.apkContentsSigners?.firstOrNull()
-    } else {
-        @Suppress("DEPRECATION")
-        packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures?.firstOrNull()
-    } ?: return false
+    val signature =
+        if (Build.VERSION.SDK_INT >= 28) {
+            packageManager
+                .getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+                .signingInfo
+                ?.apkContentsSigners
+                ?.firstOrNull()
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager
+                .getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+                .signatures
+                ?.firstOrNull()
+        } ?: return false
     val actual = MessageDigest.getInstance("SHA-256").digest(signature.toByteArray())
     return actual.joinToString("") { "%02X".format(it) } == normalized
 }

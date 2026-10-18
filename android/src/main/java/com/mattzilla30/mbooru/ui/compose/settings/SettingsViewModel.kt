@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 
 sealed interface SettingsEffect {
     data class NightMode(val mode: Int) : SettingsEffect
+
     data object NightTheme : SettingsEffect
 }
 
@@ -24,35 +25,48 @@ class SettingsViewModel(
     private val savedState: SavedStateHandle,
     private val clearCache: suspend () -> Unit,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SettingsUiState(
-        values = store.snapshot(),
-        expanded = savedState["expanded"] ?: false,
-        restartKeys = savedState.get<ArrayList<String>>("restartKeys")?.toSet().orEmpty(),
-    ))
+    private val _state =
+        MutableStateFlow(
+            SettingsUiState(
+                values = store.snapshot(),
+                expanded = savedState["expanded"] ?: false,
+                restartKeys = savedState.get<ArrayList<String>>("restartKeys")?.toSet().orEmpty(),
+            )
+        )
     val state: StateFlow<SettingsUiState> = _state.asStateFlow()
     private val effectChannel = Channel<SettingsEffect>(Channel.BUFFERED)
     val effects = effectChannel.receiveAsFlow()
 
     init {
-        viewModelScope.launch { store.persistenceFailed.collect { failed -> _state.update { it.copy(persistenceFailed = failed) } } }
+        viewModelScope.launch {
+            store.persistenceFailed.collect { failed ->
+                _state.update { it.copy(persistenceFailed = failed) }
+            }
+        }
         store.onChanged = { key ->
             val values = store.snapshot()
-            val restartKeys = when (key) {
-                Settings.DNS_OVER_HTTPS, Settings.DNS_OVER_HTTPS_PROVIDER -> setOf(Settings.DNS_OVER_HTTPS)
-                Settings.DISABLE_SNI_KEY, Settings.BYPASS_WAF_KEY -> setOf(key)
-                else -> emptySet()
-            }
+            val restartKeys =
+                when (key) {
+                    Settings.DNS_OVER_HTTPS,
+                    Settings.DNS_OVER_HTTPS_PROVIDER -> setOf(Settings.DNS_OVER_HTTPS)
+                    Settings.DISABLE_SNI_KEY,
+                    Settings.BYPASS_WAF_KEY -> setOf(key)
+                    else -> emptySet()
+                }
             _state.update { it.copy(values = values, restartKeys = it.restartKeys + restartKeys) }
             savedState["restartKeys"] = ArrayList(_state.value.restartKeys)
             when (key) {
-                Settings.NIGHT_MODE_KEY -> effectChannel.trySend(SettingsEffect.NightMode(
-                    when (values[key]) {
-                        "on" -> AppCompatDelegate.MODE_NIGHT_YES
-                        "off" -> AppCompatDelegate.MODE_NIGHT_NO
-                        "battery" -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
-                        else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                    }
-                ))
+                Settings.NIGHT_MODE_KEY ->
+                    effectChannel.trySend(
+                        SettingsEffect.NightMode(
+                            when (values[key]) {
+                                "on" -> AppCompatDelegate.MODE_NIGHT_YES
+                                "off" -> AppCompatDelegate.MODE_NIGHT_NO
+                                "battery" -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+                                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                            }
+                        )
+                    )
                 Settings.NIGHT_THEME_KEY -> effectChannel.trySend(SettingsEffect.NightTheme)
             }
         }

@@ -62,5 +62,4 @@ object Settings {
     internal const val SAUCE_NAO_API_KEY_KEY = "sauce_nao_api_key"
 
     const val BOORU_UID_ACTIVATED_KEY = "booru_uid_activated"
-
 }
