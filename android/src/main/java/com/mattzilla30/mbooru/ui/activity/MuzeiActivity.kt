@@ -64,8 +64,7 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
     private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
 
     @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
             booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch

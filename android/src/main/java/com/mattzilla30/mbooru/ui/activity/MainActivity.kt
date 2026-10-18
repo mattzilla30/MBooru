@@ -60,8 +60,7 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     internal var activeBrowse: BrowseNavigation? = null
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         lifecycleScope.launch { BooruPresets.installOnce(booruDao, preferences) }
         preferences.registerOnSharedPreferenceChangeListener(this)

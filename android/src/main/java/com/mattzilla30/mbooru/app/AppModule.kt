@@ -16,14 +16,18 @@
 package com.mattzilla30.mbooru.app
 
 import android.content.Context
+import kotlinx.coroutines.cancel
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.MyDatabase
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 
 
 val appModules = module {
-    single { androidApplication().getSharedPreferences("${androidApplication().packageName}_preferences", Context.MODE_PRIVATE) }
+    single { kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO) } onClose { it?.cancel() }
+    single { com.mattzilla30.mbooru.data.settings.DataStorePreferences(androidApplication(), get(), get()) }
+    single<android.content.SharedPreferences> { get<com.mattzilla30.mbooru.data.settings.DataStorePreferences>() }
     single<com.mattzilla30.mbooru.data.credentials.CredentialRepository> {
         com.mattzilla30.mbooru.data.credentials.DeviceCredentialRepository(androidApplication(),
             com.mattzilla30.mbooru.data.credentials.AndroidCredentialCipher(androidApplication()))

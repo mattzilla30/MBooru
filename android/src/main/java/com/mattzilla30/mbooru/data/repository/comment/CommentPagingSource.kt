@@ -65,7 +65,7 @@ class CommentPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -84,7 +84,7 @@ class CommentPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -103,7 +103,7 @@ class CommentPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -134,7 +134,7 @@ class CommentPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -164,7 +164,7 @@ class CommentPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -183,7 +183,7 @@ class CommentPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }

@@ -27,7 +27,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Build, unit tests and lint
-        run: bash ./gradlew --no-daemon --max-workers=2 :android:assembleDebug :android:testDebugUnitTest :android:lintDebug :android:assembleRelease :android:assembleDebugAndroidTest :baselineprofile:assembleNonMinifiedRelease
+        run: bash ./gradlew --no-daemon --max-workers=2 :core:model:test :android:assembleDebug :android:testDebugUnitTest :android:lintDebug :android:assembleRelease :android:assembleDebugAndroidTest :baselineprofile:assembleNonMinifiedRelease
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

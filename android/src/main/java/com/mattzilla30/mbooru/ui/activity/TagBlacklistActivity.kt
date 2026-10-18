@@ -44,8 +44,7 @@ class TagBlacklistActivity : BaseActivity() {
     private val booruDao by inject<BooruDao>()
     private val model by lazy { getBooruViewModel(booruDao) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_tag_blacklist)
         model.loadBooru(Settings.activatedBooruUid)
         setComposeContent {

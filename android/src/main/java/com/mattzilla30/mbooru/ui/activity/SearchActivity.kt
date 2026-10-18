@@ -45,8 +45,7 @@ class SearchActivity : PathActivity() , org.koin.core.component.KoinComponent {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch { historyManager.createHistory(History(booruUid = activatedBooruUid, query = intent.getStringExtra(POST_QUERY).orEmpty())) }
         setComposeContent { MainBrowseNavHost(rememberNavController(), browseTabs(BOORU_TYPE_SHIMMIE)) }
     }

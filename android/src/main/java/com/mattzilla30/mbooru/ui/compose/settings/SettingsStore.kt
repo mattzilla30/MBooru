@@ -4,6 +4,10 @@ import android.content.SharedPreferences
 
 /** Uses the same SharedPreferences as the XML screens and the networking/data layers. */
 class SettingsStore(private val preferences: SharedPreferences) : AutoCloseable {
+    val persistenceFailed: kotlinx.coroutines.flow.StateFlow<Boolean> =
+        (preferences as? com.mattzilla30.mbooru.data.settings.DataStorePreferences)?.persistenceFailed
+            ?: kotlinx.coroutines.flow.MutableStateFlow(false)
+    fun retryPersistence() { (preferences as? com.mattzilla30.mbooru.data.settings.DataStorePreferences)?.retryPersistence() }
     var onChanged: ((String) -> Unit)? = null
 
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->

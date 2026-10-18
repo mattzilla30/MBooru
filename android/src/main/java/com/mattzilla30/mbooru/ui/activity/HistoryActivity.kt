@@ -44,8 +44,7 @@ class HistoryActivity : BaseActivity() {
     private var clearDialog by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_history)
         model.loadHistory(Settings.activatedBooruUid)
         setComposeContent {

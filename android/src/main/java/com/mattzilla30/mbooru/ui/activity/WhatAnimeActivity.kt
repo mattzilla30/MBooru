@@ -62,6 +62,7 @@ import org.koin.android.ext.android.inject
 
 private const val PREVIEW_VIDEO_URL_KEY = "preview_video_url"
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 class WhatAnimeActivity : BaseActivity() {
     private val api by inject<TraceMoeApi>()
     private val model by lazy { getTraceMoeViewModel(api) }
@@ -72,9 +73,12 @@ class WhatAnimeActivity : BaseActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setScreenTitle(R.string.title_what_anime)
         picker = OpenFileLifecycleObserver(activityResultRegistry, ::search)
         lifecycle.addObserver(picker)
+    }
+
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
+        setScreenTitle(R.string.title_what_anime)
         setComposeContent {
             val response by model.data.collectAsStateWithLifecycle()
             val loading by model.isLoading.collectAsStateWithLifecycle()

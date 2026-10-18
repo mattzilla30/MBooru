@@ -45,8 +45,7 @@ class BooruConfigActivity : BaseActivity() {
         viewModelFactory { initializer { BooruEditorViewModel(dao, uid, createSavedStateHandle()) } }
     }
     private var confirmDelete by mutableStateOf(false)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         confirmDelete = savedInstanceState?.getBoolean("confirmDelete") ?: false
         setScreenTitle(R.string.title_booru_config)
         setComposeContent {

@@ -68,8 +68,7 @@ class CommentActivity : BaseActivity() , org.koin.core.component.KoinComponent {
     private val apis by inject<BooruApis>()
     private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
     private val model by lazy { getCommentViewModel(CommentRepositoryImpl(apis)) }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
             booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch

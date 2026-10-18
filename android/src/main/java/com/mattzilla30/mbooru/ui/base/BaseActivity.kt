@@ -15,6 +15,11 @@
 
 package com.mattzilla30.mbooru.ui.base
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
+import org.koin.android.ext.android.inject
+import com.mattzilla30.mbooru.data.settings.DataStorePreferences
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -29,6 +34,9 @@ import com.mattzilla30.mbooru.ui.activity.*
 import com.mattzilla30.mbooru.ui.helper.isNightEnable
 
 abstract class BaseActivity : AppCompatActivity() {
+    private val durablePreferences by inject<DataStorePreferences>()
+    protected open fun onSettingsReady(savedInstanceState: Bundle?) = Unit
+
 
     var screenTitle: CharSequence by mutableStateOf("")
     var screenSubtitle: CharSequence by mutableStateOf("")
@@ -74,6 +82,24 @@ abstract class BaseActivity : AppCompatActivity() {
         }
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        lifecycleScope.launch {
+            yield() // Subclasses register result launchers before STARTED, including cold restores.
+            try {
+                durablePreferences.awaitReady()
+                if (!isFinishing && !isDestroyed) {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(Settings.nightMode)
+                    onSettingsReady(savedInstanceState)
+                }
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                if (!isFinishing && !isDestroyed) androidx.appcompat.app.AlertDialog.Builder(this@BaseActivity)
+                    .setTitle(R.string.settings_load_failed)
+                    .setMessage(R.string.settings_load_recovery)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.action_retry) { _, _ -> durablePreferences.retryInitialization(); recreate() }
+                    .setNegativeButton(R.string.dialog_cancel) { _, _ -> finish() }.show()
+            }
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

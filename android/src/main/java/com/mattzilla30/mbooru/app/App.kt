@@ -16,6 +16,9 @@
 package com.mattzilla30.mbooru.app
 
 import android.app.Application
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import coil.ImageLoader
@@ -57,7 +60,15 @@ class App : Application(), ImageLoaderFactory {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             DynamicColors.applyToActivitiesIfAvailable(this)
         }
-        AppCompatDelegate.setDefaultNightMode(nightMode)
+        val scope by inject<kotlinx.coroutines.CoroutineScope>()
+        scope.launch {
+            val store by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
+            try {
+                store.awaitReady()
+                withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(nightMode) }
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) { /* The foreground activity offers retry without clearing data. */ }
+        }
     }
 
     override fun newImageLoader(): ImageLoader {

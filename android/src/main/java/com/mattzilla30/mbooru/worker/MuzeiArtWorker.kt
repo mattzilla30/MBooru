@@ -57,6 +57,8 @@ class MuzeiArtWorker(
         }
     }
     override suspend fun doWork(): Result {
+        val preferences by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
+        preferences.awaitReady()
         val uid = activeMuzeiUid
         val muzei = muzeiManager.getMuzeiByUid(uid) ?: return Result.failure()
         val booru = booruManager.getBooruByUid(muzei.booruUid) ?: return Result.failure()

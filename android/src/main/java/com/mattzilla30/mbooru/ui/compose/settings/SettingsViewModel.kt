@@ -34,6 +34,7 @@ class SettingsViewModel(
     val effects = effectChannel.receiveAsFlow()
 
     init {
+        viewModelScope.launch { store.persistenceFailed.collect { failed -> _state.update { it.copy(persistenceFailed = failed) } } }
         store.onChanged = { key ->
             val values = store.snapshot()
             val restartKeys = when (key) {
@@ -56,6 +57,8 @@ class SettingsViewModel(
             }
         }
     }
+
+    fun retrySave() = store.retryPersistence()
 
     fun toggle(key: String, checked: Boolean) = store.setToggle(key, checked)
 

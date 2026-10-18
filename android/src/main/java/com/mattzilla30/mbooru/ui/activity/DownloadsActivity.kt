@@ -43,8 +43,7 @@ class DownloadsViewModel(private val repository: DownloadQueueRepository) : View
 class DownloadsActivity : BaseActivity() {
     private val repository by inject<DownloadQueueRepository>()
     private val model by viewModels<DownloadsViewModel> { viewModelFactory { initializer { DownloadsViewModel(repository) } } }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_downloads)
         setComposeContent {
             val entries by model.entries.collectAsStateWithLifecycle()

@@ -47,8 +47,7 @@ class AccountConfigActivity : BaseActivity() , org.koin.core.component.KoinCompo
     private val model by viewModels<AccountConfigViewModel> {
         viewModelFactory { initializer { AccountConfigViewModel(UserRepositoryImpl(apis), checkNotNull(booru), booruManager) } }
     }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
             booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch

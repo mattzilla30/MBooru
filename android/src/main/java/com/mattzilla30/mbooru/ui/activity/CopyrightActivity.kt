@@ -41,8 +41,7 @@ import com.mattzilla30.mbooru.ui.base.BaseActivity
 class CopyrightActivity : BaseActivity() {
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_copyright)
         val copyright = MaterialTextView(this).apply {
             text = SpannableStringBuilder(resources.openRawResource(R.raw.copyright).bufferedReader().readText()

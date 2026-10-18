@@ -40,6 +40,7 @@ fun SettingsScreen(
     onExpand: () -> Unit,
     onPickDirectory: () -> Unit,
     onClearCache: () -> Unit,
+    onRetrySave: () -> Unit = {},
 ) {
     var dialogKey by rememberSaveable { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
@@ -47,6 +48,12 @@ fun SettingsScreen(
     val rows = state.rows(isSystemInDarkTheme())
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = listState, modifier = Modifier.testTag("settings_list")) {
+            if (state.persistenceFailed) item(key = "persistence-error") {
+                Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                    Text(stringResource(R.string.settings_write_failed), color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = onRetrySave) { Text(stringResource(R.string.action_retry)) }
+                }
+            }
             items(rows, key = { row ->
                 when (row) {
                     is SettingsRow.Category -> "category-${row.title}"

@@ -68,6 +68,17 @@ class BooruActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createFileObserver = CreateFileLifecycleObserver(activityResultRegistry) { uri ->
+            saveFile(uri)
+        }
+        openFileObserver = OpenFileLifecycleObserver(activityResultRegistry) { uri ->
+            openFile(uri)
+        }
+        lifecycle.addObserver(createFileObserver)
+        lifecycle.addObserver(openFileObserver)
+    }
+
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_manage_boorus)
         booruViewModel = getBooruViewModel(booruDao)
         lifecycleScope.launch { BooruPresets.installOnce(booruDao, preferences) }
@@ -102,14 +113,6 @@ class BooruActivity : BaseActivity() {
                     } })
             }
         }
-        createFileObserver = CreateFileLifecycleObserver(activityResultRegistry) { uri ->
-            saveFile(uri)
-        }
-        openFileObserver = OpenFileLifecycleObserver(activityResultRegistry) { uri ->
-            openFile(uri)
-        }
-        lifecycle.addObserver(createFileObserver)
-        lifecycle.addObserver(openFileObserver)
         if (intent != null) {
             handleShareIntent(intent)
         }

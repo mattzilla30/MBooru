@@ -86,8 +86,7 @@ class ScannerActivity : BaseActivity(), ImageAnalysis.Analyzer , org.koin.core.c
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT >= 25) {
             getSystemService<ShortcutManager>()?.reportShortcutUsed("scan")
         }

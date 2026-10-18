@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 class SauceNaoActivity : BaseActivity() {
     companion object {
         const val SAUCE_NAO_SEARCH_URL_KEY = "sauce_nao_search_url"
@@ -68,9 +69,12 @@ class SauceNaoActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setScreenTitle(R.string.title_sauce_nao)
         picker = OpenFileLifecycleObserver(activityResultRegistry) { search(it) }
         lifecycle.addObserver(picker)
+    }
+
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
+        setScreenTitle(R.string.title_sauce_nao)
         setComposeContent {
             val response by model.data.collectAsStateWithLifecycle()
             val loading by model.isLoading.collectAsStateWithLifecycle()

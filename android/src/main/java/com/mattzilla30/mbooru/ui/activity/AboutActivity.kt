@@ -23,8 +23,7 @@ import com.mattzilla30.mbooru.ui.base.BaseActivity
 
 class AboutActivity : BaseActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_about)
         setComposeContent { AboutScreen() }
     }

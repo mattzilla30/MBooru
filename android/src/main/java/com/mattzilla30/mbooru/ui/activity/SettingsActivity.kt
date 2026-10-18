@@ -64,8 +64,7 @@ class SettingsActivity : PathActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         Settings.downloadDirPath = contentResolver.getTreeUri()?.toDecodedString()
         setScreenTitle(R.string.title_settings)
         setComposeContent {
@@ -77,6 +76,7 @@ class SettingsActivity : PathActivity() {
                 onExpand = model::expand,
                 onPickDirectory = ::pickDir,
                 onClearCache = model::confirmClearCache,
+                onRetrySave = model::retrySave,
             )
         }
         lifecycleScope.launch {

@@ -143,6 +143,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation(project(":core:model"))
     baselineProfile(project(":baselineprofile"))
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")

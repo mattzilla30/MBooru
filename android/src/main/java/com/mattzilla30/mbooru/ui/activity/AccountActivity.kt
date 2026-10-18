@@ -82,8 +82,7 @@ class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
             }
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
             booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch

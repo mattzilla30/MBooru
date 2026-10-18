@@ -80,6 +80,7 @@ data class SettingsUiState(
     val restartKeys: Set<String> = emptySet(),
     val clearingCache: Boolean = false,
     val cacheClearFailed: Boolean = false,
+    val persistenceFailed: Boolean = false,
 ) {
     fun value(spec: SettingSpec): String = values[spec.key] ?: when (spec) {
         is SettingSpec.Choice -> spec.defaultValue

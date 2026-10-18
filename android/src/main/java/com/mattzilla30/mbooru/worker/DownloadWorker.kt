@@ -201,6 +201,8 @@ class DownloadWorker(
     }
 
     override suspend fun doWork(): Result {
+        val preferences by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
+        preferences.awaitReady()
         val key = id.toString()
         if (queue.get(key) == null) {
             val safe = Data.Builder().putAll(inputData.keyValueMap.filterKeys { it != USERNAME_KEY && it != PASSWORD_HASH_KEY }).build()

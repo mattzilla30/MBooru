@@ -33,6 +33,9 @@ import org.robolectric.annotation.LooperMode
 class MainHostTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Before fun selectFullCapabilitySite() {
+        kotlinx.coroutines.runBlocking {
+            org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.settings.DataStorePreferences>().awaitReady()
+        }
         compose.runOnUiThread { kotlinx.coroutines.runBlocking {
             val dao = org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
             val uid = dao.getAll().firstOrNull { it.type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE }?.uid

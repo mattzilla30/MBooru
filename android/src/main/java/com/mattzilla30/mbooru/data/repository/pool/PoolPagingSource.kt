@@ -44,7 +44,7 @@ class PoolPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -63,7 +63,7 @@ class PoolPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -82,7 +82,7 @@ class PoolPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -101,7 +101,7 @@ class PoolPagingSource(
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }

@@ -137,6 +137,9 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
         super.onCreate(savedInstanceState)
         createFileObserver = CreateFileLifecycleObserver(activityResultRegistry, ::saveFile)
         lifecycle.addObserver(createFileObserver)
+    }
+
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
             val site = booruManager.getBooruByUid(activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch
