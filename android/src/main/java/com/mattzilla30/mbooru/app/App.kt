@@ -94,7 +94,10 @@ open class App : Application(), SingletonImageLoader.Factory {
         val transport by inject<com.mattzilla30.mbooru.data.api.HttpTransport>()
         val diskCache =
             DiskCache.Builder()
-                .directory(cacheDir.resolve("image_cache").toOkioPath())
+                // Coil 2 response metadata is incompatible with Coil 3. Keep its entries
+                // out of this cache so an upgrade refetches images instead of failing to parse
+                // them.
+                .directory(cacheDir.resolve("image_cache_v3").toOkioPath())
                 .maxSizeBytes(CACHE_MAX_BYTES)
                 .build()
         return ImageLoader.Builder(this)
