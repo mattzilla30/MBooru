@@ -1,56 +1,31 @@
-name: Settings screenshot comparisons
+name: Native live media diagnosis
 on:
-  push:
-    branches: [master]
-  pull_request:
   workflow_dispatch:
-  workflow_call:
 permissions:
   contents: read
-concurrency:
-  group: android-checks-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   device:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        api: [28]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: '21'
-      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
         with:
           packages: platform-tools
-      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
-        with:
-          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
-      - name: Install Android compile SDK
-        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+      - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
-          api-level: ${{ matrix.api }}
+          api-level: 36
           arch: x86_64
           target: google_apis
           profile: pixel_2
           disable-animations: true
-          script: bash ./gradlew --no-daemon --max-workers=2 :android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.mattzilla30.mbooru.visual.SettingsVisualTest
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+          script: bash validation/run-media-diagnostic.sh
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
-          name: android-device-reports-api-${{ matrix.api }}
-          path: |
-            android/build/reports/androidTests/
-            android/build/outputs/androidTest-results/
-            android/build/outputs/connected_android_test_additional_output/
+          name: native-live-media
+          path: validation/results/
