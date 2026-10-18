@@ -125,7 +125,7 @@ class PostMediaRenderer(
                     shared(this)
                     setOnViewTapListener { _, _, _ -> tap() }
                     setOnLongClickListener { hold(); true }
-                    setOnScaleChangeListener { _, _, _ -> touchZoom(scale > minimumScale + 0.01f) }
+                    setOnMatrixChangeListener { touchZoom(scale > minimumScale + 0.01f) }
                 }
                 photo = image
                 view.addView(image); view.addView(progress)

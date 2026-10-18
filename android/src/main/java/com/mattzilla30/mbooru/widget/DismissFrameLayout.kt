@@ -34,6 +34,8 @@ class DismissFrameLayout @JvmOverloads constructor(
 
     var isDismissEnabled: Boolean = true
 
+    private var multiTouch = false
+
     private var lastX = 0f
     private var lastY = 0f
 
@@ -49,8 +51,14 @@ class DismissFrameLayout @JvmOverloads constructor(
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                multiTouch = false
                 lastX = ev.x
                 lastY = ev.y
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                multiTouch = true
+                dragHelper.cancel()
+                parent?.requestDisallowInterceptTouchEvent(true)
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {
                 val dx = ev.x - lastX
@@ -65,12 +73,12 @@ class DismissFrameLayout @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
-        isDismissEnabled && dragHelper.shouldInterceptTouchEvent(ev)
+        !multiTouch && isDismissEnabled && dragHelper.shouldInterceptTouchEvent(ev)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event?.run {
-            dragHelper.processTouchEvent(event)
+            if (!multiTouch) dragHelper.processTouchEvent(event)
         }
         return true
     }
@@ -94,7 +102,7 @@ class DismissFrameLayout @JvmOverloads constructor(
 
     private inner class ViewDragCallback : ViewDragHelper.Callback() {
 
-        override fun tryCaptureView(child: View, pointerId: Int): Boolean = isDismissEnabled
+        override fun tryCaptureView(child: View, pointerId: Int): Boolean = isDismissEnabled && !multiTouch
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int = 0
 
