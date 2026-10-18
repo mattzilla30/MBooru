@@ -21,6 +21,7 @@ import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.moebooru.PostMoe
 import com.mattzilla30.mbooru.data.model.sankaku.RefreshTokenBody
 import retrofit2.HttpException
+import retrofit2.Response
 
 class PostRemoteMediator(
     private val action: ActionPost,
@@ -46,7 +47,10 @@ class PostRemoteMediator(
         db.nextDao().getNext(action.booru.uid, action.query)?.next
 
     override suspend fun initialize(): InitializeAction {
-        return if (settings.autoRefresh) InitializeAction.LAUNCH_INITIAL_REFRESH
+        return if (
+            settings.autoRefresh || postDao.getFirstPostRaw(action.booru.uid, action.query) == null
+        )
+            InitializeAction.LAUNCH_INITIAL_REFRESH
         else InitializeAction.SKIP_INITIAL_REFRESH
     }
 
@@ -119,7 +123,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPostsDan(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.danApi.getPosts(action.getDanPostsUrl(page))
-        val raw = response.body() ?: listOf()
+        val raw = response.checkedBody() ?: listOf()
         lastResponseSize = raw.size
         val posts = raw.filter { it.id != -1 }
         return posts.mapIndexed { index, postDan ->
@@ -136,7 +140,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPostsDanE621(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.danApi.getPostsE621(action.getDanPostsUrl(page))
-        val raw = response.body()?.posts ?: listOf()
+        val raw = response.checkedBody()?.posts ?: listOf()
         lastResponseSize = raw.size
         val posts = raw.filter { it.id != -1 }
         return posts.mapIndexed { index, post ->
@@ -150,7 +154,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPostsDan1(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.dan1Api.getPosts(action.getDan1PostsUrl(page))
-        val raw = response.body()?.toMutableList()
+        val raw = response.checkedBody()?.toMutableList()
         lastResponseSize = raw?.size ?: 0
         return raw?.mapIndexed { index, post ->
             post.toPost(
@@ -170,7 +174,8 @@ class PostRemoteMediator(
             val tagTypes: Map<String, String>
             val posts: List<PostMoe>
             if (action.booru.host == "lolibooru.moe") {
-                val response = booruApis.moeApi.getPostsLoli(action.getPostsMoeUrl(page)).body()
+                val response =
+                    booruApis.moeApi.getPostsLoli(action.getPostsMoeUrl(page)).checkedBody()
                 if (response == null) {
                     lastResponseSize = 0
                     return emptyList()
@@ -179,7 +184,7 @@ class PostRemoteMediator(
                 tagTypes = response.tags
                 posts = response.posts
             } else {
-                val response = booruApis.moeApi.getPosts(action.getPostsMoeUrl(page)).body()
+                val response = booruApis.moeApi.getPosts(action.getPostsMoeUrl(page)).checkedBody()
                 if (response == null) {
                     lastResponseSize = 0
                     return emptyList()
@@ -201,7 +206,7 @@ class PostRemoteMediator(
                 )
             }
         } else {
-            val posts = booruApis.moeApi.getPostsPopular(action.getPopularMoeUrl()).body()
+            val posts = booruApis.moeApi.getPostsPopular(action.getPopularMoeUrl()).checkedBody()
             if (posts == null) {
                 lastResponseSize = 0
                 return emptyList()
@@ -223,7 +228,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPostsGel(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.gelApi.getPosts(action.getGelPostsUrl(page))
-        val raw = response.body()?.posts?.toMutableList()
+        val raw = response.checkedBody()?.posts?.toMutableList()
         lastResponseSize = raw?.size ?: 0
         return raw?.mapIndexed { index, post ->
             post.toPost(
@@ -239,7 +244,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPostsGelLegacy(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.gelApi.getPostsLegacy(action.getGelPostsUrl(page))
-        val raw = response.body()?.posts?.toMutableList()
+        val raw = response.checkedBody()?.posts?.toMutableList()
         lastResponseSize = raw?.size ?: 0
         return raw?.mapIndexed { index, post ->
             post.toPost(
@@ -254,7 +259,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPostsShimmie(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.shimmieApi.getPosts(action.getShimmiePostsUrl(page))
-        val data = response.body()
+        val data = response.checkedBody()
         val posts =
             when {
                 data?.post != null -> {
@@ -297,7 +302,7 @@ class PostRemoteMediator(
             refreshSankakuToken()
             throw (HttpException(response))
         }
-        val data = response.body()
+        val data = response.checkedBody()
         val raw = data?.posts
         lastResponseSize = raw?.size ?: 0
         db.nextDao()
@@ -336,4 +341,10 @@ class PostRemoteMediator(
             }
         }
     }
+}
+
+/** Failed requests must remain retryable instead of being cached as empty search results. */
+private fun <T> Response<T>.checkedBody(): T? {
+    if (!isSuccessful) throw HttpException(this)
+    return body()
 }

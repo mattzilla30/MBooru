@@ -4,6 +4,7 @@ package com.mattzilla30.mbooru.ui.compose.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -191,12 +192,7 @@ fun MainShell(
                             Modifier.weight(1f),
                             style = MaterialTheme.typography.headlineMedium,
                         )
-                        IconButton(onClick = { onAction(DrawerDestination.Theme) }) {
-                            Icon(
-                                painterResource(R.drawable.ic_brightness_2_outline_24dp),
-                                stringResource(R.string.sphere_theme),
-                            )
-                        }
+                        ThemeButton { onAction(DrawerDestination.Theme) }
                     }
                     LazyColumn(
                         (if (compactDrawer) Modifier.height(280.dp) else Modifier.weight(1f))
@@ -447,3 +443,17 @@ private const val COMPACT_DRAWER_HEIGHT_DP = 640
 private const val COMPACT_DRAWER_FONT_SCALE = 1.3f
 
 val LocalNavigationVisible = compositionLocalOf { true }
+
+@Composable
+@Suppress("FunctionNaming")
+private fun ThemeButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            painterResource(
+                if (isSystemInDarkTheme()) R.drawable.ic_brightness_2_outline_24dp
+                else R.drawable.ic_light_mode_outline_24dp
+            ),
+            stringResource(R.string.sphere_theme),
+        )
+    }
+}
