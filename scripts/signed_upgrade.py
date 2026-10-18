@@ -142,7 +142,7 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     launch()
     report = {"checkedAt": datetime.now(timezone.utc).isoformat(), "baselineSha256": BASELINE_SHA256,
               "candidateSha256": hashlib.sha256(args.candidate.read_bytes()).hexdigest(), "signerUnchanged": True,
-              "installedWithReplace": True, "notificationPermissionPreGranted": True, "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersWallpaperRetained": True,
+              "installedWithReplace": True, "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs", "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersWallpaperRetained": True,
               "roomCredentialsMigratedToReferences": True, "settingsMigratedAndRestarted": True,
               "sauceKeyAbsentFromDataStorePlaintext": True, "api": adb("shell", "getprop", "ro.build.version.sdk").strip()}
     args.out.parent.mkdir(parents=True, exist_ok=True); args.out.write_text(json.dumps(report, indent=2) + "\n")
