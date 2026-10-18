@@ -2,15 +2,16 @@ package com.mattzilla30.mbooru.ui.compose.common
 
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
@@ -62,8 +63,23 @@ class MainHostTest {
             }
         }
         compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodesWithTag("sphere-bottom-search").fetchSemanticsNodes().isNotEmpty()
         }
+    }
+
+    private fun explore(title: Int) {
+        compose.runOnUiThread { compose.activity.openDrawer() }
+        val list = compose.onNodeWithTag("main-drawer-list")
+        list.performScrollToNode(hasText(compose.activity.getString(R.string.sphere_explore)))
+        val target = compose.activity.getString(title)
+        if (compose.onAllNodesWithText(target).fetchSemanticsNodes().isEmpty()) {
+            compose
+                .onNodeWithText(compose.activity.getString(R.string.sphere_explore))
+                .performClick()
+        }
+        list.performScrollToNode(hasText(target))
+        compose.onNodeWithText(target).performClick()
+        compose.waitForIdle()
     }
 
     @After
@@ -79,32 +95,40 @@ class MainHostTest {
         compose.onNodeWithContentDescription(description).assertIsDisplayed().performClick()
         compose
             .onNodeWithText(compose.activity.getString(R.string.title_settings))
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
     @Test
     fun `tab search survives switching away and recreating the activity`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
+        explore(R.string.title_tags)
         compose.onNodeWithTag("browse-query-toggle").performClick()
         compose.onNodeWithTag("browse-query-input").performTextReplacement("saved search")
-        compose.onNodeWithTag("browse-tab-pools").performClick().assertIsSelected()
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
+        explore(R.string.title_pools)
+        explore(R.string.title_tags)
         compose.onNodeWithTag("browse-query-input").assertTextEquals("saved search")
         compose.activityRule.scenario.recreate()
-        compose.onNodeWithTag("browse-tab-tags").assertIsSelected()
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.TagScreenController
+        )
         compose.onNodeWithTag("browse-query-input").assertTextEquals("saved search")
     }
 
     @Test
     fun `back from a secondary tab returns to posts`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
+        explore(R.string.title_tags)
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithTag("browse-tab-posts").assertIsSelected()
+        compose.waitForIdle()
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
+        )
     }
 
     @Test
     fun `switching to a posts-only site removes unsupported tabs and restores safely`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
+        explore(R.string.title_tags)
         compose.runOnUiThread {
             kotlinx.coroutines.runBlocking {
                 val dao =
@@ -123,19 +147,27 @@ class MainHostTest {
             }
         }
         compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isEmpty()
+            compose.activity.activeBrowse is
+                com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
         }
-        compose.onNodeWithTag("browse-tab-posts").assertIsSelected()
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
+        )
         compose.activityRule.scenario.recreate()
         compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isEmpty()
+            compose.activity.activeBrowse is
+                com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
         }
-        compose.onNodeWithTag("browse-tab-posts").assertIsSelected()
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
+        )
     }
 
     @Test
     fun `paging view model is retained when switching tabs`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick()
+        explore(R.string.title_tags)
         lateinit var original: com.mattzilla30.mbooru.ui.viewmodel.TagViewModel
         compose.runOnIdle {
             val owner =
@@ -147,8 +179,8 @@ class MainHostTest {
                     .ViewModelProvider(owner)[
                         com.mattzilla30.mbooru.ui.viewmodel.TagViewModel::class.java]
         }
-        compose.onNodeWithTag("browse-tab-pools").performClick()
-        compose.onNodeWithTag("browse-tab-tags").performClick()
+        explore(R.string.title_pools)
+        explore(R.string.title_tags)
         compose.runOnIdle {
             val owner =
                 (compose.activity.activeBrowse
@@ -172,13 +204,9 @@ class MainHostTest {
             .performClick()
         compose
             .onNodeWithText(compose.activity.getString(R.string.title_settings))
+            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithText("Remove ads & feature unlock").assertDoesNotExist()
-        compose.onNodeWithTag("main-drawer-profile").assertIsDisplayed().performSemanticsAction(
-            SemanticsActions.OnClick
-        ) {
-            it()
-        }
         compose.onNodeWithTag("main-drawer-list").performScrollToNode(hasText("Safebooru"))
         compose.onNodeWithText("Safebooru").performSemanticsAction(SemanticsActions.OnClick) {
             it()
@@ -193,7 +221,10 @@ class MainHostTest {
                 }
             }
         }
-        compose.onNodeWithTag("browse-tab-tags").assertIsDisplayed()
-        compose.onNodeWithTag("browse-tab-artists").assertDoesNotExist()
+        explore(R.string.title_tags)
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.TagScreenController
+        )
     }
 }

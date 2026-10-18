@@ -44,9 +44,13 @@ class DataStorePreferences(
     )
 
     private val writes = Channel<Write>(Channel.UNLIMITED)
-    private val secretKey = "sauce_nao_api_key"
-    private var secretReference: String? = null
-    private var secretValue: String? = null
+    private val retiredKeys =
+        setOf(
+            "sauce_nao_api_key",
+            "settings_muzei_limit",
+            "settings_muzei_size",
+            "settings_muzei_uid",
+        )
 
     private var processor: Job? = null
 
@@ -70,38 +74,30 @@ class DataStorePreferences(
     private fun launchProcessor(): Job = scope.launch {
         try {
             val initial = dataStore.data.first().asMap().mapKeys { it.key.name }.toMutableMap()
-            val stored = initial[secretKey] as? String
-            if (!stored.isNullOrEmpty()) {
-                secretReference = if (vault.isReference(stored)) stored else vault.store(stored)
-                secretValue = if (vault.isReference(stored)) vault.read(stored) else stored
-                initial[secretKey] = secretValue.orEmpty()
-                if (stored != secretReference)
-                    dataStore.edit { it[stringPreferencesKey(secretKey)] = secretReference!! }
+            val retiredSecret = initial["sauce_nao_api_key"] as? String
+            if (initial.keys.any { it in retiredKeys }) {
+                dataStore.edit { target ->
+                    retiredKeys.forEach {
+                        target.remove(stringPreferencesKey(it))
+                        target.remove(intPreferencesKey(it))
+                        target.remove(longPreferencesKey(it))
+                    }
+                }
+                retiredKeys.forEach(initial::remove)
+                if (retiredSecret != null && vault.isReference(retiredSecret))
+                    vault.remove(retiredSecret)
             }
             values.value = initial
             failed.value = false
             ready.complete(Unit)
             for (write in writes) {
                 try {
-                    val nextSecret = write.snapshot[secretKey] as? String
-                    val nextReference =
-                        when {
-                            nextSecret.isNullOrEmpty() -> null
-                            nextSecret == secretValue -> secretReference
-                            else -> vault.store(nextSecret)
-                        }
                     dataStore.edit { target ->
                         target.clear()
                         write.snapshot.forEach { (key, value) ->
-                            if (key != secretKey) target.putValue(key, value)
+                            if (key !in retiredKeys) target.putValue(key, value)
                         }
-                        if (nextReference != null)
-                            target[stringPreferencesKey(secretKey)] = nextReference
                     }
-                    if (secretReference != null && secretReference != nextReference)
-                        vault.remove(secretReference!!)
-                    secretReference = nextReference
-                    secretValue = nextSecret
                     failed.value = false
                     write.completion?.complete(true)
                 } catch (cancelled: CancellationException) {

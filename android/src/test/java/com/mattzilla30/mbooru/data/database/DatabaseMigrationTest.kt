@@ -20,8 +20,8 @@ import org.robolectric.annotation.Config
 class DatabaseMigrationTest(private val from: Int) {
     companion object {
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "schema {0} to 10")
-        fun versions() = (1..9).map { arrayOf(it) }
+        @ParameterizedRobolectricTestRunner.Parameters(name = "schema {0} to 11")
+        fun versions() = (1..10).map { arrayOf(it) }
     }
 
     @Test
@@ -45,7 +45,7 @@ class DatabaseMigrationTest(private val from: Int) {
                 val entity = entities.getJSONObject(i)
                 val table = entity.getString("tableName")
                 legacy.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
-                val indices = entity.getJSONArray("indices")
+                val indices = entity.optJSONArray("indices") ?: org.json.JSONArray()
                 for (j in 0 until indices.length()) legacy.execSQL(
                     indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", table)
                 )
@@ -111,8 +111,10 @@ class DatabaseMigrationTest(private val from: Int) {
                 assertEquals("saved query", database.historyDao().getHistoryByUid(9)!!.query)
             if ("tags_filter" in tableNames)
                 assertEquals("spoiler", database.tagFilterDao().getTagByTagUid(11)!!.name)
-            if ("muzei" in tableNames)
-                assertEquals("wallpaper", database.muzeiDao().getMuzeiByUid(13)!!.query)
+            database.openHelper.readableDatabase
+                .query("SELECT name FROM sqlite_master WHERE type='table' AND name='muzei'")
+                .use { assertFalse(it.moveToFirst()) }
+            assertTrue(database.savedPostDao().observe().first().isEmpty())
             if ("next" in tableNames)
                 assertEquals("cursor", database.nextDao().getNext(7, "saved")!!.next)
             assertTrue(database.downloadDao().observeAll().first().isEmpty())

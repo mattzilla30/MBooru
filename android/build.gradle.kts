@@ -50,8 +50,8 @@ if (storePropertyFile.exists()) {
 }
 
 object Configs {
-    const val APP_VERSION_NAME = "2"
-    const val APP_VERSION_CODE = 1375
+    const val APP_VERSION_NAME = "3"
+    const val APP_VERSION_CODE = 1376
     const val APP_ID = "com.mattzilla30.mbooru"
     const val COMPILE_SDK_VERSION = 36
     const val TARGET_SDK_VERSION = 36
@@ -213,7 +213,6 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.muzei.api)
     implementation(libs.photoview)
     implementation(libs.subsampling.scale.image.view)
 

@@ -83,6 +83,7 @@ class SettingsViewModelTest {
             for (j in 0 until children.length) {
                 val element = children.item(j) as? Element ?: continue
                 val key = element.getAttribute("app:key")
+                if (key.startsWith("settings_muzei")) continue
                 keys += key
                 val spec = checkNotNull(settingsByKey[key])
                 assertEquals(

@@ -130,19 +130,21 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         site = db.execute("SELECT name,host,hash_salt,user,auth FROM boorus WHERE uid=777").fetchone()
         assert site[:3] == ("Customized upgrade fixture", "upgrade-fixture.invalid", "custom-upgrade-salt")
         assert site[3].startswith("mbooru-credential:v1:") and site[4].startswith("mbooru-credential:v1:")
-        for table, column, expected in [("history", "query", "retained search"), ("tags_filter", "name", "retained filter"), ("muzei", "query", "retained wallpaper")]:
+        for table, column, expected in [("history", "query", "retained search"), ("tags_filter", "name", "retained filter")]:
             assert db.execute(f"SELECT {column} FROM {table} WHERE uid=777 AND booru_uid=777").fetchone()[0] == expected
+        assert not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='muzei'").fetchone()
+        assert db.execute("SELECT count(*) FROM saved_posts").fetchone()[0] == 0
         assert not db.execute("PRAGMA foreign_key_check").fetchall()
     data_store = root / "mbooru.preferences_pb"
     adb("pull", f"/data/user/0/{PACKAGE}/files/datastore/mbooru.preferences_pb", data_store)
     payload = data_store.read_bytes()
-    assert SAUCE.encode() not in payload and b"mbooru-credential:v1:" in payload
+    assert SAUCE.encode() not in payload and b"sauce_nao_api_key" not in payload
     assert b"settings_grid_mode" in payload and b"fixed" in payload
     # Restart once more to exercise durable settings rather than the in-memory migration snapshot.
     launch()
     report = {"checkedAt": datetime.now(timezone.utc).isoformat(), "baselineSha256": BASELINE_SHA256,
               "candidateSha256": hashlib.sha256(args.candidate.read_bytes()).hexdigest(), "signerUnchanged": True,
-              "installedWithReplace": True, "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs", "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersWallpaperRetained": True,
+              "installedWithReplace": True, "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs", "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersRetained": True, "retiredMuzeiTableRemoved": True, "localFavoritesCreated": True,
               "roomCredentialsMigratedToReferences": True, "settingsMigratedAndRestarted": True,
               "sauceKeyAbsentFromDataStorePlaintext": True, "api": adb("shell", "getprop", "ro.build.version.sdk").strip()}
     args.out.parent.mkdir(parents=True, exist_ok=True); args.out.write_text(json.dumps(report, indent=2) + "\n")

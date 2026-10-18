@@ -117,7 +117,6 @@ xmlutil-android-serialization = { module = "io.github.pdvrieze.xmlutil:serializa
 
 photoview = "com.github.chrisbanes:PhotoView:2.3.0"
 subsampling-scale-image-view = "com.github.onlymash:subsampling-scale-image-view:3.10.3"
-muzei-api = "com.google.android.apps.muzei:muzei-api:3.4.1"
 zxing-core = "com.google.zxing:core:3.5.3"
 barcode-scanning = "com.google.mlkit:barcode-scanning:17.3.0"
 androidx-test-core = "androidx.test:core:1.6.1"

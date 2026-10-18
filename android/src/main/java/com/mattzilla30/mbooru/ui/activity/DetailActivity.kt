@@ -50,14 +50,10 @@ import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL_LEGACY
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SANKAKU
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE
-import com.mattzilla30.mbooru.data.action.ActionVote
-import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.BooruManager
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.data.model.common.Post
-import com.mattzilla30.mbooru.data.repository.favorite.VoteRepository
-import com.mattzilla30.mbooru.data.repository.favorite.VoteRepositoryImpl
 import com.mattzilla30.mbooru.extension.*
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.common.*
@@ -113,11 +109,9 @@ class DetailActivity :
     }
 
     private val postDao by inject<PostDao>()
-    private val booruApis by inject<BooruApis>()
-    private val voteRepository: VoteRepository by lazy { VoteRepositoryImpl(booruApis, postDao) }
+    private val localFavorites by inject<com.mattzilla30.mbooru.data.database.dao.SavedPostDao>()
     private lateinit var booru: Booru
     private lateinit var query: String
-    private lateinit var actionVote: ActionVote
     private lateinit var detailViewModel: DetailViewModel
     private lateinit var createFileObserver: CreateFileLifecycleObserver
     private var tmpFile: File? = null
@@ -145,10 +139,10 @@ class DetailActivity :
         }
     }
 
+    @Suppress("LongMethod")
     private fun initializeContent(site: Booru) {
         booru = site
         query = intent.getStringExtra(POST_QUERY).orEmpty()
-        actionVote = ActionVote(booru, -1)
         detailViewModel = getDetailViewModel(postDao, booru.uid, query)
         if (detailViewModel.currentPosition < 0)
             detailViewModel.currentPosition = intent.getIntExtra(POST_POSITION, 0)
@@ -168,6 +162,12 @@ class DetailActivity :
                     this,
                     select = { post, position ->
                         visiblePost = post
+                        lifecycleScope.launch {
+                            detailViewModel.favorite(
+                                post.id,
+                                localFavorites.contains(post.booruUid, post.id),
+                            )
+                        }
                         detailViewModel.currentPosition = position
                         sendBroadcast(
                             Intent(ACTION_DETAIL_POST_POSITION).apply {
@@ -185,8 +185,12 @@ class DetailActivity :
                     action = ::handleMenuAction,
                     info = ::createInfoDialog,
                     download = { currentPost?.let(::download) },
-                    save = { currentPost?.let { saveAndAction(it, ACTION_SAVE) } },
                     favorite = ::vote,
+                    related = { relatedQuery ->
+                        settings.activatedBooruUid = booru.uid
+                        SearchActivity.startSearch(this, relatedQuery)
+                    },
+                    openLink = { currentPost?.origin?.let { launchUrl(it) } },
                     longAction = { index ->
                         currentPost?.let { post ->
                             when (index) {
@@ -223,29 +227,15 @@ class DetailActivity :
     }
 
     private fun vote() {
-        if (booru.type == BOORU_TYPE_SHIMMIE) {
-            showToast(getString(R.string.msg_not_supported))
-            return
-        }
-        if (booru.user == null) {
-            startActivity(Intent(this, AccountConfigActivity::class.java))
-            finish()
-            return
-        }
         val post = currentPost ?: return
-        actionVote.postId = post.id
         lifecycleScope.launch {
-            val result =
-                if (post.isFavored) {
-                    voteRepository.removeFav(actionVote)
-                } else {
-                    voteRepository.addFav(actionVote)
-                }
-            when {
-                result is NetResult.Error -> showToast(result.errorMsg)
-                currentPost?.id == post.id -> detailViewModel.favorite(post.id, !post.isFavored)
-            }
+            val saved = localFavorites.toggle(post)
+            detailViewModel.favorite(post.id, saved)
         }
+    }
+
+    override fun onDetailsRequested() {
+        createInfoDialog()
     }
 
     override fun onDismissStart() {

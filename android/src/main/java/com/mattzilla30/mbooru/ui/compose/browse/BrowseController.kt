@@ -52,16 +52,7 @@ abstract class BrowseController(
             owner,
             androidx.lifecycle.viewmodel.viewModelFactory {
                 initializer {
-                    BrowseActionsViewModel(
-                        getKoin().get(),
-                        getKoin().get(),
-                        com.mattzilla30.mbooru.data.repository.favorite.VoteRepositoryImpl(
-                            booruApis,
-                            getKoin()
-                                .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
-                                .postDao(),
-                        ),
-                    )
+                    BrowseActionsViewModel(getKoin().get(), getKoin().get())
                 }
             },
         )[BrowseActionsViewModel::class.java]
@@ -191,11 +182,9 @@ abstract class BrowseController(
                 onApplySearch(it)
                 browse.mode(0)
             },
+            onServers = { (host as? MainActivity)?.chooseServer() ?: host.finish() },
             onNavigate = { (host as? MainActivity)?.openDrawer() ?: host.finish() },
             onMenu = ::onMenuAction,
-            onAddToMuzei = { query ->
-                mutations.addWallpaper(settings.activatedBooruUid, query)
-            },
             bottomPadding = host is MainActivity,
             autoHideBottomBar = settings.autoHideBottomBar,
             filters = { Filters() },

@@ -18,7 +18,6 @@ package com.mattzilla30.mbooru.app
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.ACTIVE_MUZEI_UID_KEY
 import com.mattzilla30.mbooru.app.Settings.AUTO_HIDE_BOTTOM_BAR_KEY
 import com.mattzilla30.mbooru.app.Settings.AUTO_REFRESH_KEY
 import com.mattzilla30.mbooru.app.Settings.BOORU_UID_ACTIVATED_KEY
@@ -42,8 +41,6 @@ import com.mattzilla30.mbooru.app.Settings.IS_AVAILABLE_STORE
 import com.mattzilla30.mbooru.app.Settings.LATEST_VERSION_CODE_KEY
 import com.mattzilla30.mbooru.app.Settings.LATEST_VERSION_NAME_KEY
 import com.mattzilla30.mbooru.app.Settings.LATEST_VERSION_URL_KEY
-import com.mattzilla30.mbooru.app.Settings.MUZEI_LIMIT_KEY
-import com.mattzilla30.mbooru.app.Settings.MUZEI_SIZE_KEY
 import com.mattzilla30.mbooru.app.Settings.NIGHT_MODE_BATTERY
 import com.mattzilla30.mbooru.app.Settings.NIGHT_MODE_KEY
 import com.mattzilla30.mbooru.app.Settings.NIGHT_MODE_OFF
@@ -55,7 +52,6 @@ import com.mattzilla30.mbooru.app.Settings.PAGE_LIMIT_KEY
 import com.mattzilla30.mbooru.app.Settings.POST_SIZE_LARGER
 import com.mattzilla30.mbooru.app.Settings.POST_SIZE_SAMPLE
 import com.mattzilla30.mbooru.app.Settings.SAFE_MODE_KEY
-import com.mattzilla30.mbooru.app.Settings.SAUCE_NAO_API_KEY_KEY
 import com.mattzilla30.mbooru.app.Settings.SHOW_ALL_TAGS_KEY
 import com.mattzilla30.mbooru.app.Settings.SHOW_INFO_BAR_KEY
 import com.mattzilla30.mbooru.okhttp.DohProviders
@@ -94,16 +90,6 @@ class SettingsRepository(private val sp: SharedPreferences) {
                 )
                 .apply()
 
-    var muzeiLimit: Int
-        get() = sp.getString(MUZEI_LIMIT_KEY, "20")?.toIntOrNull()?.coerceIn(1, 100) ?: 20
-        set(value) =
-            sp.edit()
-                .putString(
-                    MUZEI_LIMIT_KEY,
-                    value.toString(),
-                )
-                .apply()
-
     var detailSize: String
         get() =
             sp.getString(
@@ -128,20 +114,6 @@ class SettingsRepository(private val sp: SharedPreferences) {
             sp.edit()
                 .putString(
                     DOWNLOAD_SIZE_KEY,
-                    value,
-                )
-                .apply()
-
-    var muzeiSize: String
-        get() =
-            sp.getString(
-                MUZEI_SIZE_KEY,
-                POST_SIZE_SAMPLE,
-            ) ?: POST_SIZE_LARGER
-        set(value) =
-            sp.edit()
-                .putString(
-                    MUZEI_SIZE_KEY,
                     value,
                 )
                 .apply()
@@ -225,16 +197,6 @@ class SettingsRepository(private val sp: SharedPreferences) {
     val isLargeWidth: Boolean
         get() = gridWidthString == GRID_WIDTH_LARGE
 
-    var activeMuzeiUid: Long
-        get() = sp.getLong(ACTIVE_MUZEI_UID_KEY, 0L)
-        set(value) =
-            sp.edit()
-                .putLong(
-                    ACTIVE_MUZEI_UID_KEY,
-                    value,
-                )
-                .apply()
-
     var showInfoBar: Boolean
         get() = sp.getBoolean(SHOW_INFO_BAR_KEY, false)
         set(value) =
@@ -315,16 +277,6 @@ class SettingsRepository(private val sp: SharedPreferences) {
             sp.edit()
                 .putBoolean(
                     IS_AVAILABLE_STORE,
-                    value,
-                )
-                .apply()
-
-    var sauceNaoApiKey: String
-        get() = sp.getString(SAUCE_NAO_API_KEY_KEY, "") ?: ""
-        set(value) =
-            sp.edit()
-                .putString(
-                    SAUCE_NAO_API_KEY_KEY,
                     value,
                 )
                 .apply()

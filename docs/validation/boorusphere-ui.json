@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-10-18",
+  "version": "3",
+  "versionCode": 1376,
+  "apkSha256": "e0e4e4cad0fd3cd681876521714d95c5ae5fb30a308bd1ec5d057c39015d3818",
+  "androidUnitTests": {
+    "tests": 101,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "modelUnitTests": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lintErrors": 0,
+  "spotless": "passed",
+  "detekt": "passed",
+  "frozenDependencyBuild": "passed",
+  "licenseComponents": 267,
+  "signerContinuity": "passed",
+  "elf64LibrariesWith16KiBAlignment": 10,
+  "compiledBaselineProfile": "present",
+  "boorusphereLicense": "bundled",
+  "retiredIntegrationClasses": "absent",
+  "nativeInstrumentation": {
+    "28": {
+      "passed": 13,
+      "instrumentationResult": "OK"
+    },
+    "36": {
+      "passed": 9,
+      "instrumentationResult": "OK"
+    }
+  },
+  "nativeRun": "https://github.com/mattzilla30/MBooru/actions/runs/39147661769",
+  "upgradeRun": "https://github.com/mattzilla30/MBooru/actions/runs/39148031119",
+  "limits": [
+    "API 21 emulator stalled during boot before app installation; cancelled after 15 minutes.",
+    "New interface labels use English fallback where translations are unavailable.",
+    "Physical device performance and manual accessibility review were not repeated for this UI update."
+  ]
+}

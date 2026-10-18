@@ -31,6 +31,7 @@ import com.mattzilla30.mbooru.widget.DismissFrameLayout
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList")
 fun DetailScreen(
     posts: LazyPagingItems<Post>,
     state: DetailUiState,
@@ -46,8 +47,9 @@ fun DetailScreen(
     action: (AppActionKey) -> Unit,
     info: () -> Unit,
     download: () -> Unit,
-    save: () -> Unit,
     favorite: () -> Unit,
+    related: (String) -> Unit,
+    openLink: () -> Unit,
     longAction: (Int) -> Unit,
 ) {
     var current by remember { mutableStateOf<Post?>(null) }
@@ -115,10 +117,10 @@ fun DetailScreen(
                     )
                 }
                 Text(
-                    current?.let { "Post ${it.id}" }.orEmpty(),
+                    current?.let { "#${it.id}" }.orEmpty(),
                     Modifier.weight(1f),
                     color = Color.White,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 RowMenu(
                     if (booru.type == Values.BOORU_TYPE_SHIMMIE) AppMenu.DetailShimmie
@@ -143,14 +145,27 @@ fun DetailScreen(
                     .navigationBarsPadding()
             ) {
                 Row(
-                    Modifier.fillMaxWidth().heightIn(min = 56.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    Modifier.fillMaxWidth().heightIn(min = 78.dp).padding(end = 8.dp, top = 22.dp),
+                    horizontalArrangement = Arrangement.End,
                 ) {
                     IconButton(onClick = info) {
                         Icon(
                             painterResource(R.drawable.ic_info_outline_24dp),
                             stringResource(R.string.browse_info),
                             tint = Color.White,
+                        )
+                    }
+                    val favored = current?.let { state.favorites[it.id] ?: it.isFavored } == true
+                    IconToggleButton(checked = favored, onCheckedChange = { favorite() }) {
+                        Icon(
+                            painterResource(
+                                if (favored) R.drawable.ic_favorite_24dp
+                                else R.drawable.ic_favorite_outline_24dp
+                            ),
+                            stringResource(R.string.sphere_favorites),
+                            tint =
+                                if (favored) MaterialTheme.colorScheme.errorContainer
+                                else Color.White,
                         )
                     }
                     IconButton(onClick = download) {
@@ -160,21 +175,11 @@ fun DetailScreen(
                             tint = Color.White,
                         )
                     }
-                    IconButton(onClick = save) {
+                    RelatedPostsButton(current?.tags.orEmpty(), related)
+                    IconButton(onClick = openLink) {
                         Icon(
-                            painterResource(R.drawable.ic_save_outline_24dp),
-                            stringResource(R.string.browse_save_file),
-                            tint = Color.White,
-                        )
-                    }
-                    val favored = current?.let { state.favorites[it.id] ?: it.isFavored } == true
-                    IconButton(onClick = favorite) {
-                        Icon(
-                            painterResource(
-                                if (favored) R.drawable.ic_star_24dp
-                                else R.drawable.ic_star_border_24dp
-                            ),
-                            stringResource(R.string.browse_add_to_fav),
+                            painterResource(R.drawable.ic_link_24dp),
+                            stringResource(R.string.browse_open_in_browser),
                             tint = Color.White,
                         )
                     }
@@ -202,4 +207,21 @@ fun DetailScreen(
             },
             confirmButton = {},
         )
+}
+
+@Composable
+@Suppress("FunctionNaming")
+private fun RelatedPostsButton(
+    tags: List<com.mattzilla30.mbooru.data.model.common.TagBase>,
+    onRelated: (String) -> Unit,
+) {
+    val query = relatedPostQuery(tags)
+    if (query.isNotEmpty())
+        IconButton(onClick = { onRelated(query) }) {
+            Icon(
+                painterResource(R.drawable.ic_search_24dp),
+                stringResource(R.string.sphere_related),
+                tint = Color.White,
+            )
+        }
 }

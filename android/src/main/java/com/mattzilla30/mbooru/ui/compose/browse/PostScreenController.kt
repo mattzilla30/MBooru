@@ -36,13 +36,10 @@ import com.mattzilla30.mbooru.app.Keys.POST_QUERY
 import com.mattzilla30.mbooru.app.Settings.PAGE_LIMIT_KEY
 import com.mattzilla30.mbooru.app.Settings.SAFE_MODE_KEY
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
-import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
-import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL_LEGACY
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SANKAKU
 import com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POPULAR
 import com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POSTS
 import com.mattzilla30.mbooru.data.action.ActionPost
-import com.mattzilla30.mbooru.data.action.ActionVote
 import com.mattzilla30.mbooru.data.database.MyDatabase
 import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.data.model.common.Post
@@ -52,7 +49,6 @@ import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepositoryImpl
 import com.mattzilla30.mbooru.extension.downloadByAdm
 import com.mattzilla30.mbooru.extension.isVideo
 import com.mattzilla30.mbooru.ui.activity.DetailActivity
-import com.mattzilla30.mbooru.ui.activity.SauceNaoActivity
 import com.mattzilla30.mbooru.ui.activity.SearchActivity
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.browse.*
@@ -305,19 +301,7 @@ class PostScreenController(
                             }
                         }
                     }
-                    1 -> {
-                        action?.apply {
-                            if (
-                                booru.user != null &&
-                                    booru.type != BOORU_TYPE_GEL &&
-                                    booru.type != BOORU_TYPE_GEL_LEGACY
-                            ) {
-                                val actionVote = ActionVote(booru, post.id)
-                                mutations.favorite(actionVote)
-                            }
-                        }
-                    }
-                    2 -> SauceNaoActivity.startSearch(activity, post.sample)
+                    1 -> mutations.favorite(post)
                 }
             }
             .create()

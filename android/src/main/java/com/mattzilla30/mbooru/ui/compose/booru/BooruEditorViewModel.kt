@@ -160,6 +160,8 @@ fun validateBooru(values: Map<String, String>, type: Int): Int? =
     when {
         values["name"].isNullOrEmpty() -> R.string.booru_config_name_cant_empty
         values["host"].isNullOrEmpty() -> R.string.booru_config_host_cant_empty
+        com.mattzilla30.mbooru.data.database.BooruPresets.isRetiredHost(values["host"].orEmpty()) ->
+            R.string.sphere_retired_server
         !values.getValue("host").isHost() -> R.string.booru_config_host_invalid
         type == Values.BOORU_TYPE_DAN1 && values["hashSalt"].isNullOrEmpty() ->
             R.string.booru_config_hash_salt_cant_empty

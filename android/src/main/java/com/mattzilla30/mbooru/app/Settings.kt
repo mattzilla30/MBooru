@@ -23,7 +23,6 @@ object Settings {
     const val BYPASS_WAF_KEY = "settings_bypass_waf"
     const val SAFE_MODE_KEY = "settings_safe_mode"
     const val PAGE_LIMIT_KEY = "settings_page_limit"
-    const val MUZEI_LIMIT_KEY = "settings_muzei_limit"
     const val DETAIL_SIZE_KEY = "settings_detail_size"
     const val DOWNLOAD_SIZE_KEY = "settings_download_size"
     const val DOWNLOAD_PATH_KEY = "settings_download_path"
@@ -34,7 +33,6 @@ object Settings {
     const val NIGHT_MODE_BATTERY = "battery"
     const val NIGHT_THEME_KEY = "settings_night_theme"
     const val NIGHT_THEME_DEFAULT = "black"
-    const val MUZEI_SIZE_KEY = "settings_muzei_size"
     const val POST_SIZE_SAMPLE = "sample"
     const val POST_SIZE_LARGER = "larger"
     const val POST_SIZE_ORIGIN = "origin"
@@ -48,7 +46,6 @@ object Settings {
     const val GRID_WIDTH_SMALL = "small"
     const val GRID_WIDTH_NORMAL = "normal"
     const val GRID_WIDTH_LARGE = "large"
-    internal const val ACTIVE_MUZEI_UID_KEY = "settings_muzei_uid"
     const val SHOW_INFO_BAR_KEY = "settings_show_info_bar"
     const val SHOW_ALL_TAGS_KEY = "settings_show_all_tags"
     const val AUTO_HIDE_BOTTOM_BAR_KEY = "settings_auto_hide_bottom_bar"
@@ -58,8 +55,6 @@ object Settings {
     const val LATEST_VERSION_NAME_KEY = "settings_latest_version_name"
     const val LATEST_VERSION_URL_KEY = "settings_latest_version_url"
     internal const val IS_AVAILABLE_STORE = "is_available_store"
-
-    internal const val SAUCE_NAO_API_KEY_KEY = "sauce_nao_api_key"
 
     const val BOORU_UID_ACTIVATED_KEY = "booru_uid_activated"
 }

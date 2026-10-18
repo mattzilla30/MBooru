@@ -42,7 +42,7 @@ sealed interface SettingSpec {
 
 data class SettingsSection(val title: Int, val preferences: List<SettingSpec>)
 
-val settingsSections =
+private val availableSettingsSections =
     listOf(
         SettingsSection(
             R.string.settings_display,
@@ -179,25 +179,6 @@ val settingsSections =
             ),
         ),
         SettingsSection(
-            R.string.settings_muzei,
-            listOf(
-                SettingSpec.Choice(
-                    "settings_muzei_limit",
-                    R.string.settings_muzei_limit,
-                    "20",
-                    R.array.settings_muzei_limit_entries,
-                    R.array.settings_muzei_limit_entries_values,
-                ),
-                SettingSpec.Choice(
-                    "settings_muzei_size",
-                    R.string.settings_muzei_size,
-                    "larger",
-                    R.array.settings_post_size_entries,
-                    R.array.settings_post_size_entries_values,
-                ),
-            ),
-        ),
-        SettingsSection(
             R.string.settings_storage,
             listOf(
                 SettingSpec.Action("settings_download_path", R.string.settings_download_path),
@@ -210,7 +191,49 @@ val settingsSections =
         ),
     )
 
-val settingsByKey = settingsSections.flatMap { it.preferences }.associateBy { it.key }
+private val availablePreferences =
+    availableSettingsSections.flatMap { it.preferences }.associateBy { it.key }
+
+private fun sphereSettings(title: Int, vararg keys: String) =
+    SettingsSection(title, keys.mapNotNull { availablePreferences[it] })
+
+val settingsSections =
+    listOf(
+        sphereSettings(
+            R.string.title_downloads,
+            "settings_download_path",
+            "settings_download_size",
+        ),
+        sphereSettings(
+            R.string.sphere_interface,
+            "settings_night",
+            "settings_night_theme",
+            "settings_grid_rounded",
+            "settings_grid_mode",
+            "settings_grid_ratio",
+            "settings_grid_width",
+            "settings_show_info_bar",
+            "settings_show_all_tags",
+            "settings_auto_hide_bottom_bar",
+        ),
+        sphereSettings(R.string.sphere_content, "settings_safe_mode"),
+        sphereSettings(
+            R.string.sphere_servers,
+            "settings_page_limit",
+            "settings_detail_size",
+            "settings_dns_over_https",
+            "settings_dns_over_https_dns",
+            "settings_disable_sni",
+            "settings_bypass_waf",
+        ),
+        sphereSettings(
+            R.string.sphere_miscellaneous,
+            "settings_auto_refresh",
+            "settings_clear_cache",
+        ),
+    )
+
+val settingsByKey = availablePreferences
 
 data class SettingsUiState(
     val values: Map<String, String> = emptyMap(),

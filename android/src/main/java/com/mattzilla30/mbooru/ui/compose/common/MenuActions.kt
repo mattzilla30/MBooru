@@ -42,11 +42,6 @@ enum class AppActionKey {
     ExpandOrClear,
     HistoryClearAll,
     Month,
-    MuzeiFetch,
-    MuzeiItemCopy,
-    MuzeiItemDelete,
-    MuzeiItemSearch,
-    MuzeiSearch,
     NavArtists,
     NavPools,
     NavPopular,
@@ -55,9 +50,6 @@ enum class AppActionKey {
     OptionFile,
     OptionMain,
     OptionUrl,
-    SauceNaoChangeApiKey,
-    SauceNaoGetApiKey,
-    SauceNaoGroup0,
     TagBlacklistItemCopy,
     TagBlacklistItemDelete,
     TagDanGroup0,
@@ -103,8 +95,6 @@ enum class AppMenu {
     Detail,
     DetailShimmie,
     History,
-    Muzei,
-    MuzeiItem,
     Navigation,
     NavigationGel,
     NavigationSankaku,
@@ -112,8 +102,6 @@ enum class AppMenu {
     PopularDan,
     PopularSankaku,
     Post,
-    SauceNao,
-    SauceNaoFab,
     TagBlacklistItem,
     TagDan,
     TagDanOne,
@@ -409,42 +397,6 @@ fun AppMenu.actions(): List<AppAction> =
                     direct = true,
                 )
             )
-        AppMenu.Muzei ->
-            listOf(
-                AppAction(
-                    AppActionKey.MuzeiSearch,
-                    R.string.muzei_search,
-                    icon = R.drawable.ic_search_24dp,
-                    direct = true,
-                ),
-                AppAction(
-                    AppActionKey.MuzeiFetch,
-                    R.string.muzei_fetch,
-                    icon = R.drawable.ic_refresh_24dp,
-                    direct = false,
-                ),
-            )
-        AppMenu.MuzeiItem ->
-            listOf(
-                AppAction(
-                    AppActionKey.MuzeiItemSearch,
-                    R.string.muzei_search,
-                    icon = 0,
-                    direct = false,
-                ),
-                AppAction(
-                    AppActionKey.MuzeiItemCopy,
-                    R.string.muzei_copy,
-                    icon = 0,
-                    direct = false,
-                ),
-                AppAction(
-                    AppActionKey.MuzeiItemDelete,
-                    R.string.muzei_delete,
-                    icon = 0,
-                    direct = false,
-                ),
-            )
         AppMenu.Navigation ->
             listOf(
                 AppAction(
@@ -582,51 +534,6 @@ fun AppMenu.actions(): List<AppAction> =
                     icon = R.drawable.ic_add_long_24dp,
                     direct = true,
                 )
-            )
-        AppMenu.SauceNao ->
-            listOf(
-                AppAction(
-                    AppActionKey.SauceNaoGroup0,
-                    R.string.sauce_nao_help,
-                    icon = R.drawable.ic_help_outline_24dp,
-                    direct = true,
-                    children =
-                        listOf(
-                            AppAction(
-                                AppActionKey.SauceNaoChangeApiKey,
-                                R.string.sauce_nao_change_api_key,
-                                icon = R.drawable.ic_edit_24dp,
-                                direct = false,
-                            ),
-                            AppAction(
-                                AppActionKey.SauceNaoGetApiKey,
-                                R.string.sauce_nao_get_api_key,
-                                icon = R.drawable.ic_open_in_new_24dp,
-                                direct = false,
-                            ),
-                        ),
-                )
-            )
-        AppMenu.SauceNaoFab ->
-            listOf(
-                AppAction(
-                    AppActionKey.OptionMain,
-                    0,
-                    icon = R.drawable.ic_add_long_white_24dp,
-                    direct = false,
-                ),
-                AppAction(
-                    AppActionKey.OptionUrl,
-                    R.string.sauce_nao_search_from_url,
-                    icon = R.drawable.ic_link_24dp,
-                    direct = false,
-                ),
-                AppAction(
-                    AppActionKey.OptionFile,
-                    R.string.sauce_nao_search_from_file,
-                    icon = R.drawable.ic_attach_file_24dp,
-                    direct = false,
-                ),
             )
         AppMenu.TagBlacklistItem ->
             listOf(

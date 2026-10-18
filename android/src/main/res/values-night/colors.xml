@@ -54,7 +54,6 @@
     <color name="rating_q">@color/blue_grey_900</color>
     <color name="rating_s">@color/blue_grey_800</color>
     <color name="rating_g">@color/grey_700</color>
-    <color name="muzei">@color/dark_level_1</color>
 
     <color name="background_placeholder_error">@color/colorSurfaceVariant</color>
     <color name="placeholder_error">@color/colorOnSurfaceVariant</color>

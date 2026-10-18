@@ -40,6 +40,27 @@ fun AboutScreen() {
     fun getString(id: Int) = context.getString(id)
     Surface(color = MaterialTheme.colorScheme.background) {
         LazyColumn {
+            item {
+                Column(
+                    Modifier.fillMaxWidth().padding(top = 32.dp, bottom = 24.dp),
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                ) {
+                    androidx.compose.ui.viewinterop.AndroidView(
+                        factory = {
+                            android.widget.ImageView(it).apply {
+                                setImageResource(R.mipmap.ic_launcher)
+                            }
+                        },
+                        modifier = Modifier.size(96.dp),
+                    )
+                    Text(
+                        "MBooru",
+                        Modifier.padding(top = 16.dp),
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                    Text(BuildConfig.VERSION_NAME, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
             item { AboutSection(R.string.about_app) }
             item { AboutRow(R.string.about_app_version, BuildConfig.VERSION_NAME) }
             item { AboutSection(R.string.about_author) }
@@ -77,6 +98,25 @@ fun AboutScreen() {
             }
             item { AboutSection(R.string.about_copyright_and_licenses) }
             item {
+                AboutRow(
+                    R.string.sphere_ui_credit,
+                    stringResource(R.string.sphere_ui_credit_summary),
+                ) {
+                    context.launchUrl("https://github.com/azrim/boorusphere")
+                }
+            }
+            item {
+                AboutRow(R.string.sphere_license, "BSD 3-Clause") {
+                    context.startActivity(
+                        Intent(
+                            context,
+                            com.mattzilla30.mbooru.ui.activity.DesignLicenseActivity::class.java,
+                        )
+                    )
+                }
+            }
+
+            item {
                 AboutRow(R.string.about_copyright, stringResource(R.string.about_owner_copyright)) {
                     context.let { context.startActivity(Intent(it, CopyrightActivity::class.java)) }
                 }
@@ -112,7 +152,7 @@ private fun AboutSection(title: Int) {
         stringResource(title),
         color = MaterialTheme.colorScheme.primary,
         style = MaterialTheme.typography.labelLarge,
-        modifier = Modifier.padding(start = 72.dp, top = 24.dp, bottom = 8.dp),
+        modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
     )
 }
 
@@ -123,7 +163,7 @@ private fun AboutRow(title: Int, summary: String, onClick: (() -> Unit)? = null)
         Modifier.fillMaxWidth()
             .then(action)
             .heightIn(min = 48.dp)
-            .padding(start = 72.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
     ) {
         Text(stringResource(title), style = MaterialTheme.typography.bodyLarge)
         Text(

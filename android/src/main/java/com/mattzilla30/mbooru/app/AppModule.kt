@@ -48,8 +48,8 @@ val appModules = module {
     single { get<MyDatabase>().booruDao() }
     single { get<MyDatabase>().downloadDao() }
     single { get<MyDatabase>().postDao() }
+    single { get<MyDatabase>().savedPostDao() }
     single { get<MyDatabase>().tagFilterDao() }
-    single { get<MyDatabase>().muzeiDao() }
     single { get<MyDatabase>().historyDao() }
     single { get<MyDatabase>().nextDao() }
     single { SettingsRepository(get()) }
@@ -72,7 +72,6 @@ val appModules = module {
     }
     single { com.mattzilla30.mbooru.data.database.BooruManager(get(), get(), get()) }
     single { com.mattzilla30.mbooru.data.database.HistoryManager(get()) }
-    single { com.mattzilla30.mbooru.data.database.MuzeiManager(get()) }
     single { com.mattzilla30.mbooru.data.database.TagFilterManager(get()) }
     single { com.mattzilla30.mbooru.data.database.NextManager(get()) }
 }

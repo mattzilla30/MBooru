@@ -25,7 +25,6 @@ import coil3.disk.DiskCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.*
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.common.di.commonModules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +44,7 @@ open class App : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         startKoin {
             androidContext(this@App)
-            modules(appModules + commonModules + environmentModules())
+            modules(appModules + environmentModules())
         }
         if (com.mattzilla30.mbooru.BuildConfig.DEBUG) {
             android.os.StrictMode.setThreadPolicy(
@@ -72,6 +71,11 @@ open class App : Application(), SingletonImageLoader.Factory {
     private fun initial() {
         val scope by inject<kotlinx.coroutines.CoroutineScope>()
         scope.launch {
+            if (androidx.work.WorkManager.isInitialized()) {
+                androidx.work.WorkManager.getInstance(this@App).cancelUniqueWork("muzei-publish")
+                androidx.work.WorkManager.getInstance(this@App)
+                    .cancelAllWorkByTag("com.mattzilla30.mbooru.worker.MuzeiArtWorker")
+            }
             val store by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
             try {
                 store.awaitReady()

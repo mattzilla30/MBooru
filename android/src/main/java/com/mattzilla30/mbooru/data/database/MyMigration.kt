@@ -60,5 +60,7 @@ class MyMigration(startVersion: Int, endVersion: Int) : Migration(startVersion, 
         }
     }
 
+    @DeleteTable(tableName = "muzei") class RetiredIntegrationsSpec : AutoMigrationSpec
+
     @DeleteTable(tableName = "cookies") class DeleteCookiesMigrationSpec : AutoMigrationSpec
 }

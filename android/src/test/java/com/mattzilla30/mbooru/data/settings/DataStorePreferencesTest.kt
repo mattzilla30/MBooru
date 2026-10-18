@@ -16,7 +16,7 @@ import org.robolectric.annotation.Config
 @Config(application = Application::class, sdk = [28])
 class DataStorePreferencesTest {
     @Test
-    fun `legacy values migrate once and credentials stay out of the portable file`() = runBlocking {
+    fun `legacy settings migrate once and retired service credentials are erased`() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val file = context.preferencesDataStoreFile("mbooru")
         file.delete()
@@ -49,7 +49,7 @@ class DataStorePreferencesTest {
             repository.awaitReady()
             assertEquals(42L, repository.getLong("selected", -1))
             assertTrue(repository.getBoolean("dark", false))
-            assertEquals("private-sauce-key", repository.getString("sauce_nao_api_key", ""))
+            assertFalse(repository.contains("sauce_nao_api_key"))
             assertFalse(file.readText().contains("private-sauce-key"))
             assertFalse(legacy.contains("sauce_nao_api_key"))
             assertTrue(

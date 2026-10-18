@@ -1,10 +1,12 @@
 package com.mattzilla30.mbooru.ui.compose.common
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import com.mattzilla30.mbooru.app.App
 import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.ui.activity.SettingsActivity
@@ -29,6 +31,9 @@ class FragmentHostTest {
 
     @Test
     fun `fragment content is attached after activity recreation`() {
+        compose
+            .onNodeWithTag("settings_list")
+            .performScrollToNode(hasTestTag(Settings.GRID_ROUNDED_KEY))
         compose.onNodeWithTag(Settings.GRID_ROUNDED_KEY).assertIsDisplayed()
         compose.activityRule.scenario.recreate()
         compose.onNodeWithTag(Settings.GRID_ROUNDED_KEY).assertIsDisplayed()

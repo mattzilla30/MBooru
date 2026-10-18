@@ -84,14 +84,16 @@ fun PostGrid(
         }
     }
     BoxWithConstraints(modifier.pullRefresh(pull)) {
-        val columns = (maxWidth / width).roundToInt().coerceAtLeast(1)
+        val columns =
+            if (maxWidth < 600.dp) 2
+            else (maxWidth / width).roundToInt().coerceAtLeast(MIN_TABLET_COLUMNS)
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(columns),
             state = grid,
             modifier = Modifier.fillMaxSize().testTag("post_grid"),
-            contentPadding = PaddingValues(if (rounded) 4.5.dp else 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (rounded) 9.dp else 0.dp),
-            verticalItemSpacing = if (rounded) 9.dp else 0.dp,
+            contentPadding = PaddingValues(if (rounded) 4.dp else 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (rounded) 4.dp else 0.dp),
+            verticalItemSpacing = if (rounded) 4.dp else 0.dp,
         ) {
             items(
                 count = posts.itemCount,
@@ -219,3 +221,5 @@ fun PagingStatus(
         }
     }
 }
+
+private const val MIN_TABLET_COLUMNS = 3

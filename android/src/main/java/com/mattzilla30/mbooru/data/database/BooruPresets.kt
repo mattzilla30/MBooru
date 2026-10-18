@@ -15,20 +15,30 @@ object BooruPresets {
     // Return fresh instances: Booru contains mutable settings and database IDs.
     fun featured(): List<Booru> =
         listOf(
-            Booru(name = "Danbooru", host = "danbooru.donmai.us", type = Values.BOORU_TYPE_DAN),
             Booru(name = "Yande.re", host = "yande.re", type = Values.BOORU_TYPE_MOE),
             Booru(name = "Konachan", host = "konachan.com", type = Values.BOORU_TYPE_MOE),
-            Booru(name = "Gelbooru", host = "gelbooru.com", type = Values.BOORU_TYPE_GEL),
             Booru(name = "Safebooru", host = "safebooru.org", type = Values.BOORU_TYPE_GEL_LEGACY),
-            Booru(
-                name = "Sankaku",
-                host = "capi-v2.sankakucomplex.com",
-                type = Values.BOORU_TYPE_SANKAKU,
-            ),
         )
 
+    fun isRetiredHost(host: String): Boolean {
+        val name = host.lowercase().removePrefix("www.")
+        return name == "danbooru.donmai.us" ||
+            name == "gelbooru.com" ||
+            name == "sankakucomplex.com" ||
+            name.endsWith(".sankakucomplex.com") ||
+            name == "sankaku.app"
+    }
+
     /** Runs on first launch after installing/updating; never replaces saved site credentials. */
-    suspend fun installOnce(dao: BooruDao, preferences: SharedPreferences) {
+    suspend fun installOnce(
+        dao: BooruDao,
+        preferences: SharedPreferences,
+        remove: suspend (Long) -> Unit = {
+            dao.delete(it)
+            Unit
+        },
+    ) {
+        dao.getAll().orEmpty().filter { isRetiredHost(it.host) }.forEach { remove(it.uid) }
         // Run even after presets were installed by an earlier MBooru release.
         dao.removeLegacySample()
         if (preferences.getBoolean(INSTALLED_KEY, false)) return
@@ -39,6 +49,7 @@ object BooruPresets {
 
     /** Also restores individually deleted presets, leaving an existing configuration untouched. */
     suspend fun add(dao: BooruDao, preset: Booru): Long {
+        require(!isRetiredHost(preset.host)) { "This site is not offered by MBooru" }
         dao.insertMissing(listOf(preset.copy(uid = 0)))
         return checkNotNull(dao[preset.scheme, preset.host]).uid
     }

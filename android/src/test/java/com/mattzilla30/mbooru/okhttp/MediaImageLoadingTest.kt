@@ -24,6 +24,13 @@ import org.robolectric.annotation.Config
 class MediaImageLoadingTest {
     @get:Rule val server = MockWebServer()
 
+    @org.junit.Before
+    fun resetLoaderFromPreviousApplication() {
+        // Each Robolectric application owns a different transport; an earlier Koin
+        // teardown closes its executor while Coil's process singleton can survive.
+        coil3.SingletonImageLoader.reset()
+    }
+
     @After
     fun close() {
         coil3.SingletonImageLoader.reset()

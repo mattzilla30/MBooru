@@ -131,8 +131,6 @@
     <color name="tag_type_medium">@color/purple_400</color>
     <color name="tag_type_unknown">#ccffffff</color>
 
-    <color name="muzei">#3C6CAF</color>
-
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="scrim">#52000000</color>

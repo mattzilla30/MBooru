@@ -47,8 +47,6 @@ abstract class BaseActivity : AppCompatActivity() {
         get() =
             when (this) {
                 is HistoryActivity -> AppMenu.History
-                is MuzeiActivity -> AppMenu.Muzei
-                is SauceNaoActivity -> AppMenu.SauceNao
                 is BooruConfigActivity -> AppMenu.BooruConfig
                 is BooruActivity -> AppMenu.Booru
                 is AccountActivity -> AppMenu.Account

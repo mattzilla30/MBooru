@@ -27,6 +27,14 @@ fun BooruList(
     action: (Booru, AppActionKey) -> Unit,
 ) {
     LazyColumn {
+        item {
+            Text(
+                stringResource(R.string.sphere_anonymous_servers),
+                Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         items(boorus, key = { it.uid }) { booru ->
             val dismiss =
                 rememberSwipeToDismissBoxState(
@@ -60,7 +68,10 @@ fun BooruList(
                     }
                 }
             }
-            HorizontalDivider()
+            HorizontalDivider(
+                Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
         }
     }
 }

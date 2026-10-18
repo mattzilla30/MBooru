@@ -64,7 +64,12 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        lifecycleScope.launch { BooruPresets.installOnce(booruDao, preferences) }
+        lifecycleScope.launch {
+            BooruPresets.installOnce(booruDao, preferences) {
+                siteManager.deleteBooru(it)
+                Unit
+            }
+        }
         preferences.registerOnSharedPreferenceChangeListener(this)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -98,8 +103,18 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                         selected,
                         visible,
                         shell.drawerRequests,
+                        serverRequests = shell.serverRequests,
                         onBooru = { settings.activatedBooruUid = it },
                         onAction = ::openDestination,
+                        onEditServer = { server ->
+                            startActivity(
+                                Intent(this, BooruConfigActivity::class.java)
+                                    .putExtra(BooruConfigActivity.EXTRA_BOORU_UID, server.uid)
+                            )
+                        },
+                        onRemoveServer = { id ->
+                            lifecycleScope.launch { siteManager.deleteBooru(id) }
+                        },
                         onTab = { id ->
                             if (selected == id) currentBrowse()?.toListTop()
                             else navigation.openBrowseTab(id)
@@ -165,12 +180,22 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 DrawerDestination.Blacklist ->
                     if (capabilities.tagFilters) TagBlacklistActivity::class.java
                     else return notSupported()
-                DrawerDestination.Muzei -> MuzeiActivity::class.java
-                DrawerDestination.SauceNao -> SauceNaoActivity::class.java
-                DrawerDestination.TraceMoe -> WhatAnimeActivity::class.java
                 DrawerDestination.Settings -> SettingsActivity::class.java
                 DrawerDestination.About -> AboutActivity::class.java
                 DrawerDestination.Downloads -> DownloadsActivity::class.java
+                DrawerDestination.Favorites -> FavoritesActivity::class.java
+                DrawerDestination.Exit -> {
+                    finishAndRemoveTask()
+                    return
+                }
+                DrawerDestination.Theme -> {
+                    val next =
+                        if (resources.configuration.isNightEnable()) Settings.NIGHT_MODE_OFF
+                        else Settings.NIGHT_MODE_ON
+                    preferences.edit().putString(Settings.NIGHT_MODE_KEY, next).apply()
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(settings.nightMode)
+                    return
+                }
             }
         startActivity(Intent(this, destination))
     }
@@ -180,6 +205,8 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     fun openDrawer() = shell.openDrawer()
+
+    fun chooseServer() = shell.chooseServer()
 
     fun forceShowNavBar() = shell.navigationVisible(true)
 

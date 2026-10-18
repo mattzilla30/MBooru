@@ -1,5 +1,6 @@
 package com.mattzilla30.mbooru.compose
 
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.espresso.Espresso
@@ -30,12 +31,24 @@ class MainNavigationSmokeTest {
     @Test
     fun drawerSettingsAndActivityRecreationKeepWorking() {
         awaitDrawer()
+        screenshot("sphere-home")
         compose
             .onNodeWithContentDescription(
                 compose.activity.getString(R.string.navigation_drawer_open)
             )
             .performClick()
-        compose.onNodeWithText(compose.activity.getString(R.string.title_settings)).performClick()
+        screenshot("sphere-drawer")
+        val settings = compose.onNodeWithText(compose.activity.getString(R.string.title_settings))
+        try {
+            settings.assertIsDisplayed()
+        } catch (_: AssertionError) {
+            settings.performScrollTo()
+        }
+        settings.performClick()
+        screenshot("sphere-settings")
+        compose
+            .onNodeWithTag("settings_list")
+            .performScrollToNode(hasTestTag(Settings.GRID_ROUNDED_KEY))
         compose.onNodeWithTag(Settings.GRID_ROUNDED_KEY).assertExists().performClick()
         Espresso.pressBack()
         compose.activityRule.scenario.recreate()
@@ -45,6 +58,25 @@ class MainNavigationSmokeTest {
                 compose.activity.getString(R.string.navigation_drawer_open)
             )
             .assertIsDisplayed()
+    }
+
+    private fun screenshot(name: String) {
+        val instrumentation =
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+        compose.waitForIdle()
+        instrumentation.waitForIdleSync()
+        val directory =
+            androidx.test.platform.app.InstrumentationRegistry.getArguments()
+                .getString("additionalTestOutputDir") ?: return
+        val output =
+            java.io.File(directory, "screenshots/$name.png").apply { parentFile!!.mkdirs() }
+        output.outputStream().use {
+            compose
+                .onRoot()
+                .captureToImage()
+                .asAndroidBitmap()
+                .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+        }
     }
 
     private fun awaitDrawer() {

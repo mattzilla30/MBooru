@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -44,7 +43,7 @@ fun SettingsScreen(
     var dialogKey by rememberSaveable { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
     val context = LocalContext.current
-    val rows = state.rows(isSystemInDarkTheme())
+    val rows = state.copy(expanded = true).rows(isSystemInDarkTheme())
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = listState, modifier = Modifier.testTag("settings_list")) {
             if (state.persistenceFailed)
@@ -80,12 +79,10 @@ fun SettingsScreen(
                                 Modifier.fillMaxWidth()
                                     .semantics { heading() }
                                     .padding(
-                                        start =
-                                            PreferenceSpacing.horizontal +
-                                                PreferenceSpacing.iconSlot,
+                                        start = 16.dp,
                                         end = PreferenceSpacing.horizontal,
-                                        top = 24.dp,
-                                        bottom = 8.dp,
+                                        top = 12.dp,
+                                        bottom = 12.dp,
                                     ),
                         )
                     is SettingsRow.Expand -> {
@@ -101,7 +98,6 @@ fun SettingsScreen(
                             key = "settings_expand",
                             title = stringResource(R.string.settings_expand_button_title),
                             summary = summary,
-                            icon = R.drawable.ic_expand_more_24dp,
                             onClick = onExpand,
                         )
                     }
@@ -112,7 +108,6 @@ fun SettingsScreen(
                             key = spec.key,
                             title = stringResource(spec.title),
                             summary = summary,
-                            icon = spec.icon,
                             checked =
                                 if (spec is SettingSpec.Toggle) state.value(spec).toBoolean()
                                 else null,
@@ -239,11 +234,11 @@ private fun preferenceSummary(spec: SettingSpec, state: SettingsUiState): String
 }
 
 @Composable
+@Suppress("FunctionNaming", "LongParameterList")
 fun PreferenceRow(
     key: String,
     title: String,
     summary: String?,
-    icon: Int = 0,
     checked: Boolean? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
@@ -261,7 +256,7 @@ fun PreferenceRow(
     Row(
         Modifier.fillMaxWidth()
             .testTag(key)
-            .heightIn(min = PreferenceSpacing.minimumHeight)
+            .heightIn(min = 72.dp)
             .then(interaction)
             .padding(
                 horizontal = PreferenceSpacing.horizontal,
@@ -269,15 +264,6 @@ fun PreferenceRow(
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.width(PreferenceSpacing.iconSlot)) {
-            if (icon != 0)
-                Icon(
-                    painterResource(icon),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp),
-                )
-        }
         Column(Modifier.weight(1f)) {
             Text(
                 title,

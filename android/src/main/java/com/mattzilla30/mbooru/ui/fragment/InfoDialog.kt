@@ -52,6 +52,7 @@ import com.mattzilla30.mbooru.worker.DownloadWorker
 import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponent {
     private val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
     private val tagFilterManager by inject<com.mattzilla30.mbooru.data.database.TagFilterManager>()
@@ -97,6 +98,9 @@ class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponen
         val scope = rememberCoroutineScope()
         Surface {
             Column(Modifier.fillMaxHeight()) {
+                androidx.compose.material3.BottomSheetDefaults.DragHandle(
+                    modifier = Modifier.align(androidx.compose.ui.Alignment.CenterHorizontally)
+                )
                 TabRow(selectedTabIndex = pager.currentPage) {
                     listOf(R.string.browse_info, R.string.browse_tags).forEachIndexed { index, title
                         ->

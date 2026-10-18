@@ -43,13 +43,6 @@
     <item type="id" name="action_expand_or_clear" />
     <item type="id" name="action_history_clear_all" />
     <item type="id" name="action_month" />
-    <item type="id" name="action_muzei_fetch" />
-    <item type="id" name="action_muzei_item_copy" />
-    <item type="id" name="action_muzei_item_delete" />
-    <item type="id" name="action_muzei_item_search" />
-    <item type="id" name="action_muzei_search" />
-    <item type="id" name="action_sauce_nao_change_api_key" />
-    <item type="id" name="action_sauce_nao_get_api_key" />
     <item type="id" name="action_tag_blacklist_item_copy" />
     <item type="id" name="action_tag_blacklist_item_delete" />
     <item type="id" name="action_tag_order_count" />

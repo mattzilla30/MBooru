@@ -26,7 +26,7 @@ class SettingsScreenTest {
     @get:Rule val compose = createComposeRule()
 
     @Test
-    fun `switch clicks update state and expansion reveals the remaining controls`() {
+    fun `switch clicks update state and all sections remain reachable`() {
         val state = mutableStateOf(SettingsUiState())
         compose.setContent {
             MBooruTheme {
@@ -46,8 +46,6 @@ class SettingsScreenTest {
             }
         }
         compose.onNodeWithTag(Settings.GRID_ROUNDED_KEY).assertIsOn().performClick().assertIsOff()
-        compose.onNodeWithTag("settings_list").performScrollToNode(hasTestTag("settings_expand"))
-        compose.onNodeWithTag("settings_expand").performClick()
         compose
             .onNodeWithTag("settings_list")
             .performScrollToNode(hasTestTag(Settings.SAFE_MODE_KEY))
@@ -70,6 +68,9 @@ class SettingsScreenTest {
                 )
             }
         }
+        compose
+            .onNodeWithTag("settings_list")
+            .performScrollToNode(hasTestTag(Settings.GRID_MODE_KEY))
         compose.onNodeWithTag(Settings.GRID_MODE_KEY).performClick()
         compose.onNodeWithText("Fixed ratio").assertExists()
         restore.emulateSavedInstanceStateRestore()

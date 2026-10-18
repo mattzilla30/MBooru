@@ -68,6 +68,10 @@ constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dx = ev.x - lastX
                 val dy = ev.y - lastY
+                if (ev.actionMasked == MotionEvent.ACTION_UP && isDetailsSwipe(dx, dy)) {
+                    dismissListener?.onDismissCancel()
+                    dismissListener?.onDetailsRequested()
+                }
                 val angle = atan2(dy, dx) * 180 / PI
                 if (angle in 20.0..160.0) {
                     parent.requestDisallowInterceptTouchEvent(true)
@@ -75,6 +79,12 @@ constructor(
             }
         }
         return super.dispatchTouchEvent(ev)
+    }
+
+    private fun isDetailsSwipe(dx: Float, dy: Float): Boolean {
+        if (multiTouch || !isDismissEnabled) return false
+        return dy < -DETAILS_SWIPE_DP * resources.displayMetrics.density &&
+            kotlin.math.abs(dx) < kotlin.math.abs(dy)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
@@ -99,6 +109,8 @@ constructor(
     }
 
     interface OnDismissListener {
+        fun onDetailsRequested() {}
+
         fun onDismissStart()
 
         fun onDismissProgress(progress: Float)
@@ -147,3 +159,5 @@ constructor(
         }
     }
 }
+
+private const val DETAILS_SWIPE_DP = 64

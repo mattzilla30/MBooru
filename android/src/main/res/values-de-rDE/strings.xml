@@ -28,13 +28,10 @@
     <string name="title_pools">Pools</string>
     <string name="title_tags">Tags</string>
     <string name="title_comments">Kommentare</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Nacht Modus</string>
     <string name="title_copyright">Urheberrecht</string>
     <string name="title_about">Über</string>
     <string name="title_tag_blacklist">Tag-Blacklist</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">Welcher Anime</string>
     <string name="title_history">Verlauf</string>
     <string name="history_clear_all">Alles löschen</string>
     <string name="history_clear_all_content">Der Verlauf wird gelöscht.</string>
@@ -63,10 +60,8 @@
     <string name="msg_your_api_key_is_wrong">Dein Api-Schlüssel ist falsch!</string>
     <string name="msg_cloudflare_challenges">Laden fehlgeschlagen, bitte versuche es später erneut</string>
     <string name="post_expand_or_clear">Erweitern oder löschen</string>
-    <string name="post_add_search_to_muzei">` %s ` wurden in Muzei gespeichert.</string>
     <string name="post_download">Bild herunterladen</string>
     <string name="post_add_to_fav">Zu Favoriten hinzufügen</string>
-    <string name="post_search_by_sauce_nao">Aufe SauceNao suchen</string>
     <string name="msg_download_must_enable">Download Manager ist erforderlich.</string>
     <string name="msg_path_denied">Speichern fehlgeschlagen! Kein Zugriff auf den aktuellen Pfad.</string>
     <string name="msg_download_failed">Herunterladen fehlgeschlagen</string>
@@ -178,8 +173,6 @@
     <string name="settings_bypass_waf_summary">Cloudflare WAF umgehen</string>
     <string name="settings_safe_mode">Sicherer Modus</string>
     <string name="settings_page_limit">Seitenlimit</string>
-    <string name="settings_muzei_limit">Muzei Limit</string>
-    <string name="settings_muzei_size">Bildergröße (Muzei)</string>
     <string name="settings_detail_size">Detailgröße</string>
     <string name="settings_download_size">Download-Größe</string>
     <string name="settings_download_path">Downloadpfad</string>
@@ -206,7 +199,6 @@
     <string name="settings_clear_history">Suchverlauf löschen</string>
     <string name="settings_clear_history_summery">Gesamten Suchverlauf löschen.</string>
     <string name="settings_clear_history_dialog_content">Suchverlauf wird gelöscht.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Anzeige</string>
     <string name="settings_options">Optionen</string>
     <string name="settings_storage">Speicher</string>
@@ -256,15 +248,6 @@
     <string name="order">Sortierung</string>
     <string name="rating">Bewertung</string>
     <string name="threshold">Schwellenwert</string>
-    <string name="muzei_copy">Kopieren</string>
-    <string name="muzei_delete">Löschen</string>
-    <string name="muzei_search">Suche</string>
-    <string name="muzei_search_hint">Tag hinzufügen…</string>
-    <string name="muzei_fetch">Artwork abrufen</string>
-    <string name="muzei_input_cant_be_empty">Eingabe darf nicht leer sein.</string>
-    <string name="muzei_action_view_post">Beitrag auf MBooru ansehen</string>
-    <string name="muzei_action_search_posts">Beitrag auf MBooru suchen</string>
-    <string name="muzei_attribution">Beitrag von MBooru</string>
     <string name="tag_blacklist_copy">Kopieren</string>
     <string name="tag_blacklist_delete">Löschen</string>
     <string name="tag_blacklist_add">Hinzufügen  </string>
@@ -276,15 +259,4 @@
     <string name="comment_hint">Kommentar eingeben</string>
     <string name="tab_start_date">Beginn</string>
     <string name="tab_end_date">Ende</string>
-    <string name="sauce_nao_help">Hilfe</string>
-    <string name="sauce_nao_change_api_key">Api Schlüssel ändern</string>
-    <string name="sauce_nao_get_api_key">Api Schlüssel holen</string>
-    <string name="sauce_nao_remaining_times_today">Verbleibende Male heute: %01$d</string>
-    <string name="sauce_nao_api_key_unset">SacueNao´s API Schlüssel ist nicht gesetzt.</string>
-    <string name="sauce_nao_image_url">Bild URL</string>
-    <string name="sauce_nao_invalid_image_url">Ungültige Bild URL</string>
-    <string name="sauce_nao_source">Quelle</string>
-    <string name="sauce_nao_search_from_url">URL</string>
-    <string name="sauce_nao_search_from_file">Datei</string>
-    <string name="action_add_to_muzei">Zu Muzei hinzufügen</string>
 </resources>

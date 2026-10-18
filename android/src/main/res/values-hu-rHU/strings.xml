@@ -27,13 +27,10 @@
     <string name="title_pools">Pools</string>
     <string name="title_tags">Címkék</string>
     <string name="title_comments">Hozzászólások</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Sötét mód</string>
     <string name="title_copyright">Szerzői jogok</string>
     <string name="title_about">Rólunk</string>
     <string name="title_tag_blacklist">Címke blacklist</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">What Anime</string>
     <string name="title_history">History</string>
     <string name="history_clear_all">Clear all</string>
     <string name="history_clear_all_content">All history will be cleared.</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">Az API kulcsod helytelen!</string>
     <string name="msg_cloudflare_challenges">Loading failed, please try again later</string>
     <string name="post_expand_or_clear">Expand or clear</string>
-    <string name="post_add_search_to_muzei">` %s ` mentésre került a Muzei-ben.</string>
     <string name="post_download">Poszt letöltése</string>
     <string name="post_add_to_fav">Hozzáadás a kedvencekhez</string>
-    <string name="post_search_by_sauce_nao">Search by SauceNao</string>
     <string name="msg_download_must_enable">A Download Managerre szükség van.</string>
     <string name="msg_path_denied">Mentés nem sikerült! Nem érhető el a mentés helye.</string>
     <string name="msg_download_failed">A letöltés sikertelen</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">Bypassing Cloudflare WAF</string>
     <string name="settings_safe_mode">Safe mode</string>
     <string name="settings_page_limit">Oldal limit</string>
-    <string name="settings_muzei_limit">Muzei limit</string>
-    <string name="settings_muzei_size">Muzei méret</string>
     <string name="settings_detail_size">Detail size</string>
     <string name="settings_download_size">Letöltési méret</string>
     <string name="settings_download_path">Letöltési útvonal</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">Keresési előzmények törlése</string>
     <string name="settings_clear_history_summery">Minden keresési előzmény törlése.</string>
     <string name="settings_clear_history_dialog_content">Minden keresési előzmény törlésre került.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Display</string>
     <string name="settings_options">Options</string>
     <string name="settings_storage">Storage</string>
@@ -255,15 +247,6 @@
     <string name="order">Rendezés</string>
     <string name="rating">Értékelés</string>
     <string name="threshold">Küszöb</string>
-    <string name="muzei_copy">Másolás</string>
-    <string name="muzei_delete">Törlés</string>
-    <string name="muzei_search">Search</string>
-    <string name="muzei_search_hint">Add tag…</string>
-    <string name="muzei_fetch">Fetch Artwork</string>
-    <string name="muzei_input_cant_be_empty">Input can not be empty.</string>
-    <string name="muzei_action_view_post">View post on MBooru</string>
-    <string name="muzei_action_search_posts">Search posts on MBooru</string>
-    <string name="muzei_attribution">Post from MBooru</string>
     <string name="tag_blacklist_copy">Copy</string>
     <string name="tag_blacklist_delete">Delete</string>
     <string name="tag_blacklist_add">Add</string>
@@ -275,15 +258,4 @@
     <string name="comment_hint">Input comment</string>
     <string name="tab_start_date">Start date</string>
     <string name="tab_end_date">End date</string>
-    <string name="sauce_nao_help">Help</string>
-    <string name="sauce_nao_change_api_key">Change api key</string>
-    <string name="sauce_nao_get_api_key">Get api key</string>
-    <string name="sauce_nao_remaining_times_today">Remaining times today: %01$d</string>
-    <string name="sauce_nao_api_key_unset">SauceNao\'s Api key is not set.</string>
-    <string name="sauce_nao_image_url">Image url</string>
-    <string name="sauce_nao_invalid_image_url">Invalid image url.</string>
-    <string name="sauce_nao_source">Source</string>
-    <string name="sauce_nao_search_from_url">Url</string>
-    <string name="sauce_nao_search_from_file">File</string>
-    <string name="action_add_to_muzei">Add to Muzei</string>
 </resources>

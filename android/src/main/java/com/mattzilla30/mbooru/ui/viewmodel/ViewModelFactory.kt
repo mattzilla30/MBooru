@@ -18,11 +18,8 @@ package com.mattzilla30.mbooru.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
-import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.data.database.dao.HistoryDao
-import com.mattzilla30.mbooru.data.database.dao.MuzeiDao
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.data.repository.artist.ArtistRepository
 import com.mattzilla30.mbooru.data.repository.comment.CommentRepository
@@ -138,39 +135,6 @@ fun ViewModelStoreOwner.getShortcutViewModel(postDao: PostDao): ShortcutViewMode
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
                 return ShortcutViewModel(postDao) as T
-            }
-        }
-    )
-
-fun ViewModelStoreOwner.getSauceNaoViewModel(sauceNaoApi: SauceNaoApi): SauceNaoViewModel =
-    getViewModel(
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return SauceNaoViewModel(sauceNaoApi) as T
-            }
-        }
-    )
-
-fun ViewModelStoreOwner.getTraceMoeViewModel(traceMoeApi: TraceMoeApi): TraceMoeViewModel =
-    getViewModel(
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return TraceMoeViewModel(traceMoeApi) as T
-            }
-        }
-    )
-
-fun ViewModelStoreOwner.getMuzeiViewModel(
-    muzeiDao: MuzeiDao,
-    settings: com.mattzilla30.mbooru.app.SettingsRepository,
-): MuzeiViewModel =
-    getViewModel(
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return MuzeiViewModel(muzeiDao, settings) as T
             }
         }
     )

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.User
+import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -59,22 +60,19 @@ class BooruPresetsTest {
     }
 
     @Test
-    fun `first launch adds all six HTTPS presets with matching engines`() =
+    fun `first launch offers only the three remaining anonymous HTTPS presets`() =
         kotlinx.coroutines.runBlocking {
             BooruPresets.installOnce(dao, preferences)
             val sites = dao.getAll()
             assertEquals(
-                listOf("Danbooru", "Yande.re", "Konachan", "Gelbooru", "Safebooru", "Sankaku"),
+                listOf("Yande.re", "Konachan", "Safebooru"),
                 sites.map { it.name },
             )
             assertEquals(
                 listOf(
-                    Values.BOORU_TYPE_DAN,
                     Values.BOORU_TYPE_MOE,
                     Values.BOORU_TYPE_MOE,
-                    Values.BOORU_TYPE_GEL,
                     Values.BOORU_TYPE_GEL_LEGACY,
-                    Values.BOORU_TYPE_SANKAKU,
                 ),
                 sites.map { it.type },
             )
@@ -83,7 +81,7 @@ class BooruPresetsTest {
                     it.uid > 0 && it.scheme == "https" && it.user == null && it.auth == null
                 }
             )
-            assertEquals(6, sites.map { it.host }.toSet().size)
+            assertEquals(3, sites.map { it.host }.toSet().size)
         }
 
     @Test
@@ -93,7 +91,7 @@ class BooruPresetsTest {
                 BooruPresets.featured()
                     .first()
                     .copy(
-                        name = "My Danbooru",
+                        name = "My Yande.re",
                         user = User(id = 42, name = "test-user", token = "test-api-key"),
                         blacklists = listOf("spoiler"),
                         auth = com.mattzilla30.mbooru.data.model.common.AuthCredential("test-auth"),
@@ -104,7 +102,7 @@ class BooruPresetsTest {
             BooruPresets.installOnce(dao, preferences)
             assertEquals(customized, dao.getBooruByUid(customized.uid))
             assertEquals(custom, dao.getBooruByUid(custom.uid))
-            assertEquals(7, dao.getAll().size)
+            assertEquals(4, dao.getAll().size)
         }
 
     @Test
@@ -119,8 +117,8 @@ class BooruPresetsTest {
             val uid = BooruPresets.add(dao, preset)
             assertTrue(uid > 0)
             assertEquals(uid, BooruPresets.add(dao, preset))
-            assertEquals(6, dao.getAll().size)
-            val customized = dao.getBooruByUid(uid)!!.copy(name = "My Sankaku")
+            assertEquals(3, dao.getAll().size)
+            val customized = dao.getBooruByUid(uid)!!.copy(name = "My Safebooru")
             dao.update(customized)
             assertEquals(uid, BooruPresets.add(dao, preset))
             assertEquals(customized, dao.getBooruByUid(uid))
@@ -133,7 +131,7 @@ class BooruPresetsTest {
             dao.deleteAll()
             BooruPresets.installOnce(dao, preferences)
             assertTrue(dao.getAll().isEmpty())
-            BooruPresets.add(dao, BooruPresets.featured()[4])
+            BooruPresets.add(dao, BooruPresets.featured().last())
             assertEquals("Safebooru", dao.getAll().single().name)
         }
 
@@ -153,9 +151,9 @@ class BooruPresetsTest {
             BooruPresets.installOnce(dao, preferences)
             assertNull(dao.getBooruByUid(sampleUid))
             assertNotNull(dao.getBooruByUid(customUid))
-            assertEquals(7, dao.getAll().size)
+            assertEquals(4, dao.getAll().size)
             BooruPresets.installOnce(dao, preferences)
-            assertEquals(7, dao.getAll().size)
+            assertEquals(4, dao.getAll().size)
         }
 
     @Test
@@ -232,5 +230,77 @@ class BooruPresetsTest {
             assertEquals(local.user, dao.getBooruByUid(uid)!!.user)
             assertEquals("Restored configuration", dao.getBooruByUid(uid)!!.name)
             assertNotNull(database.historyDao().getHistoryByUid(historyUid))
+        }
+
+    @Test
+    fun `retired servers are removed even when the old catalog marker exists`() =
+        kotlinx.coroutines.runBlocking {
+            val hosts = listOf("danbooru.donmai.us", "gelbooru.com", "capi-v2.sankakucomplex.com")
+            hosts.forEach {
+                dao.insert(
+                    com.mattzilla30.mbooru.data.model.common.Booru(
+                        name = "Retired",
+                        host = it,
+                        type = Values.BOORU_TYPE_MOE,
+                    )
+                )
+            }
+            val custom =
+                dao.insert(
+                    com.mattzilla30.mbooru.data.model.common.Booru(
+                        name = "Custom",
+                        host = "custom.invalid",
+                        type = Values.BOORU_TYPE_MOE,
+                    )
+                )
+            preferences.edit().putBoolean("featured_boorus_v1_installed", true).commit()
+            val removed = mutableListOf<Long>()
+            BooruPresets.installOnce(dao, preferences) { uid ->
+                removed += uid
+                dao.delete(uid)
+                Unit
+            }
+            assertEquals(3, removed.size)
+            assertEquals(listOf(custom), dao.getAll().map { it.uid })
+            assertTrue(BooruPresets.isRetiredHost("www.GELBOORU.com"))
+        }
+
+    @Test
+    fun `anonymous favorites survive timeline refresh and are scoped to their server`() =
+        kotlinx.coroutines.runBlocking {
+            val first = dao.insert(BooruPresets.featured().first())
+            val second = dao.insert(BooruPresets.featured().last())
+            val post =
+                com.mattzilla30.mbooru.data.model.common.Post(
+                    booruUid = first,
+                    id = 123,
+                    width = 640,
+                    height = 480,
+                    size = 10,
+                    score = 0,
+                    rating = "s",
+                    time = null,
+                    tags = emptyList(),
+                    preview = "https://fixture.invalid/preview.png",
+                    sample = "https://fixture.invalid/sample.png",
+                    medium = "https://fixture.invalid/medium.png",
+                    origin = "https://fixture.invalid/origin.png",
+                    source = null,
+                    uploader = User(name = "anonymous"),
+                )
+            database.postDao().insert(post)
+            val favorites = database.savedPostDao()
+            assertTrue(favorites.toggle(post))
+            assertTrue(favorites.toggle(post.copy(booruUid = second)))
+            database.postDao().deleteAll()
+            val saved = favorites.observe().first()
+            assertEquals(2, saved.size)
+            assertEquals(setOf(first, second), saved.map { it.booruUid }.toSet())
+            assertEquals(post.origin, saved.first().origin)
+            assertFalse(favorites.toggle(post))
+            assertFalse(favorites.contains(first, post.id))
+            assertTrue(favorites.contains(second, post.id))
+            dao.delete(second)
+            assertTrue(favorites.observe().first().isEmpty())
         }
 }
