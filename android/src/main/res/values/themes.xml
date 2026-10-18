@@ -30,7 +30,6 @@
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="colorOnBackground">@color/colorOnBackground</item>
         <item name="scrimBackground">@color/scrimBackground</item>
-        <item name="preferenceTheme">@style/PreferenceTheme</item>
         <item name="alertDialogTheme">@style/AlertDialog.DayNight</item>
         <item name="actionOverflowMenuStyle">@style/Widget.OverflowMenuStyle.DayNight</item>
         <item name="android:actionOverflowMenuStyle">@style/Widget.OverflowMenuStyle.DayNight</item>
@@ -61,10 +60,8 @@
     </style>
 
     <style name="AppTheme.NoActionBar.Scrim.Main">
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#F2D6A2</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/launcher_icon</item>
-        <!-- MaterialDrawer specific values -->
-        <item name="materialDrawerStyle">@style/MaterialDrawerStyle</item>
-        <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
     </style>
 
     <style name="AppTheme.ScrimNavBar.Animation">
@@ -128,10 +125,8 @@
     </style>
 
     <style name="AppTheme.Black.NoActionBar.Scrim.Main">
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#F2D6A2</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/launcher_icon</item>
-        <!-- MaterialDrawer specific values -->
-        <item name="materialDrawerStyle">@style/MaterialDrawerStyle</item>
-        <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
     </style>
 
     <style name="AppTheme.Black.ScrimNavBar.Animation">

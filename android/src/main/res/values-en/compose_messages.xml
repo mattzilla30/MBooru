@@ -1,0 +1,10 @@
+<resources>
+<string name="settings_cache_clear_failed">Could not clear the cache. Please try again.</string>
+    
+<string name="booru_config_save_failed">Could not save changes. Please try again.</string>
+    
+<string name="image_search_read_failed">Could not read the selected image.</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="action_to_top">Scroll to top</string>
+</resources>

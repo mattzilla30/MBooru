@@ -1,0 +1,53 @@
+name: Build signed Android APK
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    uses: ./.github/workflows/android-ci.yml
+  build:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Configure signing
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        shell: python
+        run: |
+          import base64, os, pathlib
+          names = ('KEY_ALIAS', 'KEY_PASSWORD', 'KEYSTORE_BASE64', 'KEYSTORE_PASSWORD')
+          if any(not os.environ.get(name) for name in names):
+              raise SystemExit('Configure all four signing secrets before running this workflow.')
+          directory = pathlib.Path('.gradle')
+          directory.mkdir(exist_ok=True)
+          (directory / 'mbooru-release.jks').write_bytes(base64.b64decode(os.environ['KEYSTORE_BASE64'], validate=True))
+          def escape(value):
+              return value.replace('\\', '\\\\').replace('\n', '\\n').replace('\r', '\\r').replace('=', '\\=').replace(':', '\\:')
+          fields = {'KEY_ALIAS': 'KEY_ALIAS', 'KEY_PASS': 'KEY_PASSWORD', 'STORE_PASS': 'KEYSTORE_PASSWORD'}
+          (directory / 'keystore.properties').write_text(''.join(key + '=' + escape(os.environ[name]) + '\n' for key, name in fields.items()))
+      - name: Build release APK
+        run: bash ./gradlew --no-daemon --max-workers=2 :android:assembleRelease
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MBooru-signed-apk
+          path: android/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+      - name: Remove signing files
+        if: always()
+        run: rm -f .gradle/mbooru-release.jks .gradle/keystore.properties

@@ -1,0 +1,7 @@
+<resources>
+  <string name="browse_empty">No results</string>
+  <string name="browse_offline">You’re offline. Check your connection and retry.</string>
+  <string name="image_load_retry">Image could not be loaded. Tap to retry.</string>
+  <string name="post_actions">Post actions</string>
+  <string name="post_accessibility">Post %1$d</string>
+</resources>

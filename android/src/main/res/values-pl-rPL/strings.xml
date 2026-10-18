@@ -261,9 +261,9 @@
     <string name="muzei_search_hint">Dodaj tag…</string>
     <string name="muzei_fetch">Złap obrazek</string>
     <string name="muzei_input_cant_be_empty">Pole nie może pozostać puste.</string>
-    <string name="muzei_action_view_post">Zobacz post na Flexbooru</string>
-    <string name="muzei_action_search_posts">Szukaj postów na Flexbooru</string>
-    <string name="muzei_attribution">Wyślij z Flexbooru</string>
+    <string name="muzei_action_view_post">Zobacz post na MBooru</string>
+    <string name="muzei_action_search_posts">Szukaj postów na MBooru</string>
+    <string name="muzei_attribution">Wyślij z MBooru</string>
     <string name="tag_blacklist_copy">Kopiuj</string>
     <string name="tag_blacklist_delete">Usuń</string>
     <string name="tag_blacklist_add">Dodaj</string>
@@ -273,16 +273,6 @@
     <string name="comment_send">Wyślij</string>
     <string name="comment_cancel">Anuluj</string>
     <string name="comment_hint">Wpisz komentarz</string>
-    <string name="purchase_title">Usuń reklamy &amp; odblokuj możliwości</string>
-    <string name="purchase_history_title">Przywróć zakup</string>
-    <string name="purchase_info_title">Usuń wszystkie reklamy i odblokuj wszystkie funkcje</string>
-    <string name="purchase_info_remove_ads">Usuń reklamy</string>
-    <string name="purchase_info_unlock_full_features">Odblokuj wszystkie funkcje</string>
-    <string name="purchase_info_features">1. Znieś limit dostępnych Boorów.\n2. Pobieraj pulę jako zip.\n3. Zapisz &amp; Przywróć boory z pliku.\n4. Szukaj poprzez SauceNao.
-    </string>
-    <string name="purchase_pay_title">Zapłać/Przywróć zakup</string>
-    <string name="purchase_pay_google_play">Google Play</string>
-    <string name="purchase_pay_alipay">Alipay</string>
     <string name="tab_start_date">Data rozpoczęcia</string>
     <string name="tab_end_date">Data zakończenia</string>
     <string name="sauce_nao_help">Pomoc</string>

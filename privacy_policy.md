@@ -1,6 +1,6 @@
 ## Privacy Policy
 
-The Flexbooru is built as an Open Source software. This app is provided by Flexbooru at no cost and is intended for use as is.
+The MBooru is built as an Open Source software. This app is provided by MBooru at no cost and is intended for use as is.
 
 This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our app.
 

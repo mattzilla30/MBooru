@@ -1,0 +1,39 @@
+/*
+ * Copyright (C) 2020. by onlymash <fiepi.dev@gmail.com>, All rights reserved
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package com.mattzilla30.mbooru.data.repository.tag
+
+
+import androidx.paging.*
+import kotlinx.coroutines.flow.Flow
+import com.mattzilla30.mbooru.app.Values
+import com.mattzilla30.mbooru.data.action.ActionTag
+import com.mattzilla30.mbooru.data.api.BooruApis
+import com.mattzilla30.mbooru.data.model.common.Tag
+
+class TagRepositoryImpl(private val booruApis: BooruApis) : TagRepository {
+
+    override fun getTags(action: ActionTag): Flow<PagingData<Tag>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = action.limit,
+                enablePlaceholders = true
+            ),
+            initialKey = if (action.booru.type == Values.BOORU_TYPE_GEL) 0 else 1
+        ) {
+            TagPagingSource(action, booruApis)
+        }.flow
+    }
+}

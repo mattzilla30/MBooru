@@ -34,5 +34,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "flexbooru"
+rootProject.name = "MBooru"
 include(":android")
+
+include(":baselineprofile")

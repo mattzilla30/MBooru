@@ -1,0 +1,7 @@
+<resources>
+  <string name="browse_empty">Aucun résultat</string>
+  <string name="browse_offline">Vous êtes hors ligne. Vérifiez votre connexion et réessayez.</string>
+  <string name="image_load_retry">Impossible de charger l’image. Appuyez pour réessayer.</string>
+  <string name="post_actions">Actions de la publication</string>
+  <string name="post_accessibility">Publication %1$d</string>
+</resources>

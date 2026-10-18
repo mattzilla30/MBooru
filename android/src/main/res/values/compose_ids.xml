@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="compose_settings_view" type="id" />
+    <item name="compose_browse_view" type="id" />
+    <item name="compose_fragment_view" type="id" />
+    <item name="fragment_settings" type="id" />
+    <item name="fragment_about" type="id" />
+    <item name="fragment_booru_config" type="id" />
+    <item name="fragment_post_container" type="id" />
+    <item name="nav_host_fragment" type="id" />
+    <item name="nav_posts" type="id" />
+    <item name="nav_popular" type="id" />
+    <item name="nav_pools" type="id" />
+    <item name="nav_tags" type="id" />
+    <item name="nav_artists" type="id" />
+</resources>

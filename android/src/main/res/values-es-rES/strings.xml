@@ -262,9 +262,9 @@
     <string name="muzei_search_hint">Añadir etiqueta…</string>
     <string name="muzei_fetch">Obtener imagen</string>
     <string name="muzei_input_cant_be_empty">La entrada no puede estar vacía.</string>
-    <string name="muzei_action_view_post">Ver post en Flexbooru</string>
-    <string name="muzei_action_search_posts">Buscar publicaciones en Flexbooru</string>
-    <string name="muzei_attribution">Publicación de Flexbooru</string>
+    <string name="muzei_action_view_post">Ver post en MBooru</string>
+    <string name="muzei_action_search_posts">Buscar publicaciones en MBooru</string>
+    <string name="muzei_attribution">Publicación de MBooru</string>
     <string name="tag_blacklist_copy">Copiar</string>
     <string name="tag_blacklist_delete">Eliminar</string>
     <string name="tag_blacklist_add">Añadir</string>
@@ -274,18 +274,6 @@
     <string name="comment_send">Enviar</string>
     <string name="comment_cancel">Cancelar</string>
     <string name="comment_hint">Comentario de entrada</string>
-    <string name="purchase_title">Quitar anuncios y desbloquear características</string>
-    <string name="purchase_history_title">Restore purchase</string>
-    <string name="purchase_info_title">Quitar anuncios y desbloquear características</string>
-    <string name="purchase_info_remove_ads">* Quitar anuncios</string>
-    <string name="purchase_info_unlock_full_features">* Desbloquear todas las características</string>
-    <string name="purchase_info_features">1. Quita el límite del booru disponible.\n2. Descarga el archivo zip del pool de
-        moebooru.\n3. Copia de seguridad &amp; Restaurar boorus desde el archivo.\n4. Búsqueda invertida por SauceNao.
-    
-    </string>
-    <string name="purchase_pay_title">Pagar/Restaurar compra</string>
-    <string name="purchase_pay_google_play">Google Play</string>
-    <string name="purchase_pay_alipay">AliPay</string>
     <string name="tab_start_date">Fecha de inicio</string>
     <string name="tab_end_date">Fecha de finalización</string>
     <string name="sauce_nao_help">Ayuda</string>

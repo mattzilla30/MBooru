@@ -1,0 +1,7 @@
+<resources>
+  <string name="browse_empty">Sonuç yok</string>
+  <string name="browse_offline">Çevrimdışısınız. Bağlantınızı kontrol edip yeniden deneyin.</string>
+  <string name="image_load_retry">Görüntü yüklenemedi. Yeniden denemek için dokunun.</string>
+  <string name="post_actions">Gönderi işlemleri</string>
+  <string name="post_accessibility">Gönderi %1$d</string>
+</resources>

@@ -15,9 +15,8 @@
   -->
 
 <full-backup-content>
-    <include domain="sharedpref" path="onlymash.flexbooru_preferences.xml"/>
-    <include domain="sharedpref" path="onlymash.flexbooru.play_preferences.xml"/>
-    <include domain="database" path="flexbooru.db"/>
-    <include domain="database" path="flexbooru.db-shm"/>
-    <include domain="database" path="flexbooru.db-wal"/>
+    <include domain="sharedpref" path="com.mattzilla30.mbooru_preferences.xml"/>
+    <include domain="database" path="mbooru.db"/>
+    <include domain="database" path="mbooru.db-shm"/>
+    <include domain="database" path="mbooru.db-wal"/>
 </full-backup-content>

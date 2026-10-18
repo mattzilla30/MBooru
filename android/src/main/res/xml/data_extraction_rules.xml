@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup disableIfNoEncryptionCapabilities="true">
+        <include domain="sharedpref" path="com.mattzilla30.mbooru_preferences.xml" />
+        <include domain="database" path="mbooru.db" />
+        <include domain="database" path="mbooru.db-wal" />
+        <include domain="database" path="mbooru.db-shm" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="sharedpref" path="com.mattzilla30.mbooru_preferences.xml" />
+        <include domain="database" path="mbooru.db" />
+        <include domain="database" path="mbooru.db-wal" />
+        <include domain="database" path="mbooru.db-shm" />
+    </device-transfer>
+</data-extraction-rules>

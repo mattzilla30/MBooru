@@ -262,9 +262,9 @@
     <string name="muzei_search_hint">Добавить тег…</string>
     <string name="muzei_fetch">Получить Арт</string>
     <string name="muzei_input_cant_be_empty">Поле ввода не может быть пустое.</string>
-    <string name="muzei_action_view_post">Посмотреть пост в Flexbooru</string>
-    <string name="muzei_action_search_posts">Поиск постов на Flexbooru</string>
-    <string name="muzei_attribution">Пост из Flexbooru</string>
+    <string name="muzei_action_view_post">Посмотреть пост в MBooru</string>
+    <string name="muzei_action_search_posts">Поиск постов на MBooru</string>
+    <string name="muzei_attribution">Пост из MBooru</string>
     <string name="tag_blacklist_copy">Скопировать</string>
     <string name="tag_blacklist_delete">Удалить</string>
     <string name="tag_blacklist_add">Добавить</string>
@@ -274,16 +274,6 @@
     <string name="comment_send">Отправить</string>
     <string name="comment_cancel">Отмена</string>
     <string name="comment_hint">Введите комментарий</string>
-    <string name="purchase_title">Удалить рекламу &amp; разблокировать новые возможности</string>
-    <string name="purchase_history_title">Восстановить покупки</string>
-    <string name="purchase_info_title">Удалить рекламу и разблокировать все возможности</string>
-    <string name="purchase_info_remove_ads">* Удалить рекламу</string>
-    <string name="purchase_info_unlock_full_features">* Разблокировать все возможности</string>
-    <string name="purchase_info_features">1. Нет лимита доступных booru-галерей.\n2. Скачивание zip-архива пула с        moebooru.\n3. Резервное копирование и восстановление booru-галерей из файла.\n4. Поиск изображения по SauceNao.
-        </string>
-    <string name="purchase_pay_title">Оплатить / Восстановить покупку</string>
-    <string name="purchase_pay_google_play">Google Play</string>
-    <string name="purchase_pay_alipay">Alipay</string>
     <string name="tab_start_date">Дата старта</string>
     <string name="tab_end_date">Дата окончания</string>
     <string name="sauce_nao_help">Справка</string>

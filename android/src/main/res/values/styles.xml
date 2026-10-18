@@ -24,10 +24,6 @@
         <item name="background">@color/colorBackgroundBlack</item>
     </style>
 
-    <style name="MaterialDrawerStyle" parent="Widget.MaterialDrawerStyle">
-        <item name="materialDrawerBackground">?android:colorBackground</item>
-        <item name="materialDrawerDividerColor">@color/colorDividerItem</item>
-    </style>
 
     <style name="AlertDialog.DayNight" parent="Theme.Material3.DayNight.Dialog.Alert">
         <item name="android:windowBackground">@drawable/background_dialog</item>
@@ -64,18 +60,8 @@
         <item name="android:background">@color/transparent</item>
     </style>
 
-    <style name="PreferenceTheme" parent="PreferenceThemeOverlay">
-        <item name="preferenceStyle">@style/PreferenceStyle</item>
-        <item name="switchPreferenceCompatStyle">@style/SwitchPreferenceCompatStyle</item>
-    </style>
 
-    <style name="PreferenceStyle" parent="Preference.Material">
-        <item name="iconSpaceReserved">true</item>
-    </style>
 
-    <style name="SwitchPreferenceCompatStyle" parent="Preference.SwitchPreferenceCompat.Material">
-        <item name="android:widgetLayout">@layout/preference_material_switch</item>
-    </style>
 
     <style name="PopupOverlay" parent="ThemeOverlay.Material3.Light"/>
 

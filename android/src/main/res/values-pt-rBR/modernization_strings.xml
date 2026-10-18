@@ -1,0 +1,7 @@
+<resources>
+  <string name="browse_empty">Nenhum resultado</string>
+  <string name="browse_offline">Você está offline. Verifique a conexão e tente novamente.</string>
+  <string name="image_load_retry">Não foi possível carregar a imagem. Toque para tentar novamente.</string>
+  <string name="post_actions">Ações da publicação</string>
+  <string name="post_accessibility">Publicação %1$d</string>
+</resources>

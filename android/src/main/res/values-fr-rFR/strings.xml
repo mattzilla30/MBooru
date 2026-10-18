@@ -261,9 +261,9 @@
     <string name="muzei_search_hint">Ajouter un tag…</string>
     <string name="muzei_fetch">Récupérer les illustrations</string>
     <string name="muzei_input_cant_be_empty">L\'entrée ne peut pas être vide.</string>
-    <string name="muzei_action_view_post">Voir la publication sur Flexbooru</string>
-    <string name="muzei_action_search_posts">Rechercher des publications sur Flexbooru</string>
-    <string name="muzei_attribution">Publier depuis Flexbooru</string>
+    <string name="muzei_action_view_post">Voir la publication sur MBooru</string>
+    <string name="muzei_action_search_posts">Rechercher des publications sur MBooru</string>
+    <string name="muzei_attribution">Publier depuis MBooru</string>
     <string name="tag_blacklist_copy">Copier</string>
     <string name="tag_blacklist_delete">Supprimer</string>
     <string name="tag_blacklist_add">Ajouter</string>
@@ -273,17 +273,6 @@
     <string name="comment_send">Envoyer</string>
     <string name="comment_cancel">Annuler</string>
     <string name="comment_hint">Écrire un commentaire</string>
-    <string name="purchase_title">Supprimer les publicités &amp; déverrouillage de fonctionnalité</string>
-    <string name="purchase_history_title">Restore purchase</string>
-    <string name="purchase_info_title">Supprimer les publicités et débloquer les fonctionnalités complètes</string>
-    <string name="purchase_info_remove_ads">Supprimer les publicités</string>
-    <string name="purchase_info_unlock_full_features">Débloquer toutes les fonctionnalités</string>
-    <string name="purchase_info_features">1. Supprimer la limite du booru disponible.\n2. Télécharger l\'archive zip du pool de
-        moebooru.\n3. Sauvegarder &amp; Restaurer les boorus depuis un fichier.\n. Recherche inversée par SauceNao.
-    </string>
-    <string name="purchase_pay_title">Payer/Restaurer l\'achat</string>
-    <string name="purchase_pay_google_play">Google Play</string>
-    <string name="purchase_pay_alipay">Alipay</string>
     <string name="tab_start_date">Date de début</string>
     <string name="tab_end_date">Date de fin</string>
     <string name="sauce_nao_help">Aide</string>

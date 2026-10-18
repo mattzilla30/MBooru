@@ -1,0 +1,7 @@
+<resources>
+  <string name="browse_empty">沒有結果</string>
+  <string name="browse_offline">目前離線。請檢查網路連線後重試。</string>
+  <string name="image_load_retry">無法載入圖片。點按重試。</string>
+  <string name="post_actions">貼文操作</string>
+  <string name="post_accessibility">貼文 %1$d</string>
+</resources>

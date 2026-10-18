@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
+    <string name="about_email_address" translatable="false">mattzilla30@gmail.com</string>
+    <string name="about_discord_username" translatable="false">musiccat01</string>
+    <string name="about_owner_copyright" translatable="false">© 2026 mattzilla30 &lt;mattzilla30@gmail.com&gt;</string>
+    <string name="about_upstream_project" translatable="false">Flexbooru</string>
+    <string name="about_upstream_credit">Based on Flexbooru by onlymash and contributors.</string>
+</resources>

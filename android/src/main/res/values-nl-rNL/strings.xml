@@ -261,9 +261,9 @@
     <string name="muzei_search_hint">Tag toevoegen…</string>
     <string name="muzei_fetch">Illustratie Ophalen</string>
     <string name="muzei_input_cant_be_empty">Invoer mag niet leeg zijn.</string>
-    <string name="muzei_action_view_post">Post in Flexbooru weergeven</string>
-    <string name="muzei_action_search_posts">Posts zoeken op Flexbooru</string>
-    <string name="muzei_attribution">Post uit Flexbooru</string>
+    <string name="muzei_action_view_post">Post in MBooru weergeven</string>
+    <string name="muzei_action_search_posts">Posts zoeken op MBooru</string>
+    <string name="muzei_attribution">Post uit MBooru</string>
     <string name="tag_blacklist_copy">Kopiëren</string>
     <string name="tag_blacklist_delete">Verwijderen</string>
     <string name="tag_blacklist_add">Toevoegen</string>
@@ -273,16 +273,6 @@
     <string name="comment_send">Verstuur</string>
     <string name="comment_cancel">Annuleren</string>
     <string name="comment_hint">Typ een reactie</string>
-    <string name="purchase_title">Verwijder advertenties &amp; ontgrendel functies</string>
-    <string name="purchase_history_title">Restore purchase</string>
-    <string name="purchase_info_title">Verwijder advertenties en ontgrendel alle functies</string>
-    <string name="purchase_info_remove_ads">* Verwijder advertenties</string>
-    <string name="purchase_info_unlock_full_features">* Ontgrendel alle functies</string>
-    <string name="purchase_info_features">1. Verwijder het limiet van de beschikbare booru.\n2. Download zip-archief van pool op moebooru.\n3. Back-up &amp; herstel boorus van bestand.\n4. Omgekeerd zoeken via SauceNao.
-    </string>
-    <string name="purchase_pay_title">Betalen/Aankoop herstellen</string>
-    <string name="purchase_pay_google_play">Google Play</string>
-    <string name="purchase_pay_alipay">Alipay</string>
     <string name="tab_start_date">Startdatum</string>
     <string name="tab_end_date">Einddatum</string>
     <string name="sauce_nao_help">Help</string>

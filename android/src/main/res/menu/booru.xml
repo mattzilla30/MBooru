@@ -22,6 +22,10 @@
             app:showAsAction="ifRoom">
         <menu>
             <item
+                    android:id="@+id/action_booru_add_featured"
+                    android:icon="@drawable/ic_star_border_24dp"
+                    android:title="@string/booru_add_featured"/>
+            <item
                     android:id="@+id/action_booru_add_qr"
                     android:icon="@drawable/ic_camera_alt_outline_24dp"
                     android:title="@string/booru_add_from_qr_code"/>

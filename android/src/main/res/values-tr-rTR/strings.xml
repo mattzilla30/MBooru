@@ -261,9 +261,9 @@
     <string name="muzei_search_hint">Etiket ekle…</string>
     <string name="muzei_fetch">Sanat Eserini Çek</string>
     <string name="muzei_input_cant_be_empty">Girdi boş bırakılamaz.</string>
-    <string name="muzei_action_view_post">Gönderiyi Flexbooru üzerinde görüntüle</string>
-    <string name="muzei_action_search_posts">Flexbooru üzerinde gönderi ara</string>
-    <string name="muzei_attribution">Flexbooru\'dan gönderi</string>
+    <string name="muzei_action_view_post">Gönderiyi MBooru üzerinde görüntüle</string>
+    <string name="muzei_action_search_posts">MBooru üzerinde gönderi ara</string>
+    <string name="muzei_attribution">MBooru\'dan gönderi</string>
     <string name="tag_blacklist_copy">Kopyala</string>
     <string name="tag_blacklist_delete">Sil</string>
     <string name="tag_blacklist_add">Ekle</string>
@@ -273,16 +273,6 @@
     <string name="comment_send">Gönder</string>
     <string name="comment_cancel">İptal et</string>
     <string name="comment_hint">Yorum girdisi</string>
-    <string name="purchase_title">Reklamları kaldırın ve özelliklerin kilidini açın</string>
-    <string name="purchase_history_title">Satın alımı geri yükle</string>
-    <string name="purchase_info_title">Reklamları kaldırın ve tüm özelliklerin kilidini açın</string>
-    <string name="purchase_info_remove_ads">* Reklamları kaldır</string>
-    <string name="purchase_info_unlock_full_features">* Tüm özelliklerin kilidini aç</string>
-    <string name="purchase_info_features">1. Mevcut booru sınırını kaldırın.\n2. Moebooru\'nun havuzunun zip arşivini indirin. \n3. Booru\'ları dosyadan yedekleyin veya geri yükleyin.\n4. SauceNao ile tersine arama yapın.
-    </string>
-    <string name="purchase_pay_title">Ödemeyi yap/geri yükle</string>
-    <string name="purchase_pay_google_play">Google Play</string>
-    <string name="purchase_pay_alipay">Alipay</string>
     <string name="tab_start_date">Başlangıç tarihi</string>
     <string name="tab_end_date">Bitiş tarihi</string>
     <string name="sauce_nao_help">Yardım</string>

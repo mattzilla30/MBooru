@@ -16,38 +16,41 @@
 @file:Suppress("UnstableApiUsage")
 
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import org.apache.commons.io.output.ByteArrayOutputStream
-import org.jetbrains.kotlin.konan.properties.Properties
+import java.util.Properties
 
 plugins {
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.gms)
-    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.gms) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
     id(libs.plugins.gms.oss.licenses.get().pluginId)
 }
 
-val releaseStoreFile = file("../.gradle/flexbooru_play.jks")
+// Supply a google-services.json registered for com.mattzilla30.mbooru to enable Firebase.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+}
+
+val releaseStoreFile = file("../.gradle/mbooru-release.jks")
 val storePropertyFile = file("../.gradle/keystore.properties")
 
 val properties = Properties()
 if (storePropertyFile.exists()) {
-    properties.load(storePropertyFile.inputStream())
+    storePropertyFile.inputStream().use(properties::load)
 }
-val byteOut = ByteArrayOutputStream()
-exec {
-    commandLine = "git rev-list HEAD --first-parent --count".split(" ")
-    standardOutput = byteOut
-}
-val verCode = String(byteOut.toByteArray()).trim().toInt()
 
 object Configs {
-    const val APP_VERSION_NAME = "3.2.4"
-    const val APP_ID = "onlymash.flexbooru.play"
-    const val SDK_VERSION = 34
+    const val APP_VERSION_NAME = "1"
+    const val APP_VERSION_CODE = 1374
+    const val APP_ID = "com.mattzilla30.mbooru"
+    const val COMPILE_SDK_VERSION = 35
+    const val TARGET_SDK_VERSION = 35
     const val MIN_SDK_VERSION = 21
 
     val LANGUAGES = listOf(
@@ -69,17 +72,17 @@ android {
             }
         }
     }
-    compileSdk = Configs.SDK_VERSION
+    compileSdk = Configs.COMPILE_SDK_VERSION
     defaultConfig {
         applicationId = Configs.APP_ID
         minSdk = Configs.MIN_SDK_VERSION
         //noinspection EditedTargetSdkVersion
-        targetSdk = Configs.SDK_VERSION
-        versionCode = verCode
+        targetSdk = Configs.TARGET_SDK_VERSION
+        versionCode = Configs.APP_VERSION_CODE
         versionName = Configs.APP_VERSION_NAME
-        versionNameSuffix = ".c$verCode"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // AGP 8.9's lint model still reads this list rather than androidResources.localeFilters.
         resourceConfigurations.addAll(Configs.LANGUAGES)
     }
     applicationVariants.all {
@@ -87,11 +90,13 @@ android {
             it as BaseVariantOutputImpl
         }
             .forEach { output ->
-                output.outputFileName = "flexbooru_${defaultConfig.versionName}${defaultConfig.versionNameSuffix}.apk"
+                output.outputFileName = "MBooru_${defaultConfig.versionName}.apk"
             }
     }
     buildTypes {
         release {
+            // Source provenance is recorded by the published release tag.
+            vcsInfo { include = false }
             isShrinkResources = true
             isMinifyEnabled = true
             val config = try {
@@ -140,19 +145,32 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
     buildFeatures {
-        viewBinding = true
+        compose = true
         buildConfig = true
     }
-    namespace = "onlymash.flexbooru"
+    namespace = "com.mattzilla30.mbooru"
 }
 
 dependencies {
+    baselineProfile(project(":baselineprofile"))
+    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 
 //    coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui.ui)
+    implementation(libs.compose.foundation.foundation)
+    implementation(libs.compose.material3.material3)
+    implementation(libs.compose.material.material)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
+
     implementation(libs.koin.android)
-    implementation(libs.koin.androidx.navigation)
     implementation(libs.koin.androidx.workmanager)
 
     implementation(libs.kotlinx.coroutines.android)
@@ -163,20 +181,13 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.fragment.ktx)
-    implementation(libs.androidx.preference.ktk)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.swiperefreshlayout)
-    implementation(libs.androidx.drawerlayout)
-    implementation(libs.androidx.viewpager2)
-    implementation(libs.flexbox.layout)
 
     implementation(libs.androidx.browser)
     implementation(libs.androidx.documentfile)
 
-    implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.fragment.compose)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.runtime.ktx)
 
     implementation(libs.androidx.room.ktx)
@@ -194,8 +205,6 @@ dependencies {
     implementation(libs.muzei.api)
     implementation(libs.photoview)
     implementation(libs.subsampling.scale.image.view)
-    implementation(libs.omfm)
-    implementation(libs.materialdrawer)
 
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
@@ -207,9 +216,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
 
-    implementation(libs.gms.ads)
     implementation(libs.gms.oss.licenses)
-    implementation(libs.billing.ktx)
 
     implementation(libs.retrofit.retrofit)
     implementation(libs.retrofit.converter.kotlinx)
@@ -232,8 +239,19 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.datasource.okhttp)
 
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.test.junit)
+    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.test.robolectric)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
 }
+
+baselineProfile { automaticGenerationDuringBuild = false }
