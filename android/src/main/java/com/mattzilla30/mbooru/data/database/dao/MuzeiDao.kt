@@ -15,28 +15,24 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import kotlinx.coroutines.flow.Flow
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.Muzei
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MuzeiDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(muzei: Muzei): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(muzei: Muzei): Long
 
     @Query("SELECT * FROM `muzei` WHERE `booru_uid` = :booruUid ORDER BY `uid` ASC")
     suspend fun getMuzeiByBooruUid(booruUid: Long): List<Muzei>?
 
-    @Query("SELECT * FROM `muzei` WHERE `uid` = :uid")
-    suspend fun getMuzeiByUid(uid: Long): Muzei?
+    @Query("SELECT * FROM `muzei` WHERE `uid` = :uid") suspend fun getMuzeiByUid(uid: Long): Muzei?
 
+    @Delete suspend fun delete(muzei: Muzei): Int
 
-    @Delete
-    suspend fun delete(muzei: Muzei): Int
+    @Query("DELETE FROM `muzei` WHERE `uid` = :uid") suspend fun deleteByUid(uid: Long): Int
 
-    @Query("DELETE FROM `muzei` WHERE `uid` = :uid")
-    suspend fun deleteByUid(uid: Long): Int
     @Query("SELECT * FROM `muzei` WHERE `booru_uid` = :booruUid ORDER BY `uid` ASC")
     fun observeMuzei(booruUid: Long): Flow<List<Muzei>>
 }

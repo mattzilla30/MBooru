@@ -16,33 +16,30 @@
 package com.mattzilla30.mbooru.okhttp
 
 import android.net.Uri
-import okhttp3.Response
 import java.io.IOException
+import okhttp3.Response
 
-/** A mechanism to load images from external resources such as a disk cache and/or the internet.  */
+/** A mechanism to load images from external resources such as a disk cache and/or the internet. */
 interface Downloader {
     /**
      * Download the specified image `url` from the internet.
      *
      * @throws IOException if the requested URL cannot successfully be loaded.
      */
-    @Throws(IOException::class)
-    fun load(request: okhttp3.Request): Response
+    @Throws(IOException::class) fun load(request: okhttp3.Request): Response
 
     /**
      * Download the specified image `url` from the internet.
      *
      * @throws IOException if the requested URL cannot successfully be loaded.
      */
-    @Throws(IOException::class)
-    fun load(uri: Uri): Response
+    @Throws(IOException::class) fun load(uri: Uri): Response
 
-    @Throws(IOException::class)
-    fun load(url: String): Response
+    @Throws(IOException::class) fun load(url: String): Response
 
     /**
-     * Allows to perform a clean up for this [Downloader] including closing the disk cache and
-     * other resources.
+     * Allows to perform a clean up for this [Downloader] including closing the disk cache and other
+     * resources.
      */
     fun shutdown()
 }

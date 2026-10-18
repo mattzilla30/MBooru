@@ -20,20 +20,11 @@ import java.security.MessageDigest
 /**
  * Supported algorithms on Android:
  *
- * Algorithm	Supported API Levels
- * MD5          1+
- * SHA-1	    1+
- * SHA-224	    1-8,22+
- * SHA-256	    1+
- * SHA-384	    1+
- * SHA-512	    1+
+ * Algorithm Supported API Levels MD5 1+ SHA-1 1+ SHA-224 1-8,22+ SHA-256 1+ SHA-384 1+ SHA-512 1+
  */
-
 private fun String.hashString(type: String): String {
     val hexChars = "0123456789abcdef"
-    val bytes = MessageDigest
-        .getInstance(type)
-        .digest(toByteArray())
+    val bytes = MessageDigest.getInstance(type).digest(toByteArray())
     val result = StringBuilder(bytes.size * 2)
 
     bytes.forEach {

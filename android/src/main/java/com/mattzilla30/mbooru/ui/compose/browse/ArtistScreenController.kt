@@ -15,9 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.compose.browse
 
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,6 +30,8 @@ import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.activity.SearchActivity
 import com.mattzilla30.mbooru.ui.compose.browse.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.viewmodel.ArtistViewModel
 import com.mattzilla30.mbooru.ui.viewmodel.getArtistViewModel
 
@@ -84,9 +83,9 @@ class ArtistScreenController(
         ) { item ->
             ArtistRow(
                 item,
-                { SearchActivity.startSearch(requireContext(), item.name) },
-                { requireContext().copyText(item.name) },
-                { requireContext().launchUrl(it) },
+                { SearchActivity.startSearch(host, item.name) },
+                { host.copyText(item.name) },
+                { host.launchUrl(it) },
             )
         }
     }

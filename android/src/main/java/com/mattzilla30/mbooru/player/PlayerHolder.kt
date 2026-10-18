@@ -22,28 +22,21 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.cache.CacheDataSource
-import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
-import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.Booru
-import com.mattzilla30.mbooru.okhttp.AndroidCookieJar
-import java.io.File
+import okhttp3.Interceptor
 
-/**
- * [ExoPlayer] holder
- * */
+/** [ExoPlayer] holder */
 @SuppressLint("UnsafeOptInUsageError")
 class PlayerHolder(
     val resources: MediaResources,
-    private val booru: Booru? = null
+    private val booru: Booru? = null,
 ) {
 
     private var currentPlayerState: PlayerState? = null
@@ -54,11 +47,13 @@ class PlayerHolder(
         val booru = booru
         var interceptor: Interceptor? = null
         if (booru != null) {
-            val referer = when (booru.type) {
-                Values.BOORU_TYPE_DAN1, Values.BOORU_TYPE_MOE -> "${booru.scheme}://${booru.host}/post/"
-                Values.BOORU_TYPE_SANKAKU -> Values.SANKAKU_REFERER
-                else -> "${booru.scheme}://${booru.host}/"
-            }
+            val referer =
+                when (booru.type) {
+                    Values.BOORU_TYPE_DAN1,
+                    Values.BOORU_TYPE_MOE -> "${booru.scheme}://${booru.host}/post/"
+                    Values.BOORU_TYPE_SANKAKU -> Values.SANKAKU_REFERER
+                    else -> "${booru.scheme}://${booru.host}/"
+                }
             interceptor = Interceptor {
                 val request = it.request()
                 it.proceed(request.newBuilder().addHeader(Keys.HEADER_REFERER, referer).build())
@@ -69,29 +64,31 @@ class PlayerHolder(
             okHttpClientBuilder.addNetworkInterceptor(interceptor)
         }
         val okHttpClient = okHttpClientBuilder.build()
-        val okHttpFactory = OkHttpDataSource.Factory(okHttpClient)
-            .setUserAgent(Values.PC_USER_AGENT)
+        val okHttpFactory =
+            OkHttpDataSource.Factory(okHttpClient).setUserAgent(Values.PC_USER_AGENT)
         val sourceFactory = DefaultDataSource.Factory(context, okHttpFactory)
-        val cacheSourceFactory = CacheDataSource.Factory().apply {
-            setCache(resources.cache)
-            setUpstreamDataSourceFactory(sourceFactory)
-        }
+        val cacheSourceFactory =
+            CacheDataSource.Factory().apply {
+                setCache(resources.cache)
+                setUpstreamDataSourceFactory(sourceFactory)
+            }
         return ProgressiveMediaSource.Factory(cacheSourceFactory)
             .createMediaSource(MediaItem.Builder().setUri(uri).build())
     }
 
-    //start play
+    // start play
     fun start(context: Context, uri: Uri, playerView: PlayerView) {
         playerView.player = player
         val mediaSource = createExtractorMediaSource(context, uri)
         val index = playerStates.indexOfFirst { it.uri == uri }
-        currentPlayerState = if (index >= 0) {
-            playerStates[index]
-        } else {
-            PlayerState(uri = uri).also {
-                playerStates.add(it)
+        currentPlayerState =
+            if (index >= 0) {
+                playerStates[index]
+            } else {
+                PlayerState(uri = uri).also {
+                    playerStates.add(it)
+                }
             }
-        }
         player?.apply {
             setMediaSource(mediaSource)
             prepare()
@@ -119,8 +116,11 @@ class PlayerHolder(
     }
 
     fun create(context: Context): ExoPlayer {
-        this.player?.let { return it }
-        val player = ExoPlayer.Builder(context).build().apply {
+        this.player?.let {
+            return it
+        }
+        val player =
+            ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
                 repeatMode = Player.REPEAT_MODE_ALL
             }

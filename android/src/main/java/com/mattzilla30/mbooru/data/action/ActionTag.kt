@@ -15,31 +15,32 @@
 
 package com.mattzilla30.mbooru.data.action
 
-import okhttp3.HttpUrl
 import com.mattzilla30.mbooru.data.model.common.Booru
+import okhttp3.HttpUrl
 
 data class ActionTag(
     var booru: Booru,
     var query: String = "",
-    //count name date
+    // count name date
     var order: String,
     // Moebooru General: 0, artist: 1, copyright: 3, character: 4, Circle: 5, Faults: 6
     // Danbooru General: 0, artist: 1, copyright: 3, character: 4, meta: 5
     // Danbooru1.x General: 0, artist: 1, copyright: 3, character: 4, model: 5, photo_set: 6
     var type: Int = -1,
-    var limit: Int
+    var limit: Int,
 ) {
     fun getDanTagsUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("tags.json")
-            .addQueryParameter("search[name_matches]", query)
-            .addQueryParameter("search[order]", order)
-            .addQueryParameter("search[hide_empty]", "yes")
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
-            .addQueryParameter("commit", "Search")
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("tags.json")
+                .addQueryParameter("search[name_matches]", query)
+                .addQueryParameter("search[order]", order)
+                .addQueryParameter("search[hide_empty]", "yes")
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
+                .addQueryParameter("commit", "Search")
         if (type > -1) {
             builder.addQueryParameter("search[category]", type.toString())
         }
@@ -51,16 +52,17 @@ data class ActionTag(
     }
 
     fun getDan1TagsUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("tag")
-            .addPathSegment("index.json")
-            .addQueryParameter("name", query)
-            .addQueryParameter("order", order)
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
-            .addQueryParameter("commit", "Search")
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("tag")
+                .addPathSegment("index.json")
+                .addQueryParameter("name", query)
+                .addQueryParameter("order", order)
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
+                .addQueryParameter("commit", "Search")
         if (type > -1) {
             builder.addQueryParameter("type", type.toString())
         }
@@ -87,15 +89,16 @@ data class ActionTag(
     }
 
     fun getMoeTagsUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("tag.json")
-            .addQueryParameter("name", query)
-            .addQueryParameter("order", order)
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
-            .addQueryParameter("commit", "Search")
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("tag.json")
+                .addQueryParameter("name", query)
+                .addQueryParameter("order", order)
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
+                .addQueryParameter("commit", "Search")
         if (type > -1) {
             builder.addQueryParameter("type", type.toString())
         }
@@ -107,15 +110,16 @@ data class ActionTag(
     }
 
     fun getSankakuTagsUrl(page: Int): HttpUrl {
-        val builder = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("tags")
-            .addQueryParameter("name", query)
-            .addQueryParameter("order", order)
-            .addQueryParameter("limit", limit.toString())
-            .addQueryParameter("page", page.toString())
-            .addQueryParameter("commit", "Search")
+        val builder =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("tags")
+                .addQueryParameter("name", query)
+                .addQueryParameter("order", order)
+                .addQueryParameter("limit", limit.toString())
+                .addQueryParameter("page", page.toString())
+                .addQueryParameter("commit", "Search")
         if (type > -1) {
             builder.addQueryParameter("type", type.toString())
         }

@@ -15,14 +15,11 @@
 
 package com.mattzilla30.mbooru.common.saucenao.model
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class SauceNaoResponse(
-    @SerialName("header")
-    val header: Header,
-    @SerialName("results")
-    var results: List<Result> = emptyList()
+    @SerialName("header") val header: Header,
+    @SerialName("results") var results: List<Result> = emptyList(),
 )

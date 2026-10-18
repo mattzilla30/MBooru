@@ -15,22 +15,22 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionPost
 import com.mattzilla30.mbooru.data.repository.post.PostRepository
+import kotlinx.coroutines.flow.*
 
 class PostViewModel(private val repository: PostRepository) : androidx.lifecycle.ViewModel() {
     private val actionState = MutableStateFlow<ActionPost?>(null)
     val action = actionState.asStateFlow()
-    val posts = actionState.flatMapLatest { action ->
-        if (action == null) flowOf(PagingData.empty()) else repository.getPosts(action)
-    }.cachedIn(viewModelScope)
+    val posts =
+        actionState
+            .flatMapLatest { action ->
+                if (action == null) flowOf(PagingData.empty()) else repository.getPosts(action)
+            }
+            .cachedIn(viewModelScope)
 
     fun show(action: ActionPost) {
         // Snapshot mutable action objects so preference/date changes invalidate paging reliably.

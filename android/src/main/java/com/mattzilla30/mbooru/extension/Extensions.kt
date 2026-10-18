@@ -30,9 +30,7 @@ import androidx.core.net.toUri
 import androidx.core.view.postDelayed
 import com.mattzilla30.mbooru.R
 
-/**
- * An extension to `postponeEnterTransition` which will resume after a timeout.
- */
+/** An extension to `postponeEnterTransition` which will resume after a timeout. */
 fun Activity.postponeEnterTransition(timeout: Long) {
     postponeEnterTransition()
     window.decorView.postDelayed(timeout) {
@@ -40,9 +38,7 @@ fun Activity.postponeEnterTransition(timeout: Long) {
     }
 }
 
-/**
- * Calculated the widest line in a [StaticLayout].
- */
+/** Calculated the widest line in a [StaticLayout]. */
 fun StaticLayout.textWidth(): Int {
     var width = 0f
     for (i in 0 until lineCount) {
@@ -51,9 +47,7 @@ fun StaticLayout.textWidth(): Int {
     return width.toInt()
 }
 
-/**
- * Linearly interpolate between two values.
- */
+/** Linearly interpolate between two values. */
 fun lerp(a: Float, b: Float, t: Float): Float {
     return a + (b - a) * t
 }
@@ -66,18 +60,22 @@ fun Context.safeOpenIntent(intent: Intent) {
 
 private fun getCustomTabsIntent(context: Context): CustomTabsIntent {
     return CustomTabsIntent.Builder()
-        .setDefaultColorSchemeParams(CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(ContextCompat.getColor(context, R.color.colorBackground))
-            .build())
+        .setDefaultColorSchemeParams(
+            CustomTabColorSchemeParams.Builder()
+                .setToolbarColor(ContextCompat.getColor(context, R.color.colorBackground))
+                .build()
+        )
         .build()
 }
 
-fun Context.launchUrl(uri: Uri) = try {
-    getCustomTabsIntent(this).launchUrl(this, uri)
-} catch (e: ActivityNotFoundException) { e.printStackTrace() }
+fun Context.launchUrl(uri: Uri) =
+    try {
+        getCustomTabsIntent(this).launchUrl(this, uri)
+    } catch (e: ActivityNotFoundException) {
+        e.printStackTrace()
+    }
 
 fun Context.launchUrl(url: String) = this.launchUrl(Uri.parse(url))
-
 
 fun Context.redirectToDownloadManagerSettings() {
     try {
@@ -102,20 +100,23 @@ fun Context.openUrl(url: String) {
 
 fun Context.openUri(uri: Uri) {
     try {
-        startActivity(Intent.createChooser(Intent(Intent.ACTION_VIEW, uri), getString(R.string.share_via)))
+        startActivity(
+            Intent.createChooser(Intent(Intent.ACTION_VIEW, uri), getString(R.string.share_via))
+        )
     } catch (_: ActivityNotFoundException) {
         Toast.makeText(this, getString(R.string.msg_no_app_to_open_url), Toast.LENGTH_LONG).show()
     }
 }
 
 fun Context.downloadByAdm(url: String) {
-    val intent = Intent().apply {
-        action = Intent.ACTION_MAIN
-        setPackage("com.dv.adm")
-        component = ComponentName("com.dv.adm", "com.dv.get.AEditor")
-        putExtra(Intent.EXTRA_TEXT, url)
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
+    val intent =
+        Intent().apply {
+            action = Intent.ACTION_MAIN
+            setPackage("com.dv.adm")
+            component = ComponentName("com.dv.adm", "com.dv.get.AEditor")
+            putExtra(Intent.EXTRA_TEXT, url)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
     try {
         startActivity(intent)
     } catch (_: ActivityNotFoundException) {

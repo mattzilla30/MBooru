@@ -3,9 +3,37 @@ package com.mattzilla30.mbooru.core.model
 
 /** Stable engine IDs are persisted by existing installations. Never reorder or reuse them. */
 enum class BooruEngine(val legacyId: Int, val capabilities: EngineCapabilities) {
-    DANBOORU(0, EngineCapabilities(popular = true, pools = true, tags = true, artists = true, accounts = true)),
-    MOEBOORU(1, EngineCapabilities(popular = true, pools = true, tags = true, artists = true, accounts = true, poolArchives = true)),
-    DANBOORU_V1(2, EngineCapabilities(popular = true, pools = true, tags = true, artists = true, accounts = true)),
+    DANBOORU(
+        0,
+        EngineCapabilities(
+            popular = true,
+            pools = true,
+            tags = true,
+            artists = true,
+            accounts = true,
+        ),
+    ),
+    MOEBOORU(
+        1,
+        EngineCapabilities(
+            popular = true,
+            pools = true,
+            tags = true,
+            artists = true,
+            accounts = true,
+            poolArchives = true,
+        ),
+    ),
+    DANBOORU_V1(
+        2,
+        EngineCapabilities(
+            popular = true,
+            pools = true,
+            tags = true,
+            artists = true,
+            accounts = true,
+        ),
+    ),
     GELBOORU(3, EngineCapabilities(tags = true, accounts = true)),
     SANKAKU(4, EngineCapabilities(popular = true, pools = true, tags = true, accounts = true)),
     SHIMMIE(5, EngineCapabilities()),
@@ -13,7 +41,8 @@ enum class BooruEngine(val legacyId: Int, val capabilities: EngineCapabilities) 
     UNKNOWN(-1, EngineCapabilities());
 
     companion object {
-        fun fromLegacyId(id: Int): BooruEngine = entries.firstOrNull { it.legacyId == id } ?: UNKNOWN
+        fun fromLegacyId(id: Int): BooruEngine =
+            entries.firstOrNull { it.legacyId == id } ?: UNKNOWN
     }
 }
 

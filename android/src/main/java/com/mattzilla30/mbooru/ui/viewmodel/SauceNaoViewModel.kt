@@ -15,25 +15,27 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
+import androidx.lifecycle.viewModelScope
+import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
+import com.mattzilla30.mbooru.common.saucenao.model.SauceNaoResponse
+import com.mattzilla30.mbooru.extension.NetResult
 import com.mattzilla30.mbooru.extension.safeNetworkMessage
-
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.CancellationException
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import com.mattzilla30.mbooru.extension.NetResult
-import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
-import com.mattzilla30.mbooru.common.saucenao.model.SauceNaoResponse
 
 class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : androidx.lifecycle.ViewModel() {
 
     private var retryRequest: (() -> Unit)? = null
-    fun retry() { if (!_loading.value) retryRequest?.invoke() }
+
+    fun retry() {
+        if (!_loading.value) retryRequest?.invoke()
+    }
 
     private val mutex = Mutex()
 
@@ -50,15 +52,18 @@ class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : androidx.lifecyc
             mutex.withLock {
                 _loading.value = true
                 _error.value = null
-                val result = withContext(Dispatchers.IO) {
-                    try {
-                        val response = sauceNaoApi.searchByUrl(imageUrl, apiKey)
-                        NetResult.Success(response)
-                    } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                        if (e is kotlinx.coroutines.CancellationException) throw e
-                        NetResult.Error(e.safeNetworkMessage())
+                val result =
+                    withContext(Dispatchers.IO) {
+                        try {
+                            val response = sauceNaoApi.searchByUrl(imageUrl, apiKey)
+                            NetResult.Success(response)
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (e: Exception) {
+                            if (e is kotlinx.coroutines.CancellationException) throw e
+                            NetResult.Error(e.safeNetworkMessage())
+                        }
                     }
-                }
                 _loading.value = false
                 when (result) {
                     is NetResult.Success -> {
@@ -78,15 +83,18 @@ class SauceNaoViewModel(private val sauceNaoApi: SauceNaoApi) : androidx.lifecyc
             mutex.withLock {
                 _loading.value = true
                 _error.value = null
-                val result = withContext(Dispatchers.IO) {
-                    try {
-                        val response = sauceNaoApi.searchByImage(apiKey, byteArray, fileExt)
-                        NetResult.Success(response)
-                    } catch (cancelled: CancellationException) { throw cancelled } catch (e: Exception) {
-                        if (e is kotlinx.coroutines.CancellationException) throw e
-                        NetResult.Error(e.safeNetworkMessage())
+                val result =
+                    withContext(Dispatchers.IO) {
+                        try {
+                            val response = sauceNaoApi.searchByImage(apiKey, byteArray, fileExt)
+                            NetResult.Success(response)
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (e: Exception) {
+                            if (e is kotlinx.coroutines.CancellationException) throw e
+                            NetResult.Error(e.safeNetworkMessage())
+                        }
                     }
-                }
                 _loading.value = false
                 when (result) {
                     is NetResult.Success -> {

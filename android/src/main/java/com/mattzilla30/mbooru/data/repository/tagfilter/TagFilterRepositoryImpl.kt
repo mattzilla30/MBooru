@@ -15,11 +15,11 @@
 
 package com.mattzilla30.mbooru.data.repository.tagfilter
 
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.database.dao.TagFilterDao
 import com.mattzilla30.mbooru.data.model.common.TagFilter
+import kotlinx.coroutines.flow.Flow
 
-//tags filter data source
+// tags filter data source
 class TagFilterRepositoryImpl(private val dao: TagFilterDao) : TagFilterRepository {
 
     override fun loadTagsFilter(): Flow<List<TagFilter>> {

@@ -15,11 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
 import android.os.Bundle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,10 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.data.database.dao.HistoryDao
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.viewmodel.getHistoryViewModel
 import org.koin.android.ext.android.inject
@@ -100,8 +96,6 @@ class HistoryActivity : BaseActivity() {
                 )
         }
     }
-
-
 
     override fun onAction(action: AppActionKey): Boolean =
         when (action) {

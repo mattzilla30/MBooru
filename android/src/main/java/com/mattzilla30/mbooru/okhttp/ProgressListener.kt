@@ -19,6 +19,6 @@ interface ProgressListener {
     fun onUpdate(
         bytesRead: Long,
         contentLength: Long,
-        done: Boolean
+        done: Boolean,
     )
 }

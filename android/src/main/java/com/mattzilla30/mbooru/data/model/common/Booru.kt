@@ -22,47 +22,28 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import okhttp3.HttpUrl
-import java.util.*
 
 @Serializable
 @Entity(tableName = "boorus", indices = [(Index(value = ["scheme", "host"], unique = true))])
 data class Booru(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "uid")
-    @Transient
-    var uid: Long = 0L,
-    @ColumnInfo(name = "name")
-    @SerialName("name")
-    var name: String,
-    @ColumnInfo(name = "scheme")
-    @SerialName("scheme")
-    var scheme: String = "https",
-    @ColumnInfo(name = "host")
-    @SerialName("host")
-    var host: String,
-    @ColumnInfo(name = "hash_salt")
-    @SerialName("hash_salt")
-    var hashSalt: String = "",
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "uid") @Transient var uid: Long = 0L,
+    @ColumnInfo(name = "name") @SerialName("name") var name: String,
+    @ColumnInfo(name = "scheme") @SerialName("scheme") var scheme: String = "https",
+    @ColumnInfo(name = "host") @SerialName("host") var host: String,
+    @ColumnInfo(name = "hash_salt") @SerialName("hash_salt") var hashSalt: String = "",
     // 0: danbooru 1: moebooru
-    @ColumnInfo(name = "type")
-    @SerialName("type")
-    var type: Int,
+    @ColumnInfo(name = "type") @SerialName("type") var type: Int,
     @ColumnInfo(name = "blacklists")
     @SerialName("blacklists")
     var blacklists: List<String> = listOf(),
-    @ColumnInfo(name = "user")
-    @SerialName("user")
-    var user: User? = null,
-    @ColumnInfo(name = "path")
-    @SerialName("path")
-    var path: String? = null,
-    @ColumnInfo(name = "auth")
-    @SerialName("auth")
-    var auth: AuthCredential? = null
+    @ColumnInfo(name = "user") @SerialName("user") var user: User? = null,
+    @ColumnInfo(name = "path") @SerialName("path") var path: String? = null,
+    @ColumnInfo(name = "auth") @SerialName("auth") var auth: AuthCredential? = null,
 ) {
     fun getBlacklistsString(): String {
         var tagsString = ""
@@ -81,7 +62,7 @@ data class Booru(
             .addQueryParameter("name", username)
             .build()
     }
-    
+
     fun getDan1UserUrlById(id: Int): HttpUrl {
         return HttpUrl.Builder()
             .scheme(scheme)
@@ -144,14 +125,22 @@ data class Booru(
             .addPathSegment("token")
             .build()
     }
-    
+
     override fun toString(): String = toUri().toString()
 
     private fun toUri(): Uri {
         return Uri.Builder()
             .scheme("booru")
-            .encodedAuthority(String.format(Locale.ENGLISH, "%s",
-                Base64.encodeToString(getString().toByteArray(), Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE)))
+            .encodedAuthority(
+                String.format(
+                    Locale.ENGLISH,
+                    "%s",
+                    Base64.encodeToString(
+                        getString().toByteArray(),
+                        Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE,
+                    ),
+                )
+            )
             .build()
     }
 
@@ -164,13 +153,14 @@ data class Booru(
     }
 
     companion object {
-        /**
-         * String to Booru
-         * */
+        /** String to Booru */
         fun url2Booru(str: String): Booru? {
             return try {
-                val dataByte = Base64.decode(str.toUri().authority,
-                    Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE)
+                val dataByte =
+                    Base64.decode(
+                        str.toUri().authority,
+                        Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE,
+                    )
                 val dataList = String(dataByte).split("@@@")
                 when (dataList.size) {
                     5 -> {
@@ -179,7 +169,7 @@ data class Booru(
                             scheme = dataList[1],
                             host = dataList[2],
                             type = dataList[3].toInt(),
-                            hashSalt = dataList[4]
+                            hashSalt = dataList[4],
                         )
                     }
                     6 -> {
@@ -189,7 +179,7 @@ data class Booru(
                             host = dataList[2],
                             type = dataList[3].toInt(),
                             hashSalt = dataList[4],
-                            path = dataList[5]
+                            path = dataList[5],
                         )
                     }
                     else -> {

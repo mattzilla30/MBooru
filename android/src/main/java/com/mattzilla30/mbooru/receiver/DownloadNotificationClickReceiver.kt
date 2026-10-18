@@ -15,14 +15,13 @@
 
 package com.mattzilla30.mbooru.receiver
 
-import kotlinx.coroutines.launch
-
 import android.content.*
 import android.net.Uri
 import androidx.work.Data
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.extension.getMimeType
 import com.mattzilla30.mbooru.worker.DownloadWorker
+import kotlinx.coroutines.launch
 
 class DownloadNotificationClickReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -35,10 +34,17 @@ class DownloadNotificationClickReceiver : BroadcastReceiver() {
             uri != null -> openUri(context, uri)
             data != null -> {
                 val pending = goAsync()
-                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO).launch {
-                    try { DownloadWorker.runWork(context, Data.fromByteArray(data)) }
-                    finally { pending.finish() }
-                }
+                kotlinx.coroutines
+                    .CoroutineScope(
+                        kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO
+                    )
+                    .launch {
+                        try {
+                            DownloadWorker.runWork(context, Data.fromByteArray(data))
+                        } finally {
+                            pending.finish()
+                        }
+                    }
             }
         }
     }
@@ -47,21 +53,22 @@ class DownloadNotificationClickReceiver : BroadcastReceiver() {
         if (uri.scheme != ContentResolver.SCHEME_CONTENT) {
             return
         }
-        val newIntent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            setDataAndType(uri, uri.toString().getMimeType())
-        }
+        val newIntent =
+            Intent().apply {
+                action = Intent.ACTION_VIEW
+                addFlags(
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+                setDataAndType(uri, uri.toString().getMimeType())
+            }
         try {
             context.startActivity(
                 Intent.createChooser(
-                    newIntent,
-                    context.getString(R.string.share_via)
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        } catch (_: ActivityNotFoundException) {
-
-        } catch (_: RuntimeException) {
-
-        }
+                        newIntent,
+                        context.getString(R.string.share_via),
+                    )
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        } catch (_: ActivityNotFoundException) {} catch (_: RuntimeException) {}
     }
 }

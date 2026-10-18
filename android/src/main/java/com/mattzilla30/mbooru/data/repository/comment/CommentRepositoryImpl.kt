@@ -15,12 +15,7 @@
 
 package com.mattzilla30.mbooru.data.repository.comment
 
-import com.mattzilla30.mbooru.extension.safeNetworkMessage
-
 import androidx.paging.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
@@ -30,19 +25,31 @@ import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.model.common.Comment
 import com.mattzilla30.mbooru.data.model.sankaku.CommentBody
 import com.mattzilla30.mbooru.extension.NetResult
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepository {
 
     override fun getComments(action: ActionComment): Flow<PagingData<Comment>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = action.limit,
-                enablePlaceholders = true
-            ),
-            initialKey = if (action.booru.type == Values.BOORU_TYPE_GEL || action.booru.type == Values.BOORU_TYPE_GEL_LEGACY) 0 else 1
-        ) {
-            CommentPagingSource(action, booruApis)
-        }.flow
+                config =
+                    PagingConfig(
+                        pageSize = action.limit,
+                        enablePlaceholders = true,
+                    ),
+                initialKey =
+                    if (
+                        action.booru.type == Values.BOORU_TYPE_GEL ||
+                            action.booru.type == Values.BOORU_TYPE_GEL_LEGACY
+                    )
+                        0
+                    else 1,
+            ) {
+                CommentPagingSource(action, booruApis)
+            }
+            .flow
     }
 
     override suspend fun createComment(action: ActionComment): NetResult<Boolean> {
@@ -62,18 +69,19 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
             else -> destroySankakuComment(action)
         }
     }
-    
+
     private suspend fun createDanComment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.danApi.createComment(
-                    url = action.getDanCreateCommentUrl(),
-                    body = action.body,
-                    anonymous = action.anonymous,
-                    username = action.booru.user?.name ?: "",
-                    apiKey = action.booru.user?.token ?: "",
-                    postId = action.postId
-                )
+                val response =
+                    booruApis.danApi.createComment(
+                        url = action.getDanCreateCommentUrl(),
+                        body = action.body,
+                        anonymous = action.anonymous,
+                        username = action.booru.user?.name ?: "",
+                        apiKey = action.booru.user?.token ?: "",
+                        postId = action.postId,
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -89,14 +97,15 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun createDan1Comment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.dan1Api.createComment(
-                    url = action.getDan1CreateCommentUrl(),
-                    body = action.body,
-                    anonymous = action.anonymous,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: "",
-                    postId = action.postId
-                )
+                val response =
+                    booruApis.dan1Api.createComment(
+                        url = action.getDan1CreateCommentUrl(),
+                        body = action.body,
+                        anonymous = action.anonymous,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                        postId = action.postId,
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -112,14 +121,15 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun createMoeComment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.moeApi.createComment(
-                    url = action.getMoeCreateCommentUrl(),
-                    postId = action.postId,
-                    body = action.body,
-                    anonymous = action.anonymous,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.moeApi.createComment(
+                        url = action.getMoeCreateCommentUrl(),
+                        postId = action.postId,
+                        body = action.body,
+                        anonymous = action.anonymous,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -135,10 +145,12 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun createSankakuComment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.sankakuApi.createComment(
-                    url = action.getSankakuCreateCommentUrl(),
-                    comment = CommentBody.createBody(action.body),
-                    auth = action.booru.user?.getAuth.toString())
+                val response =
+                    booruApis.sankakuApi.createComment(
+                        url = action.getSankakuCreateCommentUrl(),
+                        comment = CommentBody.createBody(action.body),
+                        auth = action.booru.user?.getAuth.toString(),
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -154,11 +166,12 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun destroyDanComment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.danApi.deleteComment(
-                    url = action.getDanDeleteCommentUrl(),
-                    username = action.booru.user?.name ?: "",
-                    apiKey = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.danApi.deleteComment(
+                        url = action.getDanDeleteCommentUrl(),
+                        username = action.booru.user?.name ?: "",
+                        apiKey = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -174,12 +187,13 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun destroyDan1Comment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.dan1Api.destroyComment(
-                    url = action.getDan1DestroyCommentUrl(),
-                    commentId = action.commentId,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.dan1Api.destroyComment(
+                        url = action.getDan1DestroyCommentUrl(),
+                        commentId = action.commentId,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -195,12 +209,13 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun destroyMoeComment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.moeApi.destroyComment(
-                    url = action.getMoeDestroyCommentUrl(),
-                    commentId = action.commentId,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.moeApi.destroyComment(
+                        url = action.getMoeDestroyCommentUrl(),
+                        commentId = action.commentId,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {
@@ -216,9 +231,11 @@ class CommentRepositoryImpl(private val booruApis: BooruApis) : CommentRepositor
     private suspend fun destroySankakuComment(action: ActionComment): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.sankakuApi.destroyComment(
-                    url = action.getSankakuDestroyCommentUrl(),
-                    auth = action.booru.user?.getAuth.toString())
+                val response =
+                    booruApis.sankakuApi.destroyComment(
+                        url = action.getSankakuDestroyCommentUrl(),
+                        auth = action.booru.user?.getAuth.toString(),
+                    )
                 if (response.isSuccessful) {
                     NetResult.Success(true)
                 } else {

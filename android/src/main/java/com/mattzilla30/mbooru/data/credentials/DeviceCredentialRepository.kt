@@ -5,8 +5,10 @@ import android.util.AtomicFile
 import java.io.File
 import java.util.UUID
 
-class DeviceCredentialRepository(context: Context, private val cipher: CredentialCipher) : CredentialRepository {
+class DeviceCredentialRepository(context: Context, private val cipher: CredentialCipher) :
+    CredentialRepository {
     private val directory = File(context.noBackupFilesDir, "credential-vault")
+
     override fun store(payload: String): String {
         val bytes = payload.toByteArray(Charsets.UTF_8)
         require(bytes.size <= 128 * 1024) { "Credential payload too large" }
@@ -15,10 +17,16 @@ class DeviceCredentialRepository(context: Context, private val cipher: Credentia
         val id = UUID.randomUUID().toString()
         val file = AtomicFile(File(directory, id))
         val output = file.startWrite()
-        try { output.write(encrypted); file.finishWrite(output) }
-        catch (failure: Exception) { file.failWrite(output); throw failure }
+        try {
+            output.write(encrypted)
+            file.finishWrite(output)
+        } catch (failure: Exception) {
+            file.failWrite(output)
+            throw failure
+        }
         return CredentialRepository.PREFIX + id
     }
+
     override fun read(reference: String): String? {
         val file = file(reference) ?: return null
         return try {
@@ -29,7 +37,11 @@ class DeviceCredentialRepository(context: Context, private val cipher: Credentia
             null
         }
     }
-    override fun remove(reference: String) { file(reference)?.let { AtomicFile(it).delete() } }
+
+    override fun remove(reference: String) {
+        file(reference)?.let { AtomicFile(it).delete() }
+    }
+
     private fun file(reference: String): File? {
         if (!isReference(reference)) return null
         val id = reference.removePrefix(CredentialRepository.PREFIX)

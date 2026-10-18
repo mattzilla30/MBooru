@@ -24,17 +24,22 @@ import androidx.lifecycle.LifecycleOwner
 
 class OpenFileLifecycleObserver(
     private val registry: ActivityResultRegistry,
-    private val handleUriCallback: (Uri) -> Unit
+    private val handleUriCallback: (Uri) -> Unit,
 ) : DefaultLifecycleObserver {
 
     private lateinit var getFile: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(owner: LifecycleOwner) {
-        getFile = registry.register("open_dcoument_file", owner, ActivityResultContracts.OpenDocument()) { uri ->
-            if (uri != null) {
-                handleUriCallback.invoke(uri)
+        getFile =
+            registry.register(
+                "open_dcoument_file",
+                owner,
+                ActivityResultContracts.OpenDocument(),
+            ) { uri ->
+                if (uri != null) {
+                    handleUriCallback.invoke(uri)
+                }
             }
-        }
     }
 
     fun openDocument(mimeTypes: Array<String>) {

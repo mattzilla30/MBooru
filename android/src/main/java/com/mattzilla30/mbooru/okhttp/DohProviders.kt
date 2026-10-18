@@ -1,14 +1,15 @@
 package com.mattzilla30.mbooru.okhttp
 
+import java.net.InetAddress
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.dnsoverhttps.DnsOverHttps
-import java.net.InetAddress
 
 // https://chromium.googlesource.com/chromium/src/+/refs/heads/main/net/dns/public/doh_provider_entry.cc
 object DohProviders {
     fun buildGoogle(bootstrapClient: OkHttpClient): DnsOverHttps {
-        return DnsOverHttps.Builder().client(bootstrapClient)
+        return DnsOverHttps.Builder()
+            .client(bootstrapClient)
             .url("https://dns.google/dns-query".toHttpUrl())
             .resolvePrivateAddresses(true)
             .bootstrapDnsHosts(
@@ -23,7 +24,8 @@ object DohProviders {
     }
 
     fun buildCloudflare(bootstrapClient: OkHttpClient): DnsOverHttps {
-        return DnsOverHttps.Builder().client(bootstrapClient)
+        return DnsOverHttps.Builder()
+            .client(bootstrapClient)
             .url("https://cloudflare-dns.com/dns-query".toHttpUrl())
             .resolvePrivateAddresses(true)
             .bootstrapDnsHosts(
@@ -38,7 +40,8 @@ object DohProviders {
     }
 
     fun buildCleanBrowsing(bootstrapClient: OkHttpClient): DnsOverHttps {
-        return DnsOverHttps.Builder().client(bootstrapClient)
+        return DnsOverHttps.Builder()
+            .client(bootstrapClient)
             .url("https://doh.cleanbrowsing.org/doh/security-filter".toHttpUrl())
             .resolvePrivateAddresses(true)
             .bootstrapDnsHosts(
@@ -53,7 +56,8 @@ object DohProviders {
     }
 
     fun buildDnsSb(bootstrapClient: OkHttpClient): DnsOverHttps {
-        return DnsOverHttps.Builder().client(bootstrapClient)
+        return DnsOverHttps.Builder()
+            .client(bootstrapClient)
             .url("https://doh.sb/dns-query".toHttpUrl())
             .resolvePrivateAddresses(true)
             .bootstrapDnsHosts(
@@ -68,7 +72,8 @@ object DohProviders {
     }
 
     fun buildOpenDns(bootstrapClient: OkHttpClient): DnsOverHttps {
-        return DnsOverHttps.Builder().client(bootstrapClient)
+        return DnsOverHttps.Builder()
+            .client(bootstrapClient)
             .url("https://doh.opendns.com/dns-query".toHttpUrl())
             .resolvePrivateAddresses(true)
             .bootstrapDnsHosts(
@@ -83,7 +88,8 @@ object DohProviders {
     }
 
     fun buildQuad9(bootstrapClient: OkHttpClient): DnsOverHttps {
-        return DnsOverHttps.Builder().client(bootstrapClient)
+        return DnsOverHttps.Builder()
+            .client(bootstrapClient)
             .url("https://dns11.quad9.net/dns-query".toHttpUrl())
             .resolvePrivateAddresses(true)
             .bootstrapDnsHosts(

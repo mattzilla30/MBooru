@@ -1,6 +1,7 @@
 package com.mattzilla30.mbooru.ui.compose.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.ui.compose.theme.PreferenceSpacing
-import androidx.compose.foundation.isSystemInDarkTheme
 
 /** State and callbacks only; persistence, networking and cache work stay outside composition. */
 @Composable
@@ -48,32 +47,55 @@ fun SettingsScreen(
     val rows = state.rows(isSystemInDarkTheme())
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = listState, modifier = Modifier.testTag("settings_list")) {
-            if (state.persistenceFailed) item(key = "persistence-error") {
-                Column(Modifier.fillMaxWidth().padding(16.dp)) {
-                    Text(stringResource(R.string.settings_write_failed), color = MaterialTheme.colorScheme.error)
-                    TextButton(onClick = onRetrySave) { Text(stringResource(R.string.action_retry)) }
+            if (state.persistenceFailed)
+                item(key = "persistence-error") {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text(
+                            stringResource(R.string.settings_write_failed),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        TextButton(onClick = onRetrySave) {
+                            Text(stringResource(R.string.action_retry))
+                        }
+                    }
                 }
-            }
-            items(rows, key = { row ->
+            items(
+                rows,
+                key = { row ->
+                    when (row) {
+                        is SettingsRow.Category -> "category-${row.title}"
+                        is SettingsRow.Preference -> row.spec.key
+                        is SettingsRow.Expand -> "expand"
+                    }
+                },
+                contentType = { it::class },
+            ) { row ->
                 when (row) {
-                    is SettingsRow.Category -> "category-${row.title}"
-                    is SettingsRow.Preference -> row.spec.key
-                    is SettingsRow.Expand -> "expand"
-                }
-            }, contentType = { it::class }) { row ->
-                when (row) {
-                    is SettingsRow.Category -> Text(
-                        text = stringResource(row.title),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.fillMaxWidth().semantics { heading() }
-                            .padding(start = PreferenceSpacing.horizontal + PreferenceSpacing.iconSlot,
-                                end = PreferenceSpacing.horizontal, top = 24.dp, bottom = 8.dp),
-                    )
+                    is SettingsRow.Category ->
+                        Text(
+                            text = stringResource(row.title),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .semantics { heading() }
+                                    .padding(
+                                        start =
+                                            PreferenceSpacing.horizontal +
+                                                PreferenceSpacing.iconSlot,
+                                        end = PreferenceSpacing.horizontal,
+                                        top = 24.dp,
+                                        bottom = 8.dp,
+                                    ),
+                        )
                     is SettingsRow.Expand -> {
                         val titles = row.hiddenTitles.map { stringResource(it) }
                         val summary = titles.reduceOrNull { acc, title ->
-                            context.getString(R.string.settings_summary_collapsed_preferences, acc, title)
+                            context.getString(
+                                R.string.settings_summary_collapsed_preferences,
+                                acc,
+                                title,
+                            )
                         }
                         PreferenceRow(
                             key = "settings_expand",
@@ -91,25 +113,31 @@ fun SettingsScreen(
                             title = stringResource(spec.title),
                             summary = summary,
                             icon = spec.icon,
-                            checked = if (spec is SettingSpec.Toggle) state.value(spec).toBoolean() else null,
+                            checked =
+                                if (spec is SettingSpec.Toggle) state.value(spec).toBoolean()
+                                else null,
                             enabled = spec.key != Settings.CLEAR_CACHE_KEY || !state.clearingCache,
                             onToggle = { onToggle(spec.key, it) },
                             onClick = {
                                 when (spec) {
                                     is SettingSpec.Choice -> dialogKey = spec.key
                                     is SettingSpec.Toggle -> Unit
-                                    is SettingSpec.Action -> when (spec.key) {
-                                        Settings.DOWNLOAD_PATH_KEY -> onPickDirectory()
-                                        Settings.CLEAR_CACHE_KEY -> dialogKey = spec.key
-                                    }
+                                    is SettingSpec.Action ->
+                                        when (spec.key) {
+                                            Settings.DOWNLOAD_PATH_KEY -> onPickDirectory()
+                                            Settings.CLEAR_CACHE_KEY -> dialogKey = spec.key
+                                        }
                                 }
                             },
                         )
                         if (spec.key == Settings.CLEAR_CACHE_KEY && state.cacheClearFailed) {
-                            Text(stringResource(R.string.settings_cache_clear_failed),
+                            Text(
+                                stringResource(R.string.settings_cache_clear_failed),
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(start = 72.dp, end = 16.dp, bottom = 12.dp))
+                                modifier =
+                                    Modifier.padding(start = 72.dp, end = 16.dp, bottom = 12.dp),
+                            )
                         }
                     }
                 }
@@ -129,23 +157,34 @@ fun SettingsScreen(
                     items(values, key = { it }) { value ->
                         val checked = state.value(selected) == value
                         Row(
-                            Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                .selectable(checked, role = Role.RadioButton, onClick = {
-                                    onChoose(selected.key, value, values)
-                                    dialogKey = null
-                                }).padding(vertical = 8.dp),
+                            Modifier.fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                                .selectable(
+                                    checked,
+                                    role = Role.RadioButton,
+                                    onClick = {
+                                        onChoose(selected.key, value, values)
+                                        dialogKey = null
+                                    },
+                                )
+                                .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             RadioButton(selected = checked, onClick = null)
                             Spacer(Modifier.width(16.dp))
-                            Text(entries[values.indexOf(value)], style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                entries[values.indexOf(value)],
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
                         }
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
-                TextButton(onClick = { dialogKey = null }) { Text(stringResource(R.string.dialog_cancel)) }
+                TextButton(onClick = { dialogKey = null }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
             },
         )
     } else if (dialogKey == Settings.CLEAR_CACHE_KEY) {
@@ -154,12 +193,19 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.settings_clear_cache)) },
             text = { Text(stringResource(R.string.settings_clear_cache_dialog_content)) },
             confirmButton = {
-                TextButton(onClick = { dialogKey = null; onClearCache() }) {
+                TextButton(
+                    onClick = {
+                        dialogKey = null
+                        onClearCache()
+                    }
+                ) {
                     Text(stringResource(R.string.dialog_ok))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { dialogKey = null }) { Text(stringResource(R.string.dialog_cancel)) }
+                TextButton(onClick = { dialogKey = null }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
             },
         )
     }
@@ -167,7 +213,8 @@ fun SettingsScreen(
 
 @Composable
 private fun preferenceSummary(spec: SettingSpec, state: SettingsUiState): String? {
-    if (spec.key in state.restartKeys) return stringResource(R.string.settings_summary_restart_required)
+    if (spec.key in state.restartKeys)
+        return stringResource(R.string.settings_summary_restart_required)
     return when (spec) {
         is SettingSpec.Choice -> {
             val entries = stringArrayResource(spec.entries)
@@ -176,14 +223,18 @@ private fun preferenceSummary(spec: SettingSpec, state: SettingsUiState): String
         }
         is SettingSpec.Toggle -> {
             val summary = if (state.value(spec).toBoolean()) spec.summaryOn else spec.summaryOff
-            (summary.takeIf { it != 0 } ?: spec.summary).takeIf { it != 0 }?.let { stringResource(it) }
+            (summary.takeIf { it != 0 } ?: spec.summary)
+                .takeIf { it != 0 }
+                ?.let { stringResource(it) }
         }
-        is SettingSpec.Action -> when (spec.key) {
-            Settings.DOWNLOAD_PATH_KEY -> state.value(spec).ifEmpty {
-                stringResource(R.string.settings_download_path_not_set)
+        is SettingSpec.Action ->
+            when (spec.key) {
+                Settings.DOWNLOAD_PATH_KEY ->
+                    state.value(spec).ifEmpty {
+                        stringResource(R.string.settings_download_path_not_set)
+                    }
+                else -> spec.summary.takeIf { it != 0 }?.let { stringResource(it) }
             }
-            else -> spec.summary.takeIf { it != 0 }?.let { stringResource(it) }
-        }
     }
 }
 
@@ -198,24 +249,48 @@ fun PreferenceRow(
     onClick: () -> Unit,
     onToggle: (Boolean) -> Unit = {},
 ) {
-    val interaction = if (checked != null) Modifier.toggleable(
-        value = checked, enabled = enabled, role = Role.Switch, onValueChange = onToggle,
-    ) else Modifier.clickable(enabled = enabled, onClick = onClick)
+    val interaction =
+        if (checked != null)
+            Modifier.toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Switch,
+                onValueChange = onToggle,
+            )
+        else Modifier.clickable(enabled = enabled, onClick = onClick)
     Row(
-        Modifier.fillMaxWidth().testTag(key).heightIn(min = PreferenceSpacing.minimumHeight)
-            .then(interaction).padding(horizontal = PreferenceSpacing.horizontal,
-                vertical = PreferenceSpacing.vertical),
+        Modifier.fillMaxWidth()
+            .testTag(key)
+            .heightIn(min = PreferenceSpacing.minimumHeight)
+            .then(interaction)
+            .padding(
+                horizontal = PreferenceSpacing.horizontal,
+                vertical = PreferenceSpacing.vertical,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.width(PreferenceSpacing.iconSlot)) {
-            if (icon != 0) Icon(painterResource(icon), contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
+            if (icon != 0)
+                Icon(
+                    painterResource(icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp),
+                )
         }
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.38f))
-            if (!summary.isNullOrEmpty()) Text(summary, style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge,
+                color =
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.38f),
+            )
+            if (!summary.isNullOrEmpty())
+                Text(
+                    summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
         }
         if (checked != null) {
             Spacer(Modifier.width(16.dp))

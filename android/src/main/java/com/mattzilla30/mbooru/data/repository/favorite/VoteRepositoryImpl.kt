@@ -15,12 +15,6 @@
 
 package com.mattzilla30.mbooru.data.repository.favorite
 
-import com.mattzilla30.mbooru.extension.safeNetworkMessage
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.mattzilla30.mbooru.app.App
-import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
@@ -30,13 +24,15 @@ import com.mattzilla30.mbooru.data.action.ActionVote
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.extension.NetResult
-import com.mattzilla30.mbooru.okhttp.AndroidCookieJar
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
 class VoteRepositoryImpl(
     private val booruApis: BooruApis,
-    private val postDao: PostDao
-): VoteRepository {
+    private val postDao: PostDao,
+) : VoteRepository {
 
     override suspend fun addFav(action: ActionVote): NetResult<Boolean> {
         return when (action.booru.type) {
@@ -53,7 +49,7 @@ class VoteRepositoryImpl(
             BOORU_TYPE_DAN -> removeDanFav(action)
             BOORU_TYPE_DAN1 -> removeDan1Fav(action)
             BOORU_TYPE_MOE -> voteMoePost(action, 0)
-            in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY)-> removeGelFav(action)
+            in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY) -> removeGelFav(action)
             else -> removeSankakuFav(action)
         }
     }
@@ -62,8 +58,13 @@ class VoteRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.cookies.set(
-                    action.getGelRemoveFavUrl().toString(), // NOTICE: Here is GelRemoveFavUrl, GelAddFavUrl is in subdir
-                    arrayListOf("user_id=${action.booru.user!!.id}", "pass_hash=${action.booru.user!!.token}")
+                    action
+                        .getGelRemoveFavUrl()
+                        .toString(), // NOTICE: Here is GelRemoveFavUrl, GelAddFavUrl is in subdir
+                    arrayListOf(
+                        "user_id=${action.booru.user!!.id}",
+                        "pass_hash=${action.booru.user!!.token}",
+                    ),
                 )
                 val response = booruApis.gelApi.favPost(action.getGelAddFavUrl())
 
@@ -71,8 +72,13 @@ class VoteRepositoryImpl(
                     val content = response.body()!!.string()
                     when (content) {
                         // Success (3) or already in favorites (1)
-                        "3", "1" -> {
-                            postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = true)
+                        "3",
+                        "1" -> {
+                            postDao.updateFav(
+                                booruUid = action.booru.uid,
+                                postId = action.postId,
+                                isFavored = true,
+                            )
                             NetResult.Success(true)
                         }
 
@@ -100,12 +106,19 @@ class VoteRepositoryImpl(
             try {
                 booruApis.cookies.set(
                     action.getGelRemoveFavUrl().toString(),
-                    arrayListOf("user_id=${action.booru.user!!.id}", "pass_hash=${action.booru.user!!.token}")
+                    arrayListOf(
+                        "user_id=${action.booru.user!!.id}",
+                        "pass_hash=${action.booru.user!!.token}",
+                    ),
                 )
                 val response = booruApis.gelApi.favPost(action.getGelRemoveFavUrl())
 
                 if (response.isSuccessful) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = false)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = false,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
@@ -123,18 +136,26 @@ class VoteRepositoryImpl(
                 if (action.booru.host == "lolibooru.moe") {
                     booruApis.cookies.set(
                         action.getMoeVoteUrl(),
-                        arrayListOf("login=${action.booru.user!!.name}", "pass_hash=${action.booru.user!!.token}")
+                        arrayListOf(
+                            "login=${action.booru.user!!.name}",
+                            "pass_hash=${action.booru.user!!.token}",
+                        ),
                     )
                 }
-                val response = booruApis.moeApi.votePost(
-                    url = action.getMoeVoteUrl(),
-                    id = action.postId,
-                    score = score,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.moeApi.votePost(
+                        url = action.getMoeVoteUrl(),
+                        id = action.postId,
+                        score = score,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = score != 0)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = score != 0,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
@@ -156,14 +177,19 @@ class VoteRepositoryImpl(
     private suspend fun addDanFav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.danApi.favPost(
-                    url = action.getDanAddFavUrl(),
-                    id = action.postId,
-                    username = action.booru.user?.name ?: "",
-                    apiKey = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.danApi.favPost(
+                        url = action.getDanAddFavUrl(),
+                        id = action.postId,
+                        username = action.booru.user?.name ?: "",
+                        apiKey = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful || response.code() == 422) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = true)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = true,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
@@ -173,7 +199,11 @@ class VoteRepositoryImpl(
                 if (e is HttpException) {
                     val code = e.code()
                     if (code == 500) {
-                        postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = true)
+                        postDao.updateFav(
+                            booruUid = action.booru.uid,
+                            postId = action.postId,
+                            isFavored = true,
+                        )
                         NetResult.Success(true)
                     } else NetResult.Error("code: ${e.code()}")
                 } else NetResult.Error(e.safeNetworkMessage())
@@ -186,17 +216,19 @@ class VoteRepositoryImpl(
             try {
                 val response = booruApis.danApi.removeFavPost(action.getDanRemoveFavUrl())
                 if (response.isSuccessful) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = false)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = false,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (e is HttpException)
-                    NetResult.Error("code: ${e.code()}")
-                else
-                    NetResult.Error(e.safeNetworkMessage())
+                if (e is HttpException) NetResult.Error("code: ${e.code()}")
+                else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -204,24 +236,27 @@ class VoteRepositoryImpl(
     private suspend fun addDan1Fav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.dan1Api.favPost(
-                    url = action.getDan1RemoveFavUrl(),
-                    id = action.postId,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.dan1Api.favPost(
+                        url = action.getDan1RemoveFavUrl(),
+                        id = action.postId,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = true)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = true,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (e is HttpException)
-                    NetResult.Error("code: ${e.code()}")
-                else
-                    NetResult.Error(e.safeNetworkMessage())
+                if (e is HttpException) NetResult.Error("code: ${e.code()}")
+                else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -229,24 +264,27 @@ class VoteRepositoryImpl(
     private suspend fun removeDan1Fav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.dan1Api.removeFavPost(
-                    url = action.getDan1RemoveFavUrl(),
-                    postId = action.postId,
-                    username = action.booru.user?.name ?: "",
-                    passwordHash = action.booru.user?.token ?: ""
-                )
+                val response =
+                    booruApis.dan1Api.removeFavPost(
+                        url = action.getDan1RemoveFavUrl(),
+                        postId = action.postId,
+                        username = action.booru.user?.name ?: "",
+                        passwordHash = action.booru.user?.token ?: "",
+                    )
                 if (response.isSuccessful) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = false)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = false,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (e is HttpException)
-                    NetResult.Error("code: ${e.code()}")
-                else
-                    NetResult.Error(e.safeNetworkMessage())
+                if (e is HttpException) NetResult.Error("code: ${e.code()}")
+                else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -254,22 +292,25 @@ class VoteRepositoryImpl(
     private suspend fun addSankakuFav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.sankakuApi.favPost(
-                    url = action.getSankakuFavUrl(),
-                    auth = action.booru.user?.getAuth.toString()
-                )
+                val response =
+                    booruApis.sankakuApi.favPost(
+                        url = action.getSankakuFavUrl(),
+                        auth = action.booru.user?.getAuth.toString(),
+                    )
                 if (response.isSuccessful || response.code() == 423) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = true)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = true,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (e is HttpException)
-                    NetResult.Error("code: ${e.code()}")
-                else
-                    NetResult.Error(e.safeNetworkMessage())
+                if (e is HttpException) NetResult.Error("code: ${e.code()}")
+                else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }
@@ -277,22 +318,25 @@ class VoteRepositoryImpl(
     private suspend fun removeSankakuFav(action: ActionVote): NetResult<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.sankakuApi.removeFavPost(
-                    url = action.getSankakuFavUrl(),
-                    auth = action.booru.user?.getAuth.toString()
-                )
+                val response =
+                    booruApis.sankakuApi.removeFavPost(
+                        url = action.getSankakuFavUrl(),
+                        auth = action.booru.user?.getAuth.toString(),
+                    )
                 if (response.isSuccessful) {
-                    postDao.updateFav(booruUid = action.booru.uid, postId = action.postId, isFavored = false)
+                    postDao.updateFav(
+                        booruUid = action.booru.uid,
+                        postId = action.postId,
+                        isFavored = false,
+                    )
                     NetResult.Success(true)
                 } else {
                     NetResult.Error("code: ${response.code()}")
                 }
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (e is HttpException)
-                    NetResult.Error("code: ${e.code()}")
-                else
-                    NetResult.Error(e.safeNetworkMessage())
+                if (e is HttpException) NetResult.Error("code: ${e.code()}")
+                else NetResult.Error(e.safeNetworkMessage())
             }
         }
     }

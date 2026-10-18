@@ -15,58 +15,58 @@
 
 package com.mattzilla30.mbooru.data.api
 
-import okhttp3.HttpUrl
-import okhttp3.ResponseBody
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.data.model.common.BoolResponse
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.model.sankaku.*
+import okhttp3.HttpUrl
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
 interface SankakuApi {
 
-    @GET
-    suspend fun getPosts(@Url httpUrl: HttpUrl): Response<ResponseSankaku>
+    @GET suspend fun getPosts(@Url httpUrl: HttpUrl): Response<ResponseSankaku>
 
     @GET
     suspend fun getPostsAuth(
         @Url httpUrl: HttpUrl,
-        @Header(Keys.HEADER_AUTH) auth: String
+        @Header(Keys.HEADER_AUTH) auth: String,
     ): Response<ResponseSankaku>
 
-    @GET
-    suspend fun getUsers(@Url httpUrl: HttpUrl): Response<List<User>>
+    @GET suspend fun getUsers(@Url httpUrl: HttpUrl): Response<List<User>>
 
-    @GET
-    suspend fun getPools(@Url httpUrl: HttpUrl): Response<List<PoolSankaku>>
+    @GET suspend fun getPools(@Url httpUrl: HttpUrl): Response<List<PoolSankaku>>
 
-    @GET
-    suspend fun getTags(@Url httpUrl: HttpUrl): Response<List<TagSankaku>>
+    @GET suspend fun getTags(@Url httpUrl: HttpUrl): Response<List<TagSankaku>>
 
     @Headers("Content-Type: application/json; charset=utf-8")
     @POST
     suspend fun favPost(
         @Url url: HttpUrl,
-        @Header(Keys.HEADER_AUTH) auth: String): Response<ResponseBody>
+        @Header(Keys.HEADER_AUTH) auth: String,
+    ): Response<ResponseBody>
 
     @Headers("Content-Type: application/json; charset=utf-8")
     @DELETE
     suspend fun removeFavPost(
         @Url url: HttpUrl,
-        @Header(Keys.HEADER_AUTH) auth: String): Response<ResponseBody>
+        @Header(Keys.HEADER_AUTH) auth: String,
+    ): Response<ResponseBody>
 
     @Headers("Content-Type: application/json; charset=utf-8")
     @GET
     suspend fun getPostsComments(
         @Url url: HttpUrl,
-        @Header(Keys.HEADER_AUTH) auth: String): Response<List<CommentSankaku>>
+        @Header(Keys.HEADER_AUTH) auth: String,
+    ): Response<List<CommentSankaku>>
 
     @Headers("Content-Type: application/json; charset=utf-8")
     @GET
     suspend fun getPostComments(
         @Url url: HttpUrl,
-        @Header(Keys.HEADER_AUTH) auth: String): Response<List<CommentSankakuItem>>
+        @Header(Keys.HEADER_AUTH) auth: String,
+    ): Response<List<CommentSankakuItem>>
 
     /* comment/create.json
      */
@@ -75,8 +75,8 @@ interface SankakuApi {
     suspend fun createComment(
         @Url url: HttpUrl,
         @Body comment: CommentBody,
-        @Header(Keys.HEADER_AUTH) auth: String): Response<BoolResponse>
-
+        @Header(Keys.HEADER_AUTH) auth: String,
+    ): Response<BoolResponse>
 
     /* comment/destroy.json
      */
@@ -84,19 +84,20 @@ interface SankakuApi {
     @DELETE
     suspend fun destroyComment(
         @Url url: HttpUrl,
-        @Header(Keys.HEADER_AUTH) auth: String): Response<BoolResponse>
+        @Header(Keys.HEADER_AUTH) auth: String,
+    ): Response<BoolResponse>
 
     @Headers("Content-Type: application/json")
     @POST
     suspend fun login(
         @Url url: HttpUrl,
-        @Body loginBody: LoginBody
+        @Body loginBody: LoginBody,
     ): Response<UserSankaku>
 
     @Headers("Content-Type: application/json")
     @POST
     suspend fun refreshToken(
         @Url url: HttpUrl,
-        @Body refreshTokenBody: RefreshTokenBody
+        @Body refreshTokenBody: RefreshTokenBody,
     ): Response<UserSankaku>
 }

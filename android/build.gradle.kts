@@ -31,7 +31,11 @@ plugins {
 }
 
 // Supply a google-services.json registered for com.mattzilla30.mbooru to enable Firebase.
-if (file("google-services.json").exists()) {
+val firebaseEnabled =
+    file("google-services.json").exists() &&
+        providers.gradleProperty("enableFirebase").orNull == "true"
+
+if (firebaseEnabled) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
 }
@@ -40,27 +44,41 @@ val releaseStoreFile = file("../.gradle/mbooru-release.jks")
 val storePropertyFile = file("../.gradle/keystore.properties")
 
 val properties = Properties()
+
 if (storePropertyFile.exists()) {
     storePropertyFile.inputStream().use(properties::load)
 }
 
 object Configs {
-    const val APP_VERSION_NAME = "1"
-    const val APP_VERSION_CODE = 1374
+    const val APP_VERSION_NAME = "2"
+    const val APP_VERSION_CODE = 1375
     const val APP_ID = "com.mattzilla30.mbooru"
     const val COMPILE_SDK_VERSION = 36
     const val TARGET_SDK_VERSION = 36
     const val MIN_SDK_VERSION = 21
 
-    val LANGUAGES = listOf(
-        "en", "zh-rCN", "zh-rHK", "zh-rTW",
-        "nl-rNL", "pt-rBR", "es-rES", "pl-rPL",
-        "fr-rFR", "hu-rHU", "ru-rRU", "ja-rJP",
-        "in-rID", "de-rDE", "tr-rTR"
-    )
+    val LANGUAGES =
+        listOf(
+            "en",
+            "zh-rCN",
+            "zh-rHK",
+            "zh-rTW",
+            "nl-rNL",
+            "pt-rBR",
+            "es-rES",
+            "pl-rPL",
+            "fr-rFR",
+            "hu-rHU",
+            "ru-rRU",
+            "ja-rJP",
+            "in-rID",
+            "de-rDE",
+            "tr-rTR",
+        )
 }
 
 android {
+    sourceSets.maybeCreate("nonMinifiedRelease")
     sourceSets.getByName("test").resources.srcDir("$projectDir/schemas")
     signingConfigs {
         if (storePropertyFile.exists() && releaseStoreFile.exists()) {
@@ -91,22 +109,27 @@ android {
             vcsInfo { include = false }
             isShrinkResources = true
             isMinifyEnabled = true
-            val config = try {
-                signingConfigs.getByName("release")
-            } catch (_: UnknownDomainObjectException) {
-                null
-            }
+            val config =
+                try {
+                    signingConfigs.getByName("release")
+                } catch (_: UnknownDomainObjectException) {
+                    null
+                }
             if (config != null) {
                 signingConfig = config
             }
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
         debug {
-            val config = try {
-                signingConfigs.getByName("release")
-            } catch (_: UnknownDomainObjectException) {
-                null
-            }
+            val config =
+                try {
+                    signingConfigs.getByName("release")
+                } catch (_: UnknownDomainObjectException) {
+                    null
+                }
             if (config != null) {
                 signingConfig = config
             }
@@ -118,17 +141,19 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs = freeCompilerArgs + listOf(
-            "-opt-in=kotlin.ExperimentalStdlibApi",
-            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-            "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "-opt-in=kotlinx.coroutines.FlowPreview",
-            "-opt-in=androidx.paging.ExperimentalPagingApi",
-            "-opt-in=nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
-            "-opt-in=coil.annotation.ExperimentalCoilApi",
-            "-Xjvm-default=all-compatibility"
-        )
+        freeCompilerArgs =
+            freeCompilerArgs +
+                listOf(
+                    "-opt-in=kotlin.ExperimentalStdlibApi",
+                    "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+                    "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
+                    "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "-opt-in=kotlinx.coroutines.FlowPreview",
+                    "-opt-in=androidx.paging.ExperimentalPagingApi",
+                    "-opt-in=nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
+                    "-opt-in=coil.annotation.ExperimentalCoilApi",
+                    "-Xjvm-default=all-compatibility",
+                )
     }
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
@@ -149,7 +174,7 @@ dependencies {
     baselineProfile(project(":baselineprofile"))
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 
-//    coreLibraryDesugaring(libs.desugarJdkLibs)
+    //    coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation(platform(libs.compose.bom))
@@ -168,6 +193,7 @@ dependencies {
     implementation(libs.koin.androidx.workmanager)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.material.material)
@@ -205,9 +231,11 @@ dependencies {
     implementation(libs.zxing.core)
     implementation(libs.barcode.scanning)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
+    if (firebaseEnabled) {
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.analytics)
+        implementation(libs.firebase.crashlytics)
+    }
 
     implementation(libs.gms.oss.licenses)
 
@@ -233,6 +261,7 @@ dependencies {
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation("androidx.work:work-testing:2.10.1")
     testImplementation(libs.test.junit)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.test.robolectric)

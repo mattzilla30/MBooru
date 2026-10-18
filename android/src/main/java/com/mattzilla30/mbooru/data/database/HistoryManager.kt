@@ -21,25 +21,21 @@ import java.io.IOException
 import java.sql.SQLException
 
 class HistoryManager(private val historyDao: HistoryDao) {
-    /**
-     * Create a [History]
-     * */
+    /** Create a [History] */
     @Throws(SQLException::class)
     suspend fun createHistory(history: History): History {
         history.uid = 0L
         history.uid = historyDao.insert(history)
         return history
     }
-    /**
-     * Delete a [History]
-     * */
+
+    /** Delete a [History] */
     @Throws(SQLException::class)
     suspend fun deleteHistory(history: History) {
         historyDao.delete(history)
     }
-    /**
-     * return [History] list by booru uid
-     * */
+
+    /** return [History] list by booru uid */
     @Throws(IOException::class)
     suspend fun getHistoryByBooruUid(booruUid: Long): List<History>? {
         return historyDao.getHistoryByBooruUid(booruUid)

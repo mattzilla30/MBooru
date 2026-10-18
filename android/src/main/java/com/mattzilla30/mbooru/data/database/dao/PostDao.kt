@@ -15,35 +15,42 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import kotlinx.coroutines.flow.Flow
 import androidx.paging.PagingSource
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.Post
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(posts: List<Post>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(posts: List<Post>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(post: Post)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(post: Post)
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC")
-    fun getPosts(booruUid: Long, query: String) : PagingSource<Int, Post>
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC"
+    )
+    fun getPosts(booruUid: Long, query: String): PagingSource<Int, Post>
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND `index` = :index")
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND `index` = :index"
+    )
     suspend fun getPost(booruUid: Long, query: String, index: Int): Post?
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT :limit")
-    suspend fun getPostsRaw(booruUid: Long, query: String, limit: Int) : List<Post>
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT :limit"
+    )
+    suspend fun getPostsRaw(booruUid: Long, query: String, limit: Int): List<Post>
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT 1")
-    suspend fun getFirstPostRaw(booruUid: Long, query: String) : Post?
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC LIMIT 1"
+    )
+    suspend fun getFirstPostRaw(booruUid: Long, query: String): Post?
 
-    @Query("SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `id` = :postId ORDER BY `index` ASC LIMIT 1")
-    fun observeFirstPost(booruUid: Long, postId: Int) : Flow<Post?>
-
+    @Query(
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `id` = :postId ORDER BY `index` ASC LIMIT 1"
+    )
+    fun observeFirstPost(booruUid: Long, postId: Int): Flow<Post?>
 
     @Query("DELETE FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query")
     suspend fun deletePosts(booruUid: Long, query: String)
@@ -51,21 +58,22 @@ interface PostDao {
     @Query("DELETE FROM `posts` WHERE `booru_uid` = :booruUid")
     suspend fun deletePosts(booruUid: Long)
 
-    @Query("SELECT MAX(`index`) + 1 FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query")
+    @Query(
+        "SELECT MAX(`index`) + 1 FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query"
+    )
     suspend fun getNextIndex(booruUid: Long, query: String): Int
 
-    @Delete
-    suspend fun deletePost(post: Post)
+    @Delete suspend fun deletePost(post: Post)
 
-    @Update
-    suspend fun updatePost(post: Post)
+    @Update suspend fun updatePost(post: Post)
 
     @Query("DELETE FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND id = :id")
     suspend fun deletePost(booruUid: Long, query: String, id: Int)
 
-    @Query("DELETE FROM `posts`")
-    suspend fun deleteAll()
+    @Query("DELETE FROM `posts`") suspend fun deleteAll()
 
-    @Query("UPDATE `posts` SET `is_favored` = :isFavored WHERE `booru_uid` = :booruUid AND `id` = :postId")
+    @Query(
+        "UPDATE `posts` SET `is_favored` = :isFavored WHERE `booru_uid` = :booruUid AND `id` = :postId"
+    )
     suspend fun updateFav(booruUid: Long, postId: Int, isFavored: Boolean)
 }

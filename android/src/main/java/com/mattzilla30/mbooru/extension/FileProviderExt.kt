@@ -24,6 +24,6 @@ fun Context.getUriForFile(file: File): Uri {
     return FileProvider.getUriForFile(
         this,
         applicationContext.packageName + ".fileprovider",
-        file
+        file,
     )
 }

@@ -15,32 +15,23 @@
 
 package com.mattzilla30.mbooru.data.model.danbooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.data.model.common.Pool
 import com.mattzilla30.mbooru.data.utils.getDanDateMillis
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PoolDan(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("description")
-    val description: String,
-    @SerialName("is_active")
-    val isActive: Boolean,
-    @SerialName("is_deleted")
-    val isDeleted: Boolean,
-    @SerialName("post_count")
-    val postCount: Int,
-    @SerialName("category")
-    val category: String,
-    @SerialName("updated_at")
-    val updatedAt: String
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("description") val description: String,
+    @SerialName("is_active") val isActive: Boolean,
+    @SerialName("is_deleted") val isDeleted: Boolean,
+    @SerialName("post_count") val postCount: Int,
+    @SerialName("category") val category: String,
+    @SerialName("updated_at") val updatedAt: String,
 ) {
     fun toPool(scheme: String, host: String): Pool {
         return Pool(
@@ -51,7 +42,7 @@ data class PoolDan(
             name = name,
             count = postCount,
             time = updatedAt.getDanDateMillis(),
-            description = description
+            description = description,
         )
     }
 }

@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Sin resultados</string>
-  <string name="browse_offline">Sin conexión. Comprueba tu conexión e inténtalo de nuevo.</string>
-  <string name="image_load_retry">No se pudo cargar la imagen. Toca para reintentar.</string>
-  <string name="post_actions">Acciones de la publicación</string>
-  <string name="post_accessibility">Publicación %1$d</string>
+    <string name="browse_empty">Sin resultados</string>
+    <string name="browse_offline">Sin conexión. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="image_load_retry">No se pudo cargar la imagen. Toca para reintentar.</string>
+    <string name="post_actions">Acciones de la publicación</string>
+    <string name="post_accessibility">Publicación %1$d</string>
+    <string name="booru_empty_message">Añade un sitio destacado o personalizado para empezar.</string>
+    <string name="title_downloads">Descargas</string>
+    <string name="download_resume_policy">Los reintentos continúan si el servidor y el almacenamiento lo permiten; de lo contrario, la descarga empieza de nuevo. Android puede pausar las transferencias en segundo plano.</string>
+    <string name="download_queue_empty">Todavía no hay descargas.</string>
+    <string name="download_state_queued">En cola · esperando transferencia</string>
+    <string name="download_state_running">Descargando</string>
+    <string name="download_state_completed">Completada</string>
+    <string name="download_state_failed">Error · comprueba la conexión, la sesión y el acceso a la carpeta</string>
+    <string name="download_state_cancelled">Cancelada</string>
+    <string name="download_bytes_unknown">%1$d bytes · tamaño total desconocido</string>
+    <string name="download_bytes_total">%1$d / %2$d bytes</string>
+    <string name="download_open_file">Abrir archivo</string>
+    <string name="settings_load_failed">No se pudieron cargar los ajustes</string>
+    <string name="settings_load_recovery">Tus ajustes se conservan. Inténtalo de nuevo; MBooru no los restablecerá automáticamente.</string>
+    <string name="settings_write_failed">No se pudieron guardar los ajustes. Reintenta antes de cerrar la aplicación.</string>
 </resources>

@@ -15,36 +15,59 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = android.app.Application::class, sdk = [28], manifest = Config.NONE, qualifiers = "en-rUS-notnight")
+@Config(
+    application = android.app.Application::class,
+    sdk = [28],
+    manifest = Config.NONE,
+    qualifiers = "en-rUS-notnight",
+)
 @LooperMode(LooperMode.Mode.PAUSED)
 class SettingsScreenTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun `switch clicks update state and expansion reveals the remaining controls`() {
+    @Test
+    fun `switch clicks update state and expansion reveals the remaining controls`() {
         val state = mutableStateOf(SettingsUiState())
         compose.setContent {
             MBooruTheme {
-                SettingsScreen(state.value,
-                    onToggle = { key, checked -> state.value = state.value.copy(values = state.value.values + (key to checked.toString())) },
-                    onChoose = { _, _, _ -> }, onExpand = { state.value = state.value.copy(expanded = true) },
-                    onPickDirectory = {}, onClearCache = {})
+                SettingsScreen(
+                    state.value,
+                    onToggle = { key, checked ->
+                        state.value =
+                            state.value.copy(
+                                values = state.value.values + (key to checked.toString())
+                            )
+                    },
+                    onChoose = { _, _, _ -> },
+                    onExpand = { state.value = state.value.copy(expanded = true) },
+                    onPickDirectory = {},
+                    onClearCache = {},
+                )
             }
         }
         compose.onNodeWithTag(Settings.GRID_ROUNDED_KEY).assertIsOn().performClick().assertIsOff()
         compose.onNodeWithTag("settings_list").performScrollToNode(hasTestTag("settings_expand"))
         compose.onNodeWithTag("settings_expand").performClick()
-        compose.onNodeWithTag("settings_list").performScrollToNode(hasTestTag(Settings.SAFE_MODE_KEY))
+        compose
+            .onNodeWithTag("settings_list")
+            .performScrollToNode(hasTestTag(Settings.SAFE_MODE_KEY))
         compose.onNodeWithTag(Settings.SAFE_MODE_KEY).assertIsOn().performClick().assertIsOff()
     }
 
-    @Test fun `choice dialog survives recreation and sends the selected value`() {
+    @Test
+    fun `choice dialog survives recreation and sends the selected value`() {
         val restore = StateRestorationTester(compose)
         var selection: String? = null
         restore.setContent {
             MBooruTheme {
-                SettingsScreen(SettingsUiState(), onToggle = { _, _ -> },
-                    onChoose = { _, value, _ -> selection = value }, onExpand = {},
-                    onPickDirectory = {}, onClearCache = {})
+                SettingsScreen(
+                    SettingsUiState(),
+                    onToggle = { _, _ -> },
+                    onChoose = { _, value, _ -> selection = value },
+                    onExpand = {},
+                    onPickDirectory = {},
+                    onClearCache = {},
+                )
             }
         }
         compose.onNodeWithTag(Settings.GRID_MODE_KEY).performClick()
@@ -54,20 +77,30 @@ class SettingsScreenTest {
         compose.runOnIdle { assertEquals("fixed", selection) }
     }
 
-    @Test fun `directory action and cache confirmation deliver callbacks only when requested`() {
+    @Test
+    fun `directory action and cache confirmation deliver callbacks only when requested`() {
         var picked = 0
         var cleared = 0
         compose.setContent {
             MBooruTheme {
-                SettingsScreen(SettingsUiState(expanded = true), onToggle = { _, _ -> },
-                    onChoose = { _, _, _ -> }, onExpand = {},
-                    onPickDirectory = { picked++ }, onClearCache = { cleared++ })
+                SettingsScreen(
+                    SettingsUiState(expanded = true),
+                    onToggle = { _, _ -> },
+                    onChoose = { _, _, _ -> },
+                    onExpand = {},
+                    onPickDirectory = { picked++ },
+                    onClearCache = { cleared++ },
+                )
             }
         }
-        compose.onNodeWithTag("settings_list").performScrollToNode(hasTestTag(Settings.DOWNLOAD_PATH_KEY))
+        compose
+            .onNodeWithTag("settings_list")
+            .performScrollToNode(hasTestTag(Settings.DOWNLOAD_PATH_KEY))
         compose.onNodeWithTag(Settings.DOWNLOAD_PATH_KEY).performClick()
         compose.runOnIdle { assertEquals(1, picked) }
-        compose.onNodeWithTag("settings_list").performScrollToNode(hasTestTag(Settings.CLEAR_CACHE_KEY))
+        compose
+            .onNodeWithTag("settings_list")
+            .performScrollToNode(hasTestTag(Settings.CLEAR_CACHE_KEY))
         compose.onNodeWithTag(Settings.CLEAR_CACHE_KEY).performClick()
         compose.onNodeWithText("Cancel").performClick()
         compose.runOnIdle { assertEquals(0, cleared) }

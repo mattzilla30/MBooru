@@ -15,24 +15,31 @@
 
 package com.mattzilla30.mbooru.common.di
 
-import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.mattzilla30.mbooru.data.api.HttpTransport
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApiService
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApiService
+import com.mattzilla30.mbooru.data.api.HttpTransport
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-internal inline fun <reified T> reverseSearchApi(client: OkHttpClient, baseUrl: String): T = Retrofit.Builder()
-    .baseUrl(baseUrl.trimEnd('/') + "/")
-    .client(client)
-    .addConverterFactory(Json { ignoreUnknownKeys = true; isLenient = true }
-        .asConverterFactory("application/json".toMediaType()))
-    .build().create(T::class.java)
+internal inline fun <reified T> reverseSearchApi(client: OkHttpClient, baseUrl: String): T =
+    Retrofit.Builder()
+        .baseUrl(baseUrl.trimEnd('/') + "/")
+        .client(client)
+        .addConverterFactory(
+            Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                }
+                .asConverterFactory("application/json".toMediaType())
+        )
+        .build()
+        .create(T::class.java)
 
 val commonModules = module {
     single<OkHttpClient> { get<HttpTransport>().apiClient(false) }

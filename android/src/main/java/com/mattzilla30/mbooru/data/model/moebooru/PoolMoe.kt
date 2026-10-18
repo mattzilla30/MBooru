@@ -15,28 +15,21 @@
 
 package com.mattzilla30.mbooru.data.model.moebooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.data.model.common.Pool
 import com.mattzilla30.mbooru.extension.parseDate
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PoolMoe(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("updated_at")
-    val updatedAt: String,
-    @SerialName("user_id")
-    val userId: Int,
-    @SerialName("post_count")
-    val postCount: Int,
-    @SerialName("description")
-    val description: String
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String,
+    @SerialName("user_id") val userId: Int,
+    @SerialName("post_count") val postCount: Int,
+    @SerialName("description") val description: String,
 ) {
     private fun getPattern(): String? {
         return when {
@@ -61,7 +54,7 @@ data class PoolMoe(
             count = postCount,
             time = date(),
             description = description,
-            creatorId = userId
+            creatorId = userId,
         )
     }
 }

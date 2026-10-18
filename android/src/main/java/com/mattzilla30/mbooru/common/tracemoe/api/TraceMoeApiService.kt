@@ -15,8 +15,8 @@
 
 package com.mattzilla30.mbooru.common.tracemoe.api
 
-import com.mattzilla30.mbooru.common.tracemoe.model.TraceResponse
 import com.mattzilla30.mbooru.common.di.reverseSearchApi
+import com.mattzilla30.mbooru.common.tracemoe.model.TraceResponse
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -26,12 +26,18 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 
 internal interface TraceMoeEndpoint {
-    @Multipart @POST("search")
-    suspend fun search(@Part image: MultipartBody.Part): TraceResponse
+    @Multipart @POST("search") suspend fun search(@Part image: MultipartBody.Part): TraceResponse
 }
 
 class TraceMoeApiService(client: OkHttpClient, baseUrl: String) : TraceMoeApi {
     private val api = reverseSearchApi<TraceMoeEndpoint>(client, baseUrl)
-    override suspend fun fetch(imageBlob: ByteArray): TraceResponse = api.search(
-        MultipartBody.Part.createFormData("image", "image.jpg", imageBlob.toRequestBody("image/jpeg".toMediaType())))
+
+    override suspend fun fetch(imageBlob: ByteArray): TraceResponse =
+        api.search(
+            MultipartBody.Part.createFormData(
+                "image",
+                "image.jpg",
+                imageBlob.toRequestBody("image/jpeg".toMediaType()),
+            )
+        )
 }

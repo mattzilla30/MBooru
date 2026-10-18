@@ -23,5 +23,5 @@ data class Comment(
     val time: Long?,
     val creatorId: Int,
     val creatorName: String,
-    val creatorAvatar: String? = null
+    val creatorAvatar: String? = null,
 )

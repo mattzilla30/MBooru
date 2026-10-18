@@ -15,26 +15,17 @@
 
 package com.mattzilla30.mbooru.common.tracemoe.model
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Result(
-    @SerialName("anilist")
-    val anilist: Int,
-    @SerialName("episode")
-    val episode: Int?,
-    @SerialName("filename")
-    val filename: String,
-    @SerialName("from")
-    val from: Float,
-    @SerialName("image")
-    val image: String,
-    @SerialName("similarity")
-    val similarity: Float,
-    @SerialName("to")
-    val to: Float,
-    @SerialName("video")
-    val video: String
+    @SerialName("anilist") val anilist: Int,
+    @SerialName("episode") val episode: Int?,
+    @SerialName("filename") val filename: String,
+    @SerialName("from") val from: Float,
+    @SerialName("image") val image: String,
+    @SerialName("similarity") val similarity: Float,
+    @SerialName("to") val to: Float,
+    @SerialName("video") val video: String,
 )

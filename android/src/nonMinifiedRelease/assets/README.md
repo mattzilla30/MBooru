@@ -1,0 +1,1 @@
+The viewer fixture is the same locally generated CC0 1-second H.264/AAC clip described in android/src/androidTest/assets/README.md. Benchmark corpus images are generated in memory. No booru content or accounts are used, and no network request leaves the fixture interceptor. This source set is excluded from production APKs.

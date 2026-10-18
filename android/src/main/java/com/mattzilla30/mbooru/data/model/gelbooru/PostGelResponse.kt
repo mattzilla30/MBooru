@@ -20,22 +20,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("posts")
-data class PostGelResponse (
-    @SerialName("count")
-    val count: Int,
-    @SerialName("offset")
-    val offset: Int,
-    @SerialName("post")
-    val posts: MutableList<PostGel>? = null
+data class PostGelResponse(
+    @SerialName("count") val count: Int,
+    @SerialName("offset") val offset: Int,
+    @SerialName("post") val posts: MutableList<PostGel>? = null,
 )
 
 @Serializable
 @SerialName("posts")
-data class PostGelLegacyResponse (
-    @SerialName("count")
-    val count: Int,
-    @SerialName("offset")
-    val offset: Int,
-    @SerialName("post")
-    val posts: MutableList<PostGelLegacy>? = null
+data class PostGelLegacyResponse(
+    @SerialName("count") val count: Int,
+    @SerialName("offset") val offset: Int,
+    @SerialName("post") val posts: MutableList<PostGelLegacy>? = null,
 )

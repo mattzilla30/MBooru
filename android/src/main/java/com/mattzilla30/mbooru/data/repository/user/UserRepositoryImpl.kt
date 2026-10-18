@@ -15,12 +15,6 @@
 
 package com.mattzilla30.mbooru.data.repository.user
 
-import com.mattzilla30.mbooru.extension.safeNetworkMessage
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.*
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
@@ -31,48 +25,54 @@ import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.model.sankaku.LoginBody
 import com.mattzilla30.mbooru.data.model.sankaku.RefreshTokenBody
 import com.mattzilla30.mbooru.extension.NetResult
+import com.mattzilla30.mbooru.extension.safeNetworkMessage
 import java.util.HashMap
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.*
 
-/**
- *user repo
- * */
+/** user repo */
 class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
 
     override suspend fun gelLogin(
         username: String,
         password: String,
-        booru: Booru
+        booru: Booru,
     ): NetResult<User> {
-        val url = HttpUrl.Builder()
-            .scheme(booru.scheme)
-            .host(booru.host)
-            .addPathSegment("index.php")
-            .addQueryParameter("page", "account")
-            .addQueryParameter("s", "login")
-            .addQueryParameter("code", "00")
-            .build()
+        val url =
+            HttpUrl.Builder()
+                .scheme(booru.scheme)
+                .host(booru.host)
+                .addPathSegment("index.php")
+                .addQueryParameter("page", "account")
+                .addQueryParameter("s", "login")
+                .addQueryParameter("code", "00")
+                .build()
         val cookiesStore = HashMap<String, List<Cookie>>()
-        val builder = booruApis.loginClient.newBuilder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .cookieJar(object : CookieJar {
-                override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    cookiesStore[booru.host] = cookies
-                }
-                override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    return cookiesStore[booru.host] ?: listOf()
-                }
-            })
+        val builder =
+            booruApis.loginClient
+                .newBuilder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .cookieJar(
+                    object : CookieJar {
+                        override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                            cookiesStore[booru.host] = cookies
+                        }
+
+                        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                            return cookiesStore[booru.host] ?: listOf()
+                        }
+                    }
+                )
         val client = builder.build()
-        val formBody = FormBody.Builder()
-            .add("user", username)
-            .add("pass", password)
-            .add("submit","Log in")
-            .build()
-        val request = Request.Builder()
-            .url(url)
-            .post(formBody)
-            .build()
+        val formBody =
+            FormBody.Builder()
+                .add("user", username)
+                .add("pass", password)
+                .add("submit", "Log in")
+                .build()
+        val request = Request.Builder().url(url).post(formBody).build()
         return withContext(Dispatchers.IO) {
             try {
                 val response = client.newCall(request).execute()
@@ -90,11 +90,12 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                         if (userId < 0 || passHash.isEmpty()) {
                             NetResult.Error(response.message)
                         } else {
-                            val user = User(
-                                name = username,
-                                id = userId,
-                                token = passHash
-                            )
+                            val user =
+                                User(
+                                    name = username,
+                                    id = userId,
+                                    token = passHash,
+                                )
                             NetResult.Success(user)
                         }
                     } else {
@@ -110,9 +111,7 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
         }
     }
 
-    /**
-     *search user
-     * */
+    /** search user */
     override suspend fun findUserByName(username: String, booru: Booru): NetResult<User> {
         return when (booru.type) {
             BOORU_TYPE_DAN -> findDanUser(username, booru)
@@ -137,7 +136,9 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                 val response = booruApis.moeApi.getUsers(booru.getMoeUserUrl(username))
                 val users = response.body()
                 if (response.isSuccessful && users != null) {
-                    val index = users.indexOfFirst { username.equals(other = it.name, ignoreCase = true) }
+                    val index = users.indexOfFirst {
+                        username.equals(other = it.name, ignoreCase = true)
+                    }
                     if (index == -1) {
                         NetResult.Error("User not found!")
                     } else {
@@ -159,7 +160,9 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                 val response = booruApis.danApi.getUsers(booru.getDanUserUrl(username))
                 val users = response.body()
                 if (response.isSuccessful && users != null) {
-                    val index = users.indexOfFirst { username.equals(other = it.name, ignoreCase = true) }
+                    val index = users.indexOfFirst {
+                        username.equals(other = it.name, ignoreCase = true)
+                    }
                     if (index == -1) {
                         NetResult.Error("User not found!")
                     } else {
@@ -175,9 +178,7 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
         }
     }
 
-    /**
-     *search moebooru user by id
-     * */
+    /** search moebooru user by id */
     private suspend fun findMoeUserById(id: Int, booru: Booru): NetResult<User> {
         return withContext(Dispatchers.IO) {
             try {
@@ -205,7 +206,9 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                 val response = booruApis.dan1Api.getUsers(booru.getDan1UserUrl(username))
                 val users = response.body()
                 if (response.isSuccessful && users != null) {
-                    val index = users.indexOfFirst { username.equals(other = it.name, ignoreCase = true) }
+                    val index = users.indexOfFirst {
+                        username.equals(other = it.name, ignoreCase = true)
+                    }
                     if (index == -1) {
                         NetResult.Error("User not found!")
                     } else {
@@ -227,7 +230,9 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                 val response = booruApis.sankakuApi.getUsers(booru.getSankakuUserUrl(username))
                 val users = response.body()
                 if (response.isSuccessful && users != null) {
-                    val index = users.indexOfFirst { username.equals(other = it.name, ignoreCase = true) }
+                    val index = users.indexOfFirst {
+                        username.equals(other = it.name, ignoreCase = true)
+                    }
                     if (index == -1) {
                         NetResult.Error("User not found!")
                     } else {
@@ -243,9 +248,7 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
         }
     }
 
-    /**
-     *search danbooru1.x user by id
-     * */
+    /** search danbooru1.x user by id */
     private suspend fun findDan1UserById(id: Int, booru: Booru): NetResult<User> {
         return withContext(Dispatchers.IO) {
             try {
@@ -270,11 +273,15 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
     override suspend fun sankakuLogin(
         username: String,
         password: String,
-        booru: Booru
+        booru: Booru,
     ): NetResult<User> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.sankakuApi.login(booru.getSankakuTokenUrl(), LoginBody(username, password))
+                val response =
+                    booruApis.sankakuApi.login(
+                        booru.getSankakuTokenUrl(),
+                        LoginBody(username, password),
+                    )
                 val sankakuUser = response.body()
                 if (response.isSuccessful && sankakuUser != null) {
                     NetResult.Success(sankakuUser.toUser())
@@ -291,7 +298,11 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
     override suspend fun sankakuRefreshToken(refreshToken: String, booru: Booru): NetResult<User> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.sankakuApi.refreshToken(booru.getSankakuTokenUrl(), RefreshTokenBody(refreshToken))
+                val response =
+                    booruApis.sankakuApi.refreshToken(
+                        booru.getSankakuTokenUrl(),
+                        RefreshTokenBody(refreshToken),
+                    )
                 val sankakuUser = response.body()
                 if (response.isSuccessful && sankakuUser != null) {
                     NetResult.Success(sankakuUser.toUser())
@@ -308,11 +319,16 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
     override suspend fun moeCheck(
         username: String,
         password: String,
-        booru: Booru
+        booru: Booru,
     ): NetResult<User> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = booruApis.moeApi.check(url = booru.getMoeCheckUserUrl(), username = username, password = password)
+                val response =
+                    booruApis.moeApi.check(
+                        url = booru.getMoeCheckUserUrl(),
+                        username = username,
+                        password = password,
+                    )
                 val check = response.body()
                 if (response.isSuccessful && check != null) {
                     if (check.response != "success") {

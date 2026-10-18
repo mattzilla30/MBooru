@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Brak wyników</string>
-  <string name="browse_offline">Jesteś offline. Sprawdź połączenie i spróbuj ponownie.</string>
-  <string name="image_load_retry">Nie można wczytać obrazu. Dotknij, aby ponowić.</string>
-  <string name="post_actions">Działania wpisu</string>
-  <string name="post_accessibility">Wpis %1$d</string>
+    <string name="browse_empty">Brak wyników</string>
+    <string name="browse_offline">Jesteś offline. Sprawdź połączenie i spróbuj ponownie.</string>
+    <string name="image_load_retry">Nie można wczytać obrazu. Dotknij, aby ponowić.</string>
+    <string name="post_actions">Działania wpisu</string>
+    <string name="post_accessibility">Wpis %1$d</string>
+    <string name="booru_empty_message">Dodaj polecaną lub własną witrynę, aby rozpocząć.</string>
+    <string name="title_downloads">Pobieranie</string>
+    <string name="download_resume_policy">Ponowienie wznawia pobieranie, jeśli serwer i pamięć to obsługują; w przeciwnym razie zaczyna od nowa. Android może wstrzymywać transfery w tle.</string>
+    <string name="download_queue_empty">Brak pobrań.</string>
+    <string name="download_state_queued">W kolejce · oczekiwanie na transfer</string>
+    <string name="download_state_running">Pobieranie</string>
+    <string name="download_state_completed">Ukończono</string>
+    <string name="download_state_failed">Błąd · sprawdź połączenie, logowanie i dostęp do folderu</string>
+    <string name="download_state_cancelled">Anulowano</string>
+    <string name="download_bytes_unknown">%1$d bajtów · łączny rozmiar nieznany</string>
+    <string name="download_bytes_total">%1$d / %2$d bajtów</string>
+    <string name="download_open_file">Otwórz plik</string>
+    <string name="settings_load_failed">Nie można wczytać ustawień</string>
+    <string name="settings_load_recovery">Twoje ustawienia zostały zachowane. Spróbuj ponownie; MBooru nie zresetuje ich automatycznie.</string>
+    <string name="settings_write_failed">Nie można zapisać ustawień. Spróbuj ponownie przed zamknięciem aplikacji.</string>
 </resources>

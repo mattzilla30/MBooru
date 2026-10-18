@@ -15,21 +15,13 @@
 
 package com.mattzilla30.mbooru.data.api
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.data.model.app.UpdateInfo
 import retrofit2.Response
 import retrofit2.http.GET
 
-/**
- * App update api
- * */
+/** App update api */
 interface AppUpdaterApi {
 
-    /**
-     * check app new version
-     * */
-    @GET("/mattzilla30/MBooru/master/update.json")
-    suspend fun checkUpdate(): Response<UpdateInfo>
+    /** check app new version */
+    @GET("/mattzilla30/MBooru/master/update.json") suspend fun checkUpdate(): Response<UpdateInfo>
 }

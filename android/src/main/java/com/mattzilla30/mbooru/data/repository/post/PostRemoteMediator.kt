@@ -4,7 +4,6 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
@@ -16,7 +15,6 @@ import com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POPULAR
 import com.mattzilla30.mbooru.data.action.ActionPost
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.api.DanbooruApi
-import com.mattzilla30.mbooru.data.database.BooruManager
 import com.mattzilla30.mbooru.data.database.MyDatabase
 import com.mattzilla30.mbooru.data.model.common.Next
 import com.mattzilla30.mbooru.data.model.common.Post
@@ -28,54 +26,57 @@ class PostRemoteMediator(
     private val action: ActionPost,
     private val db: MyDatabase,
     private val booruApis: BooruApis,
-    private val settings: com.mattzilla30.mbooru.app.SettingsRepository
-) : RemoteMediator<Int,  Post>() {
+    private val settings: com.mattzilla30.mbooru.app.SettingsRepository,
+) : RemoteMediator<Int, Post>() {
 
     private val isFavored = action.isFavoredQuery()
     private var lastResponseSize = action.limit
     private val postDao = db.postDao()
+
     private suspend fun nextIndex(): Int = db.postDao().getNextIndex(action.booru.uid, action.query)
+
     private fun nextPage(nextIndex: Int): Int {
         return when (action.booru.type) {
-            in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY) -> nextIndex/action.limit
-            else -> nextIndex/action.limit + 1
+            in arrayOf(BOORU_TYPE_GEL, BOORU_TYPE_GEL_LEGACY) -> nextIndex / action.limit
+            else -> nextIndex / action.limit + 1
         }
     }
-    private suspend fun nextSankakuKey(): String? = db.nextDao().getNext(action.booru.uid, action.query)?.next
+
+    private suspend fun nextSankakuKey(): String? =
+        db.nextDao().getNext(action.booru.uid, action.query)?.next
 
     override suspend fun initialize(): InitializeAction {
-        return if (settings.autoRefresh)
-            InitializeAction.LAUNCH_INITIAL_REFRESH
-        else
-            InitializeAction.SKIP_INITIAL_REFRESH
+        return if (settings.autoRefresh) InitializeAction.LAUNCH_INITIAL_REFRESH
+        else InitializeAction.SKIP_INITIAL_REFRESH
     }
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Post>): MediatorResult {
-        val posts = when (loadType) {
-            LoadType.REFRESH -> {
-                try {
-                    fetchPosts(0, null)
-                } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
-                    return MediatorResult.Error(e)
+        val posts =
+            when (loadType) {
+                LoadType.REFRESH -> {
+                    try {
+                        fetchPosts(0, null)
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        return MediatorResult.Error(e)
+                    }
                 }
-            }
-            LoadType.PREPEND -> {
-                return MediatorResult.Success(endOfPaginationReached = true)
-            }
-            LoadType.APPEND -> {
-                val index = nextIndex()
-                if (!hasMore() && index != 0) {
+                LoadType.PREPEND -> {
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
-                try {
-                    fetchPosts(index, nextSankakuKey())
-                } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
-                    return MediatorResult.Error(e)
+                LoadType.APPEND -> {
+                    val index = nextIndex()
+                    if (!hasMore() && index != 0) {
+                        return MediatorResult.Success(endOfPaginationReached = true)
+                    }
+                    try {
+                        fetchPosts(index, nextSankakuKey())
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        return MediatorResult.Error(e)
+                    }
                 }
             }
-        }
         try {
             db.withTransaction {
                 if (loadType == LoadType.REFRESH) {
@@ -128,7 +129,7 @@ class PostRemoteMediator(
                 scheme = action.booru.scheme,
                 host = action.booru.host,
                 index = indexInNext + index,
-                isFavored = isFavored
+                isFavored = isFavored,
             )
         }
     }
@@ -142,7 +143,7 @@ class PostRemoteMediator(
             post.toPost(
                 booruUid = action.booru.uid,
                 query = action.query,
-                index = indexInNext + index
+                index = indexInNext + index,
             )
         }
     }
@@ -158,10 +159,9 @@ class PostRemoteMediator(
                 scheme = action.booru.scheme,
                 host = action.booru.host,
                 index = indexInNext + index,
-                isFavored = isFavored
+                isFavored = isFavored,
             )
         } ?: listOf()
-
     }
 
     private suspend fun fetchPostsMoe(page: Int, indexInNext: Int): List<Post> {
@@ -197,7 +197,7 @@ class PostRemoteMediator(
                     host = action.booru.host,
                     index = indexInNext + index,
                     tagTypes = tagTypes,
-                    votes = votes
+                    votes = votes,
                 )
             }
         } else {
@@ -215,7 +215,7 @@ class PostRemoteMediator(
                     host = action.booru.host,
                     index = indexInNext + index,
                     tagTypes = mapOf(),
-                    votes = mapOf()
+                    votes = mapOf(),
                 )
             }
         }
@@ -232,7 +232,7 @@ class PostRemoteMediator(
                 scheme = action.booru.scheme,
                 host = action.booru.host,
                 index = indexInNext + index,
-                isFavored = isFavored
+                isFavored = isFavored,
             )
         } ?: listOf()
     }
@@ -247,7 +247,7 @@ class PostRemoteMediator(
                 query = action.query,
                 scheme = action.booru.scheme,
                 host = action.booru.host,
-                index = indexInNext + index
+                index = indexInNext + index,
             )
         } ?: listOf()
     }
@@ -255,57 +255,62 @@ class PostRemoteMediator(
     private suspend fun fetchPostsShimmie(page: Int, indexInNext: Int): List<Post> {
         val response = booruApis.shimmieApi.getPosts(action.getShimmiePostsUrl(page))
         val data = response.body()
-        val posts = when {
-            data?.post != null -> {
-                data.post.mapIndexed { index, post ->
-                    post.toPost(
-                        booruUid = action.booru.uid,
-                        query = action.query,
-                        scheme = action.booru.scheme,
-                        host = action.booru.host,
-                        index = indexInNext + index
-                    )
+        val posts =
+            when {
+                data?.post != null -> {
+                    data.post.mapIndexed { index, post ->
+                        post.toPost(
+                            booruUid = action.booru.uid,
+                            query = action.query,
+                            scheme = action.booru.scheme,
+                            host = action.booru.host,
+                            index = indexInNext + index,
+                        )
+                    }
                 }
-            }
-            data?.tag != null -> {
-                data.tag.mapIndexed { index, post ->
-                    post.toPost(
-                        booruUid = action.booru.uid,
-                        query = action.query,
-                        scheme = action.booru.scheme,
-                        host = action.booru.host,
-                        index = indexInNext + index
-                    )
+                data?.tag != null -> {
+                    data.tag.mapIndexed { index, post ->
+                        post.toPost(
+                            booruUid = action.booru.uid,
+                            query = action.query,
+                            scheme = action.booru.scheme,
+                            host = action.booru.host,
+                            index = indexInNext + index,
+                        )
+                    }
                 }
+                else -> listOf()
             }
-            else -> listOf()
-        }
         lastResponseSize = posts.size
         return posts
     }
 
     private suspend fun fetchPostsSankaku(next: String?, indexInNext: Int): List<Post> {
-        val url = if (next.isNullOrEmpty()) action.getSankakuPostsUrl() else action.getSankakuPostsUrlNext(next)
+        val url =
+            if (next.isNullOrEmpty()) action.getSankakuPostsUrl()
+            else action.getSankakuPostsUrlNext(next)
         val auth = action.booru.user?.getAuth
-        val response = if (auth.isNullOrBlank())
-            booruApis.sankakuApi.getPosts(url)
-        else
-            booruApis.sankakuApi.getPostsAuth(url, auth)
+        val response =
+            if (auth.isNullOrBlank()) booruApis.sankakuApi.getPosts(url)
+            else booruApis.sankakuApi.getPostsAuth(url, auth)
         if (response.code() == 401) {
             refreshSankakuToken()
-            throw(HttpException(response))
+            throw (HttpException(response))
         }
         val data = response.body()
         val raw = data?.posts
         lastResponseSize = raw?.size ?: 0
-        db.nextDao().insert(Next(booruUid = action.booru.uid, query = action.query, next = data?.meta?.next))
+        db.nextDao()
+            .insert(
+                Next(booruUid = action.booru.uid, query = action.query, next = data?.meta?.next)
+            )
         return raw?.mapIndexed { index, post ->
             post.toPost(
                 booruUid = action.booru.uid,
                 query = action.query,
                 scheme = action.booru.scheme,
                 host = action.booru.host,
-                index = indexInNext + index
+                index = indexInNext + index,
             )
         } ?: listOf()
     }
@@ -314,16 +319,20 @@ class PostRemoteMediator(
         val refreshToken = action.booru.user?.refreshToken
         if (refreshToken != null) {
             try {
-                val user = booruApis.sankakuApi
-                    .refreshToken(action.booru.getSankakuTokenUrl(), RefreshTokenBody(refreshToken))
-                    .body()?.toUser()
+                val user =
+                    booruApis.sankakuApi
+                        .refreshToken(
+                            action.booru.getSankakuTokenUrl(),
+                            RefreshTokenBody(refreshToken),
+                        )
+                        .body()
+                        ?.toUser()
                 if (user != null) {
                     action.booru.user = user
                     db.booruDao().update(action.booru)
                 }
             } catch (failure: Exception) {
                 if (failure is kotlinx.coroutines.CancellationException) throw failure
-
             }
         }
     }

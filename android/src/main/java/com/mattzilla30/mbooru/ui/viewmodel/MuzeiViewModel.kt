@@ -15,19 +15,23 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import kotlinx.coroutines.flow.*
-import com.mattzilla30.mbooru.app.Settings
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
 import com.mattzilla30.mbooru.data.database.dao.MuzeiDao
 import com.mattzilla30.mbooru.data.model.common.Muzei
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
-class MuzeiViewModel(private val muzeiDao: MuzeiDao, private val settings: com.mattzilla30.mbooru.app.SettingsRepository) : androidx.lifecycle.ViewModel() {
+class MuzeiViewModel(
+    private val muzeiDao: MuzeiDao,
+    private val settings: com.mattzilla30.mbooru.app.SettingsRepository,
+) : androidx.lifecycle.ViewModel() {
 
     private val siteUid = MutableStateFlow(-1L)
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val entries = siteUid.flatMapLatest { muzeiDao.observeMuzei(it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val entries =
+        siteUid
+            .flatMapLatest { muzeiDao.observeMuzei(it) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val selected = MutableStateFlow(-1L)
     val selectedUid = selected.asStateFlow()
@@ -35,18 +39,31 @@ class MuzeiViewModel(private val muzeiDao: MuzeiDao, private val settings: com.m
     val query = text.asStateFlow()
     private val search = MutableStateFlow(false)
     val searching = search.asStateFlow()
-    fun query(value: String) { text.value = value }
-    fun searching(value: Boolean) { search.value = value }
-    fun select(uid: Long) { selected.value = uid; settings.activeMuzeiUid = uid }
 
-    fun loadMuzei(booruUid: Long) { siteUid.value = booruUid }
+    fun query(value: String) {
+        text.value = value
+    }
+
+    fun searching(value: Boolean) {
+        search.value = value
+    }
+
+    fun select(uid: Long) {
+        selected.value = uid
+        settings.activeMuzeiUid = uid
+    }
+
+    fun loadMuzei(booruUid: Long) {
+        siteUid.value = booruUid
+    }
 
     fun create(muzei: Muzei) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 muzeiDao.insert(muzei)
             } catch (failure: Exception) {
-                if (failure is kotlinx.coroutines.CancellationException) throw failure}
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
+            }
         }
     }
 
@@ -55,7 +72,8 @@ class MuzeiViewModel(private val muzeiDao: MuzeiDao, private val settings: com.m
             try {
                 muzeiDao.deleteByUid(uid)
             } catch (failure: Exception) {
-                if (failure is kotlinx.coroutines.CancellationException) throw failure}
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
+            }
         }
     }
 }

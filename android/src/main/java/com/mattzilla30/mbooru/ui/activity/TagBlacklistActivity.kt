@@ -15,8 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
 import android.os.Bundle
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,10 +31,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.viewmodel.getBooruViewModel
 import org.koin.android.ext.android.inject

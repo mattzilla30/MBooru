@@ -15,26 +15,20 @@
 
 package com.mattzilla30.mbooru.data.model.moebooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.data.model.common.Comment
 import com.mattzilla30.mbooru.extension.parseDate
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class CommentMoe(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("post_id")
-    val postId: Int,
-    @SerialName("creator")
-    val creator: String,
-    @SerialName("creator_id")
-    val creatorId: Int,
-    @SerialName("body")
-    val body: String
+    @SerialName("id") val id: Int,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("post_id") val postId: Int,
+    @SerialName("creator") val creator: String,
+    @SerialName("creator_id") val creatorId: Int,
+    @SerialName("body") val body: String,
 ) {
 
     private fun getPattern(): String? {
@@ -58,7 +52,7 @@ data class CommentMoe(
             body = body,
             time = date(),
             creatorId = creatorId,
-            creatorName = creator
+            creatorName = creator,
         )
     }
 }

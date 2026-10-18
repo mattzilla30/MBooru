@@ -15,17 +15,10 @@
 
 package com.mattzilla30.mbooru.ui.compose.browse
 
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
-import org.koin.core.component.inject
-
 import android.annotation.SuppressLint
 import android.app.SharedElementCallback
 import android.content.*
 import android.os.Build
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -51,11 +44,9 @@ import com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POSTS
 import com.mattzilla30.mbooru.data.action.ActionPost
 import com.mattzilla30.mbooru.data.action.ActionVote
 import com.mattzilla30.mbooru.data.database.MyDatabase
-import com.mattzilla30.mbooru.data.database.TagFilterManager
 import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagFilter
-import com.mattzilla30.mbooru.data.repository.favorite.VoteRepositoryImpl
 import com.mattzilla30.mbooru.data.repository.post.PostRepositoryImpl
 import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepositoryImpl
 import com.mattzilla30.mbooru.extension.downloadByAdm
@@ -65,11 +56,14 @@ import com.mattzilla30.mbooru.ui.activity.SauceNaoActivity
 import com.mattzilla30.mbooru.ui.activity.SearchActivity
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.browse.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.viewmodel.getPostViewModel
 import com.mattzilla30.mbooru.ui.viewmodel.getTagFilterViewModel
 import com.mattzilla30.mbooru.worker.DownloadWorker
 import java.util.*
 import kotlinx.coroutines.flow.filter
+import org.koin.core.component.inject
 
 private const val SCALE_DAY = "day"
 private const val SCALE_WEEK = "week"
@@ -85,12 +79,12 @@ class PostScreenController(
     host: com.mattzilla30.mbooru.ui.base.BaseActivity,
     owner: androidx.navigation.NavBackStackEntry,
     arguments: Bundle = Bundle.EMPTY,
-) : BrowseController(host, owner, arguments) , org.koin.core.component.KoinComponent {
-    private val tagFilterManager by inject<com.mattzilla30.mbooru.data.database.TagFilterManager>()
+) : BrowseController(host, owner, arguments), org.koin.core.component.KoinComponent {
 
     private val db by inject<MyDatabase>()
-    private val voteRepository by lazy { VoteRepositoryImpl(booruApis, db.postDao()) }
-    private val postViewModel by lazy { getPostViewModel(PostRepositoryImpl(db, booruApis, settings)) }
+    private val postViewModel by lazy {
+        getPostViewModel(PostRepositoryImpl(db, booruApis, settings))
+    }
     private val tagFilterViewModel by lazy {
         getTagFilterViewModel(TagFilterRepositoryImpl(db.tagFilterDao()))
     }
@@ -109,8 +103,7 @@ class PostScreenController(
         super.onCreate(savedInstanceState)
         currentPageType = arguments?.getInt(PAGE_TYPE, PAGE_TYPE_POSTS) ?: PAGE_TYPE_POSTS
         query =
-            if (isPopularPage()) "order:popular"
-            else activity?.intent?.getStringExtra(POST_QUERY) ?: ""
+            if (isPopularPage()) "order:popular" else host.intent?.getStringExtra(POST_QUERY) ?: ""
         initDate()
         savedInstanceState
             ?.getIntArray("popular_date")
@@ -139,7 +132,8 @@ class PostScreenController(
                     if (settings.gridMode == "fixed") settings.gridRatio else null,
                     settings.showInfoBar,
                     settings.isLargeWidth,
-                    resources.getDimension(settings.gridWidthResId) / resources.displayMetrics.density,
+                    host.resources.getDimension(settings.gridWidthResId) /
+                        host.resources.displayMetrics.density,
                 )
             }
         PostGrid(
@@ -149,7 +143,7 @@ class PostScreenController(
             onClick = { _, position, image ->
                 sharedElement = image
                 returnPosition = position
-                activity?.let {
+                host.let {
                     DetailActivity.start(it, query, position, image, image.transitionName)
                 }
             },
@@ -174,7 +168,7 @@ class PostScreenController(
             }
         val tags = allTags.filter { settings.isShowAllTags || it.booruUid == booru.uid }
         val orders =
-            resources
+            host.resources
                 .getStringArray(
                     when (booru.type) {
                         BOORU_TYPE_DAN -> R.array.filter_order_danbooru
@@ -184,7 +178,7 @@ class PostScreenController(
                 )
                 .toList()
         val ratings =
-            resources
+            host.resources
                 .getStringArray(
                     if (booru.type == BOORU_TYPE_DAN) R.array.filter_rating_danbooru
                     else R.array.filter_rating
@@ -192,7 +186,7 @@ class PostScreenController(
                 .toList()
         val thresholds =
             if (booru.type == BOORU_TYPE_SANKAKU)
-                resources.getStringArray(R.array.filter_threshold).toList()
+                host.resources.getStringArray(R.array.filter_threshold).toList()
             else emptyList()
         PostFilters(
             tags,
@@ -209,7 +203,9 @@ class PostScreenController(
                 filters.set(listOf("order", "rating", "threshold")[index], value)
             },
             onAdd = ::createTagFilter,
-            onSearch = { filters.query(tags, booru.type).takeIf { it.isNotBlank() }?.let(::search) },
+            onSearch = {
+                filters.query(tags, booru.type).takeIf { it.isNotBlank() }?.let(::search)
+            },
         )
     }
 
@@ -249,19 +245,19 @@ class PostScreenController(
         if (uid == null || text.isEmpty()) {
             return
         }
-        lifecycleScope.launch { tagFilterManager.createTagFilter(TagFilter(booruUid = uid, name = text)) }
+        mutations.addFilter(uid, text)
     }
 
     private fun deleteTagFilter(tag: TagFilter) {
-        val activity = activity
-        if (activity == null || activity.isFinishing) {
+        val activity = host
+        if (activity.isFinishing) {
             return
         }
         AlertDialog.Builder(activity)
             .setTitle(activity.getString(R.string.tag_delete_title))
             .setMessage(String.format(getString(R.string.tag_delete_content), tag.name))
             .setPositiveButton(R.string.dialog_yes) { _, _ ->
-                lifecycleScope.launch { tagFilterManager.deleteTagFilter(tag) }
+                mutations.removeFilter(tag)
             }
             .setNegativeButton(R.string.dialog_no, null)
             .create()
@@ -292,18 +288,18 @@ class PostScreenController(
     }
 
     private fun handleLongClick(post: Post) {
-        val activity = activity as? PathActivity
+        val activity = host as? PathActivity
         if (activity == null || activity.isFinishing) {
             return
         }
         AlertDialog.Builder(activity)
             .setTitle("Post ${post.id}")
-            .setItems(resources.getTextArray(R.array.post_item_action)) { _, which ->
+            .setItems(host.resources.getTextArray(R.array.post_item_action)) { _, which ->
                 when (which) {
                     0 -> {
                         action?.apply {
                             if (post.origin.isVideo()) {
-                                context?.downloadByAdm(post.origin)
+                                host.downloadByAdm(post.origin)
                             } else {
                                 DownloadWorker.downloadPost(post, booru.host, activity)
                             }
@@ -317,7 +313,7 @@ class PostScreenController(
                                     booru.type != BOORU_TYPE_GEL_LEGACY
                             ) {
                                 val actionVote = ActionVote(booru, post.id)
-                                lifecycleScope.launch { voteRepository.addFav(actionVote) }
+                                mutations.favorite(actionVote)
                             }
                         }
                     }
@@ -395,7 +391,7 @@ class PostScreenController(
                 updateActionAndRefresh(it)
             }
         }
-        dialog.show(childFragmentManager, "date_picker")
+        dialog.show(host.supportFragmentManager, "date_picker")
     }
 
     private fun pickDateRange() {
@@ -439,7 +435,7 @@ class PostScreenController(
                 updateActionAndRefresh(it)
             }
         }
-        picker.show(childFragmentManager, "date_range_picker")
+        picker.show(host.supportFragmentManager, "date_range_picker")
     }
 
     private fun updateActionAndRefresh(action: ActionPost) {
@@ -451,7 +447,7 @@ class PostScreenController(
     }
 
     private fun search(query: String) {
-        val context = context ?: return
+        val context = host
         SearchActivity.startSearch(context, query)
     }
 
@@ -524,13 +520,13 @@ class PostScreenController(
         super.onStart()
         setActivityExitSharedElementCallback(sharedElementCallback)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context?.registerReceiver(
+            host.registerReceiver(
                 broadcastReceiver,
                 IntentFilter(DetailActivity.ACTION_DETAIL_POST_POSITION),
                 Context.RECEIVER_NOT_EXPORTED,
             )
         } else {
-            context?.registerReceiver(
+            host.registerReceiver(
                 broadcastReceiver,
                 IntentFilter(DetailActivity.ACTION_DETAIL_POST_POSITION),
             )
@@ -540,12 +536,12 @@ class PostScreenController(
     override fun onStop() {
         super.onStop()
         setActivityExitSharedElementCallback(null)
-        context?.unregisterReceiver(broadcastReceiver)
+        host.unregisterReceiver(broadcastReceiver)
     }
 
     private fun setActivityExitSharedElementCallback(callback: SharedElementCallback?) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            activity?.setExitSharedElementCallback(callback)
+            host.setExitSharedElementCallback(callback)
         }
     }
 }

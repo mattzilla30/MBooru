@@ -16,9 +16,9 @@
 package com.mattzilla30.mbooru.data.repository.post
 
 import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionPost
 import com.mattzilla30.mbooru.data.model.common.Post
+import kotlinx.coroutines.flow.Flow
 
 interface PostRepository {
 

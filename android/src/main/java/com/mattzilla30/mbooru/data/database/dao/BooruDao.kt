@@ -16,9 +16,9 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import kotlinx.coroutines.flow.Flow
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.Booru
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class BooruDao {
@@ -29,13 +29,10 @@ abstract class BooruDao {
     @Query("SELECT * FROM `boorus` WHERE `uid` = :uid")
     abstract suspend fun getBooruByUid(uid: Long): Booru?
 
-
     @Query("SELECT * FROM `boorus` ORDER BY `uid` ASC")
     abstract suspend fun getAll(): MutableList<Booru>
 
-
-    @Query("SELECT 1 FROM `boorus` LIMIT 1")
-    abstract suspend fun isNotEmpty(): Boolean
+    @Query("SELECT 1 FROM `boorus` LIMIT 1") abstract suspend fun isNotEmpty(): Boolean
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     protected abstract suspend fun insertNew(booru: Booru): Long
@@ -64,7 +61,9 @@ abstract class BooruDao {
     open suspend fun importSites(sites: List<Booru>) {
         sites.forEach { site ->
             val existing = get(site.scheme, site.host)
-            insert(site.copy(uid = existing?.uid ?: 0, user = existing?.user, auth = existing?.auth))
+            insert(
+                site.copy(uid = existing?.uid ?: 0, user = existing?.user, auth = existing?.auth)
+            )
         }
     }
 
@@ -76,21 +75,20 @@ abstract class BooruDao {
     @Query("SELECT COUNT(*) FROM boorus WHERE user = :reference OR auth = :reference")
     abstract suspend fun credentialReferences(reference: String): Int
 
-    @Update
-    abstract suspend fun update(booru: Booru): Int
+    @Update abstract suspend fun update(booru: Booru): Int
 
-    @Query("DELETE FROM `boorus` WHERE `uid` = :uid")
-    abstract suspend fun delete(uid: Long): Int
+    @Query("DELETE FROM `boorus` WHERE `uid` = :uid") abstract suspend fun delete(uid: Long): Int
 
     /** Retire only the original factory sample, never an unrelated custom site. */
-    @Query("DELETE FROM `boorus` WHERE `name` = 'Sample' AND `scheme` = 'https' " +
-        "AND `host` = 'moe.fiepi.com' AND `type` = 1")
+    @Query(
+        "DELETE FROM `boorus` WHERE `name` = 'Sample' AND `scheme` = 'https' " +
+            "AND `host` = 'moe.fiepi.com' AND `type` = 1"
+    )
     abstract suspend fun removeLegacySample(): Int
 
-    @Query("DELETE FROM `boorus`")
-    abstract suspend fun deleteAll(): Int
-    @Query("SELECT * FROM `boorus` ORDER BY `uid` ASC")
-    abstract fun observeAll(): Flow<List<Booru>>
+    @Query("DELETE FROM `boorus`") abstract suspend fun deleteAll(): Int
+
+    @Query("SELECT * FROM `boorus` ORDER BY `uid` ASC") abstract fun observeAll(): Flow<List<Booru>>
 
     @Query("SELECT * FROM `boorus` WHERE `uid` = :uid")
     abstract fun observeByUid(uid: Long): Flow<Booru?>

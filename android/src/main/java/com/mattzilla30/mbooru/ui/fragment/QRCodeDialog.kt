@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import com.mattzilla30.mbooru.ui.compose.common.composeView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.google.zxing.BarcodeFormat
@@ -37,10 +36,11 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Keys.BOORU_URL
+import com.mattzilla30.mbooru.ui.compose.common.composeView
 import java.nio.charset.StandardCharsets
 
-//https://github.com/shadowsocks/shadowsocks-android/blob/master/mobile/src/main/java/com/github/shadowsocks/ProfilesFragment.kt
-class QRCodeDialog() : DialogFragment()  {
+// https://github.com/shadowsocks/shadowsocks-android/blob/master/mobile/src/main/java/com/github/shadowsocks/ProfilesFragment.kt
+class QRCodeDialog() : DialogFragment() {
 
     companion object {
         private val iso88591 = StandardCharsets.ISO_8859_1.newEncoder()
@@ -51,31 +51,43 @@ class QRCodeDialog() : DialogFragment()  {
         arguments = bundleOf(Pair(BOORU_URL, url))
     }
 
-    private val url get() = arguments?.getString(BOORU_URL)
+    private val url
+        get() = arguments?.getString(BOORU_URL)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
         val url = url!!
         val size = resources.getDimensionPixelSize(R.dimen.qr_code_size)
         val hints = mutableMapOf<EncodeHintType, Any>()
-        if (!iso88591.canEncode(url)) hints[EncodeHintType.CHARACTER_SET] = StandardCharsets.UTF_8.name()
-        val qrBits = try {
-            MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE, size, size, hints)
-        } catch (_: WriterException) {
-            null
-        }
+        if (!iso88591.canEncode(url))
+            hints[EncodeHintType.CHARACTER_SET] = StandardCharsets.UTF_8.name()
+        val qrBits =
+            try {
+                MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE, size, size, hints)
+            } catch (_: WriterException) {
+                null
+            }
         if (qrBits == null) {
             dismiss()
             return null
         }
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565).apply {
-            for (x in 0 until size) for (y in 0 until size) {
-                setPixel(x, y, if (qrBits.get(x, y)) Color.BLACK else Color.WHITE)
+        val bitmap =
+            Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565).apply {
+                for (x in 0 until size) for (y in 0 until size) {
+                    setPixel(x, y, if (qrBits.get(x, y)) Color.BLACK else Color.WHITE)
+                }
             }
-        }
         return composeView {
-            Image(bitmap.asImageBitmap(), contentDescription = url,
-                modifier = Modifier.size((size / resources.displayMetrics.density).dp)
-                    .background(androidx.compose.ui.graphics.Color.White))
+            Image(
+                bitmap.asImageBitmap(),
+                contentDescription = url,
+                modifier =
+                    Modifier.size((size / resources.displayMetrics.density).dp)
+                        .background(androidx.compose.ui.graphics.Color.White),
+            )
         }
     }
 }

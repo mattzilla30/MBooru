@@ -21,12 +21,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("posts")
 data class PostShimmieResponse(
-    @SerialName("offset")
-    val offset: Int,
-    @SerialName("count")
-    val count: Int,
-    @SerialName("post")
-    val post: List<PostShimmie>? = null,
-    @SerialName("tag")
-    val tag: List<PostShimmieTag>? = null
+    @SerialName("offset") val offset: Int,
+    @SerialName("count") val count: Int,
+    @SerialName("post") val post: List<PostShimmie>? = null,
+    @SerialName("tag") val tag: List<PostShimmieTag>? = null,
 )

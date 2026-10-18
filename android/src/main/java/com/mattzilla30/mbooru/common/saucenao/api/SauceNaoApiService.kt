@@ -15,8 +15,8 @@
 
 package com.mattzilla30.mbooru.common.saucenao.api
 
-import com.mattzilla30.mbooru.common.saucenao.model.SauceNaoResponse
 import com.mattzilla30.mbooru.common.di.reverseSearchApi
+import com.mattzilla30.mbooru.common.saucenao.model.SauceNaoResponse
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -25,18 +25,39 @@ import retrofit2.http.*
 
 internal interface SauceNaoEndpoint {
     @GET("search.php?db=999&output_type=2")
-    suspend fun searchUrl(@Query("url") url: String, @Query("api_key") apiKey: String): SauceNaoResponse
-    @Multipart @POST("search.php?db=999&output_type=2")
-    suspend fun searchImage(@Query("api_key") apiKey: String, @Part file: MultipartBody.Part): SauceNaoResponse
+    suspend fun searchUrl(
+        @Query("url") url: String,
+        @Query("api_key") apiKey: String,
+    ): SauceNaoResponse
+
+    @Multipart
+    @POST("search.php?db=999&output_type=2")
+    suspend fun searchImage(
+        @Query("api_key") apiKey: String,
+        @Part file: MultipartBody.Part,
+    ): SauceNaoResponse
 }
 
 class SauceNaoApiService(client: OkHttpClient, baseUrl: String) : SauceNaoApi {
     private val api = reverseSearchApi<SauceNaoEndpoint>(client, baseUrl)
+
     override suspend fun searchByUrl(url: String, apiKey: String) = api.searchUrl(url, apiKey)
-    override suspend fun searchByImage(apiKey: String, byteArray: ByteArray, fileExt: String): SauceNaoResponse {
-        val extension = fileExt.lowercase().takeIf { it in setOf("jpg", "jpeg", "png", "gif", "webp") } ?: "jpg"
+
+    override suspend fun searchByImage(
+        apiKey: String,
+        byteArray: ByteArray,
+        fileExt: String,
+    ): SauceNaoResponse {
+        val extension =
+            fileExt.lowercase().takeIf { it in setOf("jpg", "jpeg", "png", "gif", "webp") } ?: "jpg"
         val mime = if (extension == "jpg") "jpeg" else extension
-        return api.searchImage(apiKey, MultipartBody.Part.createFormData("file", "image.$extension",
-            byteArray.toRequestBody("image/$mime".toMediaType())))
+        return api.searchImage(
+            apiKey,
+            MultipartBody.Part.createFormData(
+                "file",
+                "image.$extension",
+                byteArray.toRequestBody("image/$mime".toMediaType()),
+            ),
+        )
     }
 }

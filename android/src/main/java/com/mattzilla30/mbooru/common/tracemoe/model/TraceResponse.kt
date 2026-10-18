@@ -15,16 +15,12 @@
 
 package com.mattzilla30.mbooru.common.tracemoe.model
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class TraceResponse(
-    @SerialName("error")
-    val error: String,
-    @SerialName("frameCount")
-    val frameCount: Int,
-    @SerialName("result")
-    val results: List<Result> = emptyList()
+    @SerialName("error") val error: String,
+    @SerialName("frameCount") val frameCount: Int,
+    @SerialName("result") val results: List<Result> = emptyList(),
 )

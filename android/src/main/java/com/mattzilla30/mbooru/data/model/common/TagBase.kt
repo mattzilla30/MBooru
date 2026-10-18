@@ -20,8 +20,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TagBase(
-    @SerialName("name")
-    val name: String,
-    @SerialName("category")
-    var category: Int = -1
+    @SerialName("name") val name: String,
+    @SerialName("category") var category: Int = -1,
 )

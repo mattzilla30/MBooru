@@ -1,7 +1,5 @@
 package com.mattzilla30.mbooru.okhttp
 
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
@@ -9,18 +7,19 @@ import android.os.Build
 import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
-import okhttp3.Headers
-import okhttp3.Interceptor
-import okhttp3.Request
-import okhttp3.Response
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.util.DeviceUtil
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import okhttp3.Headers
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.Interceptor
+import okhttp3.Request
+import okhttp3.Response
 
-//https://github.com/tachiyomiorg/tachiyomi/blob/master/core/src/main/java/eu/kanade/tachiyomi/network/interceptor/WebViewInterceptor.kt
+// https://github.com/tachiyomiorg/tachiyomi/blob/master/core/src/main/java/eu/kanade/tachiyomi/network/interceptor/WebViewInterceptor.kt
 abstract class WebViewInterceptor(private val context: Context) : Interceptor {
 
     /**
@@ -32,7 +31,10 @@ abstract class WebViewInterceptor(private val context: Context) : Interceptor {
         // Crashes on some devices. We skip this in some cases since the only impact is slower
         // WebView init in those rare cases.
         // See https://bugs.chromium.org/p/chromium/issues/detail?id=1279562
-        if (DeviceUtil.isMiui || Build.VERSION.SDK_INT == Build.VERSION_CODES.S && DeviceUtil.isSamsung) {
+        if (
+            DeviceUtil.isMiui ||
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.S && DeviceUtil.isSamsung
+        ) {
             return@lazy
         }
 
@@ -64,14 +66,24 @@ abstract class WebViewInterceptor(private val context: Context) : Interceptor {
         return headers
             // Keeping unsafe header makes webview throw [net::ERR_INVALID_ARGUMENT]
             .filter { (name, value) ->
-                name.lowercase(Locale.ROOT) in setOf("user-agent", "accept", "accept-language", "referer", "origin") &&
+                name.lowercase(Locale.ROOT) in
+                    setOf("user-agent", "accept", "accept-language", "referer", "origin") &&
                     isRequestHeaderSafe(name, value)
             }
             .groupBy(keySelector = { (name, _) -> name }) { (_, value) -> value }
             .mapValues { (name, values) ->
                 val value = values.getOrNull(0).orEmpty()
-                if (name.equals("referer", ignoreCase = true)) value.toHttpUrlOrNull()?.newBuilder()
-                    ?.query(null)?.fragment(null)?.username("")?.password("")?.build()?.toString().orEmpty()
+                if (name.equals("referer", ignoreCase = true))
+                    value
+                        .toHttpUrlOrNull()
+                        ?.newBuilder()
+                        ?.query(null)
+                        ?.fragment(null)
+                        ?.username("")
+                        ?.password("")
+                        ?.build()
+                        ?.toString()
+                        .orEmpty()
                 else value
             }
     }
@@ -84,7 +96,8 @@ abstract class WebViewInterceptor(private val context: Context) : Interceptor {
         return WebView(context).apply {
             setDefaultSettings()
             // Avoid sending empty User-Agent, Chromium WebView will reset to default if empty
-            settings.userAgentString = request.header(Keys.HEADER_USER_AGENT) ?: Values.MOBILE_USER_AGENT
+            settings.userAgentString =
+                request.header(Keys.HEADER_USER_AGENT) ?: Values.MOBILE_USER_AGENT
         }
     }
 }
@@ -119,7 +132,8 @@ fun WebView.setDefaultSettings() {
     }
 }
 
-// Based on [IsRequestHeaderSafe] in https://source.chromium.org/chromium/chromium/src/+/main:services/network/public/cpp/header_util.cc
+// Based on [IsRequestHeaderSafe] in
+// https://source.chromium.org/chromium/chromium/src/+/main:services/network/public/cpp/header_util.cc
 private fun isRequestHeaderSafe(_name: String, _value: String): Boolean {
     val name = _name.lowercase(Locale.ENGLISH)
     val value = _value.lowercase(Locale.ENGLISH)
@@ -127,4 +141,16 @@ private fun isRequestHeaderSafe(_name: String, _value: String): Boolean {
     if (name == "connection" && value == "upgrade") return false
     return true
 }
-private val unsafeHeaderNames = listOf("content-length", "host", "trailer", "te", "upgrade", "cookie2", "keep-alive", "transfer-encoding", "set-cookie")
+
+private val unsafeHeaderNames =
+    listOf(
+        "content-length",
+        "host",
+        "trailer",
+        "te",
+        "upgrade",
+        "cookie2",
+        "keep-alive",
+        "transfer-encoding",
+        "set-cookie",
+    )

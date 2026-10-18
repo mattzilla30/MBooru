@@ -20,12 +20,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AuthorSankaku(
-    @SerialName("avatar")
-    val avatar: String? = null,
-    @SerialName("avatar_rating")
-    val avatarRating: String? = "e",
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String
+    @SerialName("avatar") val avatar: String? = null,
+    @SerialName("avatar_rating") val avatarRating: String? = "e",
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
 )

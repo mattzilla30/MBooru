@@ -15,11 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -37,10 +32,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import coil.compose.AsyncImage
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
 import com.mattzilla30.mbooru.extension.*
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.compose.search.ImageSearchScreen
 import com.mattzilla30.mbooru.ui.helper.OpenFileLifecycleObserver
@@ -239,8 +235,6 @@ class SauceNaoActivity : BaseActivity() {
             if (bytes != null) model.searchByImage(bytes, uri.toDecodedString().fileExt(), key)
         }
     }
-
-
 
     override fun onAction(action: AppActionKey): Boolean =
         when (action) {

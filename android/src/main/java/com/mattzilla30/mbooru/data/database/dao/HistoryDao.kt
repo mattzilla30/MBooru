@@ -15,15 +15,14 @@
 
 package com.mattzilla30.mbooru.data.database.dao
 
-import kotlinx.coroutines.flow.Flow
 import androidx.room.*
 import com.mattzilla30.mbooru.data.model.common.History
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HistoryDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(history: History): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(history: History): Long
 
     @Query("SELECT * FROM `history` WHERE `booru_uid` = :booruUid ORDER BY `uid` DESC")
     suspend fun getHistoryByBooruUid(booruUid: Long): List<History>?
@@ -31,15 +30,13 @@ interface HistoryDao {
     @Query("SELECT * FROM `history` WHERE `uid` = :uid")
     suspend fun getHistoryByUid(uid: Long): History?
 
+    @Delete suspend fun delete(history: History): Int
 
-    @Delete
-    suspend fun delete(history: History): Int
-
-    @Query("DELETE FROM `history` WHERE `uid` = :uid")
-    suspend fun deleteByUid(uid: Long): Int
+    @Query("DELETE FROM `history` WHERE `uid` = :uid") suspend fun deleteByUid(uid: Long): Int
 
     @Query("DELETE FROM `history` WHERE `booru_uid` = :booruUid")
     suspend fun deleteByBooruUid(booruUid: Long): Int
+
     @Query("SELECT * FROM `history` WHERE `booru_uid` = :booruUid ORDER BY `uid` DESC")
     fun observeHistory(booruUid: Long): Flow<List<History>>
 }

@@ -15,9 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -45,11 +42,11 @@ import coil.request.SuccessResult
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.ui.base.BaseActivity
 import com.mattzilla30.mbooru.ui.base.BaseBottomSheetDialog
+import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.compose.detail.VideoPreview
 import com.mattzilla30.mbooru.ui.compose.search.ImageSearchScreen
 import com.mattzilla30.mbooru.ui.helper.OpenFileLifecycleObserver

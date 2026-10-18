@@ -1,21 +1,15 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
-import org.koin.core.component.inject
-
 import android.content.ComponentCallbacks
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import android.os.Bundle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.initializer
 import androidx.navigation.NavBackStackEntry
 import androidx.savedstate.SavedStateRegistryOwner
 import com.mattzilla30.mbooru.app.Settings
@@ -30,11 +24,15 @@ import com.mattzilla30.mbooru.data.model.common.Booru
 import com.mattzilla30.mbooru.data.repository.suggestion.SuggestionRepositoryImpl
 import com.mattzilla30.mbooru.ui.activity.MainActivity
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.viewmodel.*
+import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 
 /** Activity-bound actions with models owned by the Compose destination, never a fragment. */
 abstract class BrowseController(
-    private val host: BaseActivity,
+    protected val host: BaseActivity,
     val owner: NavBackStackEntry,
     val arguments: Bundle,
 ) :
@@ -44,28 +42,33 @@ abstract class BrowseController(
     HasDefaultViewModelProviderFactory by owner,
     SavedStateRegistryOwner by owner,
     BrowseNavigation,
-    SharedPreferences.OnSharedPreferenceChangeListener , org.koin.core.component.KoinComponent {
-    protected val settings get() = host.settings
-    private val muzeiManager by inject<com.mattzilla30.mbooru.data.database.MuzeiManager>()
+    SharedPreferences.OnSharedPreferenceChangeListener,
+    org.koin.core.component.KoinComponent {
+    protected val settings
+        get() = host.settings
+
+    protected val mutations by lazy {
+        ViewModelProvider(
+            owner,
+            androidx.lifecycle.viewmodel.viewModelFactory {
+                initializer {
+                    BrowseActionsViewModel(
+                        getKoin().get(),
+                        getKoin().get(),
+                        com.mattzilla30.mbooru.data.repository.favorite.VoteRepositoryImpl(
+                            booruApis,
+                            getKoin()
+                                .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
+                                .postDao(),
+                        ),
+                    )
+                }
+            },
+        )[BrowseActionsViewModel::class.java]
+    }
 
     override val lifecycle: Lifecycle
         get() = owner.lifecycle
-
-    val activity: BaseActivity?
-        get() = host
-
-    val context: android.content.Context?
-        get() = host
-
-    val resources
-        get() = host.resources
-
-    val childFragmentManager
-        get() = host.supportFragmentManager
-
-    fun requireContext(): android.content.Context = host
-
-    fun requireActivity(): BaseActivity = host
 
     fun getString(id: Int, vararg args: Any): String = host.getString(id, *args)
 
@@ -116,7 +119,19 @@ abstract class BrowseController(
     @Composable
     fun Content() {
         LaunchedEffect(this) {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) { boorus.booruState.collect(::onBooruLoaded) }
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { boorus.booruState.collect(::onBooruLoaded) }
+                launch {
+                    mutations.errors.collect {
+                        android.widget.Toast.makeText(
+                                host,
+                                com.mattzilla30.mbooru.R.string.booru_config_save_failed,
+                                android.widget.Toast.LENGTH_LONG,
+                            )
+                            .show()
+                    }
+                }
+            }
         }
         DisposableEffect(this) {
             saved.setSavedStateProvider("browse_request_state") {
@@ -178,14 +193,7 @@ abstract class BrowseController(
             onNavigate = { (host as? MainActivity)?.openDrawer() ?: host.finish() },
             onMenu = ::onMenuAction,
             onAddToMuzei = { query ->
-                owner.lifecycleScope.launch {
-                muzeiManager.createMuzei(
-                    com.mattzilla30.mbooru.data.model.common.Muzei(
-                        booruUid = settings.activatedBooruUid,
-                        query = query,
-                    )
-                )
-                }
+                mutations.addWallpaper(settings.activatedBooruUid, query)
             },
             bottomPadding = host is MainActivity,
             autoHideBottomBar = settings.autoHideBottomBar,

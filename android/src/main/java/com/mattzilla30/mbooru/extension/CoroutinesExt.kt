@@ -19,11 +19,14 @@ import kotlinx.coroutines.*
 
 fun <T : Any> ioMain(
     work: suspend (() -> T),
-    callback: ((T) -> Unit)
+    callback: ((T) -> Unit),
 ): Job =
     CoroutineScope(Dispatchers.Main).launch {
-        val data = CoroutineScope(Dispatchers.IO).async {
-            return@async work()
-        }.await()
+        val data =
+            CoroutineScope(Dispatchers.IO)
+                .async {
+                    return@async work()
+                }
+                .await()
         callback(data)
     }

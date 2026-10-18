@@ -21,7 +21,11 @@ import com.mattzilla30.mbooru.data.model.common.Booru
 import java.io.IOException
 import java.sql.SQLException
 
-class BooruManager(private val booruDao: BooruDao, private val credentials: com.mattzilla30.mbooru.data.credentials.CredentialRepository, private val cookies: com.mattzilla30.mbooru.okhttp.AndroidCookieJar) {
+class BooruManager(
+    private val booruDao: BooruDao,
+    private val credentials: com.mattzilla30.mbooru.data.credentials.CredentialRepository,
+    private val cookies: com.mattzilla30.mbooru.okhttp.AndroidCookieJar,
+) {
 
     @Throws(SQLException::class)
     suspend fun createBooru(booru: Booru): Booru {
@@ -44,60 +48,74 @@ class BooruManager(private val booruDao: BooruDao, private val credentials: com.
         val previous = before?.user?.credentialReference
         val previousAuth = before?.auth?.credentialReference
         val updated = booruDao.update(booru) == 1
-        if (updated && previous != null && previous != booru.user?.credentialReference && booruDao.credentialReferences(previous) == 0) {
+        if (
+            updated &&
+                previous != null &&
+                previous != booru.user?.credentialReference &&
+                booruDao.credentialReferences(previous) == 0
+        ) {
             credentials.remove(previous)
         }
-        if (updated && previousAuth != null && previousAuth != booru.auth?.credentialReference && booruDao.credentialReferences(previousAuth) == 0) credentials.remove(previousAuth)
-        if (updated && (before?.user != null || before?.auth != null) && booru.user == null && booru.auth == null) cookies.remove(okhttp3.HttpUrl.Builder().scheme(booru.scheme).host(booru.host).build())
+        if (
+            updated &&
+                previousAuth != null &&
+                previousAuth != booru.auth?.credentialReference &&
+                booruDao.credentialReferences(previousAuth) == 0
+        )
+            credentials.remove(previousAuth)
+        if (
+            updated &&
+                (before?.user != null || before?.auth != null) &&
+                booru.user == null &&
+                booru.auth == null
+        )
+            cookies.remove(okhttp3.HttpUrl.Builder().scheme(booru.scheme).host(booru.host).build())
         return updated
     }
 
     @Throws(IOException::class)
-    suspend fun getBooru(scheme: String, host: String): Booru? = try {
-        booruDao[scheme, host]
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        null
-    }
+    suspend fun getBooru(scheme: String, host: String): Booru? =
+        try {
+            booruDao[scheme, host]
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            null
+        }
 
     @Throws(IOException::class)
-    suspend fun getBooruByUid(uid: Long): Booru? = try {
-        booruDao.getBooruByUid(uid)
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        null
-    }
+    suspend fun getBooruByUid(uid: Long): Booru? =
+        try {
+            booruDao.getBooruByUid(uid)
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            null
+        }
 
-    @Throws(SQLException::class)
-    suspend fun deleteBooru(uid: Long) = booruDao.delete(uid) == 1
+    @Throws(SQLException::class) suspend fun deleteBooru(uid: Long) = booruDao.delete(uid) == 1
 
-    @Throws(SQLException::class)
-    suspend fun deleteAll() = booruDao.deleteAll()
+    @Throws(SQLException::class) suspend fun deleteAll() = booruDao.deleteAll()
 
-
-    /**
-     * return [Boolean]
-     * */
+    /** return [Boolean] */
     @Throws(IOException::class)
-    suspend fun isNotEmpty(): Boolean = try {
-        booruDao.isNotEmpty()
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        false
-    }
+    suspend fun isNotEmpty(): Boolean =
+        try {
+            booruDao.isNotEmpty()
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            false
+        }
 
-    /**
-     * return [Booru] list
-     * */
+    /** return [Booru] list */
     @Throws(IOException::class)
-    suspend fun getAllBoorus(): MutableList<Booru>? = try {
-        booruDao.getAll()
-    } catch (ex: SQLiteCantOpenDatabaseException) {
-        throw IOException(ex)
-    } catch (ex: SQLException) {
-        null
-    }
+    suspend fun getAllBoorus(): MutableList<Booru>? =
+        try {
+            booruDao.getAll()
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            null
+        }
 }

@@ -2,23 +2,25 @@ package com.mattzilla30.mbooru.data.repository.comment
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import okhttp3.HttpUrl
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.action.ActionComment
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.model.common.Comment
+import okhttp3.HttpUrl
 
 class CommentPagingSource(
     private val action: ActionComment,
-    private val booruApis: BooruApis
+    private val booruApis: BooruApis,
 ) : PagingSource<Int, Comment>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Comment> {
-        val page = params.key ?: return LoadResult.Page(
-            data = listOf(),
-            prevKey = null,
-            nextKey = null
-        )
+        val page =
+            params.key
+                ?: return LoadResult.Page(
+                    data = listOf(),
+                    prevKey = null,
+                    nextKey = null,
+                )
         return when (action.booru.type) {
             Values.BOORU_TYPE_DAN -> getDanComments(action, page)
             Values.BOORU_TYPE_DAN1 -> getDan1Comments(action, page)
@@ -29,7 +31,12 @@ class CommentPagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Comment>): Int {
-        return if (action.booru.type == Values.BOORU_TYPE_GEL || action.booru.type == Values.BOORU_TYPE_GEL_LEGACY) 0 else 1
+        return if (
+            action.booru.type == Values.BOORU_TYPE_GEL ||
+                action.booru.type == Values.BOORU_TYPE_GEL_LEGACY
+        )
+            0
+        else 1
     }
 
     private fun ActionComment.getDanUrl(page: Int): HttpUrl =
@@ -53,13 +60,13 @@ class CommentPagingSource(
 
     private suspend fun getDanComments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
         return try {
-            val response =  booruApis.danApi.getComments(action.getDanUrl(page))
+            val response = booruApis.danApi.getComments(action.getDanUrl(page))
             if (response.isSuccessful) {
                 val comments = response.body()?.map { it.toComment() } ?: listOf()
                 LoadResult.Page(
                     data = comments,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (comments.size == action.limit) page + 1 else null
+                    nextKey = if (comments.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
@@ -70,15 +77,18 @@ class CommentPagingSource(
         }
     }
 
-    private suspend fun getDan1Comments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
+    private suspend fun getDan1Comments(
+        action: ActionComment,
+        page: Int,
+    ): LoadResult<Int, Comment> {
         return try {
-            val response =  booruApis.dan1Api.getComments(action.getDan1Url(page))
+            val response = booruApis.dan1Api.getComments(action.getDan1Url(page))
             if (response.isSuccessful) {
                 val comments = response.body()?.map { it.toComment() } ?: listOf()
                 LoadResult.Page(
                     data = comments,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (comments.size == action.limit) page + 1 else null
+                    nextKey = if (comments.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
@@ -91,13 +101,13 @@ class CommentPagingSource(
 
     private suspend fun getMoeComments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
         return try {
-            val response =  booruApis.moeApi.getComments(action.getMoeUrl(page))
+            val response = booruApis.moeApi.getComments(action.getMoeUrl(page))
             if (response.isSuccessful) {
                 val comments = response.body()?.map { it.toComment() } ?: listOf()
                 LoadResult.Page(
                     data = comments,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (comments.size == action.limit) page + 1 else null
+                    nextKey = if (comments.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
@@ -108,27 +118,34 @@ class CommentPagingSource(
         }
     }
 
-    private suspend fun getSankakuComments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
+    private suspend fun getSankakuComments(
+        action: ActionComment,
+        page: Int,
+    ): LoadResult<Int, Comment> {
         return when {
             action.postId > 0 -> getSankakuPostComments(action, page)
             else -> getSankakuPostsComments(action, page)
         }
     }
 
-    private suspend fun getSankakuPostComments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
+    private suspend fun getSankakuPostComments(
+        action: ActionComment,
+        page: Int,
+    ): LoadResult<Int, Comment> {
         return try {
             val scheme = action.booru.scheme
             val host = action.booru.host
-            val response =  booruApis.sankakuApi.getPostComments(
-                url = action.getSankakuPostCommentUrl(page),
-                auth = action.booru.user?.getAuth.toString()
-            )
+            val response =
+                booruApis.sankakuApi.getPostComments(
+                    url = action.getSankakuPostCommentUrl(page),
+                    auth = action.booru.user?.getAuth.toString(),
+                )
             if (response.isSuccessful) {
                 val comments = response.body()?.map { it.toComment(scheme, host) } ?: listOf()
                 LoadResult.Page(
                     data = comments,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (comments.isNotEmpty()) page + 1 else null
+                    nextKey = if (comments.isNotEmpty()) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
@@ -139,14 +156,18 @@ class CommentPagingSource(
         }
     }
 
-    private suspend fun getSankakuPostsComments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
+    private suspend fun getSankakuPostsComments(
+        action: ActionComment,
+        page: Int,
+    ): LoadResult<Int, Comment> {
         return try {
             val scheme = action.booru.scheme
             val host = action.booru.host
-            val response =  booruApis.sankakuApi.getPostsComments(
-                url = action.getSankakuPostsCommentUrl(page),
-                auth = action.booru.user?.getAuth.toString()
-            )
+            val response =
+                booruApis.sankakuApi.getPostsComments(
+                    url = action.getSankakuPostsCommentUrl(page),
+                    auth = action.booru.user?.getAuth.toString(),
+                )
             if (response.isSuccessful) {
                 val posts = response.body() ?: listOf()
                 val comments = mutableListOf<Comment>()
@@ -158,7 +179,7 @@ class CommentPagingSource(
                 LoadResult.Page(
                     data = comments,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (comments.isNotEmpty()) page + 1 else null
+                    nextKey = if (comments.isNotEmpty()) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
@@ -171,13 +192,13 @@ class CommentPagingSource(
 
     private suspend fun getGelComments(action: ActionComment, page: Int): LoadResult<Int, Comment> {
         return try {
-            val response =  booruApis.gelApi.getComments(action.getGelUrl(page))
+            val response = booruApis.gelApi.getComments(action.getGelUrl(page))
             if (response.isSuccessful) {
                 val comments = response.body()?.comments?.map { it.toComment() } ?: listOf()
                 LoadResult.Page(
                     data = comments,
                     prevKey = if (page > 0) page - 1 else null,
-                    nextKey = if (comments.size == action.limit) page + 1 else null
+                    nextKey = if (comments.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))

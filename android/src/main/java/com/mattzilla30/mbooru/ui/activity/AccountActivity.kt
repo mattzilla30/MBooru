@@ -15,13 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
-import org.koin.core.component.inject
-
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -43,7 +36,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import coil.compose.AsyncImage
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.BooruManager
@@ -52,11 +44,15 @@ import com.mattzilla30.mbooru.data.repository.user.UserRepositoryImpl
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.account.AccountViewModel
+import com.mattzilla30.mbooru.ui.compose.common.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
+class AccountActivity : PathActivity(), org.koin.core.component.KoinComponent {
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
 
     companion object {
@@ -92,6 +88,7 @@ class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
             initializeContent()
         }
     }
+
     private fun initializeContent() {
         val site = booru ?: return finish()
         screenTitle = getString(R.string.title_account_and_booru, site.name)
@@ -227,8 +224,6 @@ class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
         }
     }
 
-
-
     override fun onAction(action: AppActionKey): Boolean =
         when (action) {
             AppActionKey.Back -> {
@@ -241,7 +236,7 @@ class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
             }
             else -> super.onAction(action)
         }
+
     @androidx.compose.runtime.Composable
     override fun appActions() = if (booru?.user != null) AppMenu.Account.actions() else emptyList()
-
 }

@@ -18,28 +18,27 @@ package com.mattzilla30.mbooru.ui.activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.Lifecycle
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.*
-import androidx.core.view.WindowCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.lifecycle.lifecycleScope
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
-import com.mattzilla30.mbooru.R
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.mattzilla30.mbooru.BuildConfig
+import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values
-import com.mattzilla30.mbooru.data.api.AppUpdaterApi
 import com.mattzilla30.mbooru.data.database.BooruPresets
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.extension.launchUrl
@@ -59,7 +58,8 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private val shell by viewModels<MainShellViewModel>()
     private val updater by inject<com.mattzilla30.mbooru.data.api.AppUpdaterRepository>()
     internal var activeBrowse: BrowseNavigation? = null
-    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -68,11 +68,11 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 boorus.loadBoorus().collect { list ->
-            val available = list
-            if (available.none { it.uid == settings.activatedBooruUid }) {
-                settings.activatedBooruUid = available.firstOrNull()?.uid ?: -1
-            }
-        }
+                    val available = list
+                    if (available.none { it.uid == settings.activatedBooruUid }) {
+                        settings.activatedBooruUid = available.firstOrNull()?.uid ?: -1
+                    }
+                }
             }
         }
         boorus.loadBooru(settings.activatedBooruUid)
@@ -86,68 +86,109 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 val type = site?.type ?: Values.BOORU_TYPE_UNKNOWN
                 val tabs = remember(type) { browseTabs(type) }
                 // A capability change resets the graph, as the former XML graphs did.
-                key(tabs.map { it.id }) {
+                key("typed_navigation_v1", tabs.map { it.id }) {
                     val navigation = rememberNavController()
                     val entry by navigation.currentBackStackEntryAsState()
-                    val selected = tabs.firstOrNull { browseRoute(it.id) == entry?.destination?.route }?.id ?: R.id.nav_posts
-                    MainShell(sites, selectedUid, tabs, selected,
-                        visible, shell.drawerRequests,
-                        onBooru = { settings.activatedBooruUid = it }, onAction = ::openDestination,
+                    val selected = entry?.destination.browseTab()
+                    MainShell(
+                        sites,
+                        selectedUid,
+                        tabs,
+                        selected,
+                        visible,
+                        shell.drawerRequests,
+                        onBooru = { settings.activatedBooruUid = it },
+                        onAction = ::openDestination,
                         onTab = { id ->
                             if (selected == id) currentBrowse()?.toListTop()
-                            else navigation.navigate(browseRoute(id)) {
-                                launchSingleTop = true
-                                restoreState = true
-                                popUpTo(browseRoute(R.id.nav_posts)) { saveState = true }
-                            }
-                        }) {
+                            else navigation.openBrowseTab(id)
+                        },
+                    ) {
                         MainBrowseNavHost(navigation, tabs)
                     }
                 }
                 if (settings.latestVersionCode > BuildConfig.VERSION_CODE) {
-                    AlertDialog(onDismissRequest = {}, title = { Text(stringResource(R.string.update_found_update)) },
-                        text = { Text(stringResource(R.string.update_version, settings.latestVersionName)) },
-                        confirmButton = { TextButton(onClick = {
-                            launchUrl(settings.latestVersionUrl)
-                            finish()
-                        }) { Text(stringResource(R.string.dialog_update)) } },
-                        dismissButton = { TextButton(onClick = { finish() }) { Text(stringResource(R.string.dialog_exit)) } })
+                    AlertDialog(
+                        onDismissRequest = {},
+                        title = { Text(stringResource(R.string.update_found_update)) },
+                        text = {
+                            Text(
+                                stringResource(R.string.update_version, settings.latestVersionName)
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    launchUrl(settings.latestVersionUrl)
+                                    finish()
+                                }
+                            ) {
+                                Text(stringResource(R.string.dialog_update))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { finish() }) {
+                                Text(stringResource(R.string.dialog_exit))
+                            }
+                        },
+                    )
                 }
             }
         }
         lifecycleScope.launch { updater.checkUpdate() }
-        if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        if (Build.VERSION.SDK_INT >= 33)
+            notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
     }
 
     private fun currentBrowse(): BrowseNavigation? = activeBrowse
 
-    private fun openDestination(key: String) {
+    private fun openDestination(key: DrawerDestination) {
         val booru = boorus.currentBooru
-        val destination = when (key) {
-            "boorus" -> BooruActivity::class.java
-            "account" -> {
-                if (booru == null) return
-                if (booru.type == Values.BOORU_TYPE_SHIMMIE) return notSupported()
-                if (booru.user == null) AccountConfigActivity::class.java else AccountActivity::class.java
+        val destination =
+            when (key) {
+                DrawerDestination.Sites -> BooruActivity::class.java
+                DrawerDestination.Account -> {
+                    if (booru == null) return
+                    if (booru.type == Values.BOORU_TYPE_SHIMMIE) return notSupported()
+                    if (booru.user == null) AccountConfigActivity::class.java
+                    else AccountActivity::class.java
+                }
+                DrawerDestination.Comments ->
+                    if (booru?.type != Values.BOORU_TYPE_SHIMMIE) CommentActivity::class.java
+                    else return notSupported()
+                DrawerDestination.History ->
+                    if (booru != null) HistoryActivity::class.java else return
+                DrawerDestination.Blacklist ->
+                    if (
+                        booru?.type in
+                            arrayOf(
+                                Values.BOORU_TYPE_MOE,
+                                Values.BOORU_TYPE_DAN,
+                                Values.BOORU_TYPE_DAN1,
+                                Values.BOORU_TYPE_GEL,
+                                Values.BOORU_TYPE_GEL_LEGACY,
+                            )
+                    )
+                        TagBlacklistActivity::class.java
+                    else return notSupported()
+                DrawerDestination.Muzei -> MuzeiActivity::class.java
+                DrawerDestination.SauceNao -> SauceNaoActivity::class.java
+                DrawerDestination.TraceMoe -> WhatAnimeActivity::class.java
+                DrawerDestination.Settings -> SettingsActivity::class.java
+                DrawerDestination.About -> AboutActivity::class.java
+                DrawerDestination.Downloads -> DownloadsActivity::class.java
             }
-            "comments" -> if (booru?.type != Values.BOORU_TYPE_SHIMMIE) CommentActivity::class.java else return notSupported()
-            "history" -> if (booru != null) HistoryActivity::class.java else return
-            "blacklist" -> if (booru?.type in arrayOf(Values.BOORU_TYPE_MOE, Values.BOORU_TYPE_DAN,
-                Values.BOORU_TYPE_DAN1, Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY)) TagBlacklistActivity::class.java else return notSupported()
-            "muzei" -> MuzeiActivity::class.java
-            "saucenao" -> SauceNaoActivity::class.java
-            "tracemoe" -> WhatAnimeActivity::class.java
-            "settings" -> SettingsActivity::class.java
-            "about" -> AboutActivity::class.java
-            "downloads" -> DownloadsActivity::class.java
-            else -> return
-        }
         startActivity(Intent(this, destination))
     }
 
-    private fun notSupported() { Toast.makeText(this, R.string.msg_not_supported, Toast.LENGTH_SHORT).show() }
+    private fun notSupported() {
+        Toast.makeText(this, R.string.msg_not_supported, Toast.LENGTH_SHORT).show()
+    }
+
     fun openDrawer() = shell.openDrawer()
+
     fun forceShowNavBar() = shell.navigationVisible(true)
+
     fun onContentScroll(down: Boolean) {
         if (settings.autoHideBottomBar) shell.navigationVisible(!down)
     }
@@ -160,6 +201,7 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
             Settings.AUTO_HIDE_BOTTOM_BAR_KEY -> forceShowNavBar()
         }
     }
+
     override fun onDestroy() {
         preferences.unregisterOnSharedPreferenceChangeListener(this)
         super.onDestroy()

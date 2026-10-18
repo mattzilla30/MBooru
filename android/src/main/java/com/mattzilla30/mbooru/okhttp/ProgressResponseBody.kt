@@ -15,16 +15,15 @@
 
 package com.mattzilla30.mbooru.okhttp
 
+import java.io.IOException
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.*
-import java.io.IOException
 
 class ProgressResponseBody(
     private val responseBody: ResponseBody?,
-    private val progressListener: ProgressListener
+    private val progressListener: ProgressListener,
 ) : ResponseBody() {
-
 
     private var bufferedSource: BufferedSource? = null
 
@@ -48,6 +47,7 @@ class ProgressResponseBody(
     private fun source(source: Source): Source {
         return object : ForwardingSource(source) {
             var totalBytesRead = 0L
+
             @Throws(IOException::class)
             override fun read(sink: Buffer, byteCount: Long): Long {
                 val bytesRead = super.read(sink, byteCount)
@@ -57,7 +57,7 @@ class ProgressResponseBody(
                     progressListener.onUpdate(
                         totalBytesRead,
                         it.contentLength(),
-                        bytesRead == -1L
+                        bytesRead == -1L,
                     )
                 }
                 return bytesRead

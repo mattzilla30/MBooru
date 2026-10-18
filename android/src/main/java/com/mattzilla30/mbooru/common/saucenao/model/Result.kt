@@ -15,16 +15,11 @@
 
 package com.mattzilla30.mbooru.common.saucenao.model
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Result(
-
-    @SerialName("header")
-    val header: ResultHeader,
-
-    @SerialName("data")
-    val `data`: ResultData
+    @SerialName("header") val header: ResultHeader,
+    @SerialName("data") val `data`: ResultData,
 )

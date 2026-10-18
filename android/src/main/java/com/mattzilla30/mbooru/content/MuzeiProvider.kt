@@ -41,17 +41,20 @@ class MuzeiProvider : MuzeiArtProvider() {
     override fun openFile(artwork: Artwork): InputStream {
         val uri = artwork.persistentUri
         val context = context
-        return if (context != null && uri != null && (uri.scheme == "http" || uri.scheme == "https")) {
+        return if (
+            context != null && uri != null && (uri.scheme == "http" || uri.scheme == "https")
+        ) {
             val key = uri.toString()
-            val request = ImageRequest.Builder(context)
-                .data(uri)
-                .memoryCachePolicy(CachePolicy.DISABLED)
-                .diskCacheKey(key)
-                .allowConversionToBitmap(false)
-                .decoderFactory { _, _, _ ->
-                    Decoder { DecodeResult(ColorDrawable(Color.BLACK), false) }
-                }
-                .build()
+            val request =
+                ImageRequest.Builder(context)
+                    .data(uri)
+                    .memoryCachePolicy(CachePolicy.DISABLED)
+                    .diskCacheKey(key)
+                    .allowConversionToBitmap(false)
+                    .decoderFactory { _, _, _ ->
+                        Decoder { DecodeResult(ColorDrawable(Color.BLACK), false) }
+                    }
+                    .build()
             val result = context.imageLoader.executeBlocking(request)
             if (result is SuccessResult) {
                 val snapshot = context.imageLoader.diskCache?.openSnapshot(key)
@@ -59,10 +62,22 @@ class MuzeiProvider : MuzeiArtProvider() {
                 if (file != null && file.exists()) {
                     try {
                         object : java.io.FilterInputStream(FileInputStream(file)) {
-                            override fun close() { try { super.close() } finally { snapshot.close() } }
+                            override fun close() {
+                                try {
+                                    super.close()
+                                } finally {
+                                    snapshot.close()
+                                }
+                            }
                         }
-                    } catch (failure: IOException) { snapshot.close(); throw failure }
-                } else { snapshot?.close(); super.openFile(artwork) }
+                    } catch (failure: IOException) {
+                        snapshot.close()
+                        throw failure
+                    }
+                } else {
+                    snapshot?.close()
+                    super.openFile(artwork)
+                }
             } else {
                 super.openFile(artwork)
             }

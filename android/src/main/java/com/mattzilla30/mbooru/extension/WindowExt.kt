@@ -25,7 +25,6 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 
-
 fun Window.showSystemBars() {
     WindowCompat.getInsetsController(this, decorView).show(WindowInsetsCompat.Type.systemBars())
 }
@@ -52,7 +51,7 @@ fun AppCompatActivity.setupInsets(insetsCallback: (insets: WindowInsetsCompat) -
         val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
         container.updatePadding(
             left = systemBarsInsets.left,
-            right = systemBarsInsets.right
+            right = systemBarsInsets.right,
         )
         insetsCallback(insets)
         insets
@@ -62,12 +61,12 @@ fun AppCompatActivity.setupInsets(insetsCallback: (insets: WindowInsetsCompat) -
 fun Activity.getScreenWidthPixels(): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val windowMetrics = windowManager.currentWindowMetrics
-        val insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        val insets =
+            windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
         windowMetrics.bounds.width() - insets.left - insets.right
     } else {
         val displayMetrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(displayMetrics)
         displayMetrics.widthPixels
     }
 }
@@ -75,12 +74,12 @@ fun Activity.getScreenWidthPixels(): Int {
 fun Activity.getScreenHeightPixels(): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val windowMetrics = windowManager.currentWindowMetrics
-        val insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        val insets =
+            windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
         windowMetrics.bounds.height() - insets.top - insets.bottom
     } else {
         val displayMetrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(displayMetrics)
         displayMetrics.heightPixels
     }
 }
@@ -88,16 +87,17 @@ fun Activity.getScreenHeightPixels(): Int {
 fun Activity.getScreenWidthDp(): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val windowMetrics = windowManager.currentWindowMetrics
-        val insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        val insets =
+            windowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
         val width = windowMetrics.bounds.width() - insets.left - insets.right
         (width / resources.displayMetrics.density).toInt()
     } else {
         val displayMetrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(displayMetrics)
         (displayMetrics.widthPixels / displayMetrics.density).toInt()
     }
 }
+
 /** Insets the complete secondary-screen host, including native action bars, exactly once. */
 fun View.applySafeDrawingInsets() {
     val initialLeft = paddingLeft
@@ -105,10 +105,18 @@ fun View.applySafeDrawingInsets() {
     val initialRight = paddingRight
     val initialBottom = paddingBottom
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
-        val safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() or
-            WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())
-        view.setPadding(initialLeft + safe.left, initialTop + safe.top,
-            initialRight + safe.right, initialBottom + safe.bottom)
+        val safe =
+            insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime()
+            )
+        view.setPadding(
+            initialLeft + safe.left,
+            initialTop + safe.top,
+            initialRight + safe.right,
+            initialBottom + safe.bottom,
+        )
         // Descendant Compose/native views must not apply the same bars or keyboard again.
         WindowInsetsCompat.CONSUMED
     }

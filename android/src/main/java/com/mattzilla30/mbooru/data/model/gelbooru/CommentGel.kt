@@ -15,27 +15,21 @@
 
 package com.mattzilla30.mbooru.data.model.gelbooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
 import com.mattzilla30.mbooru.data.model.common.Comment
 import com.mattzilla30.mbooru.extension.parseDate
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("comment")
 data class CommentGel(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("post_id")
-    val postId: Int,
-    @SerialName("creator")
-    val creator: String,
-    @SerialName("creator_id")
-    val creatorId: Int,
-    @SerialName("body")
-    val body: String
+    @SerialName("id") val id: Int,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("post_id") val postId: Int,
+    @SerialName("creator") val creator: String,
+    @SerialName("creator_id") val creatorId: Int,
+    @SerialName("body") val body: String,
 ) {
     fun toComment(): Comment {
         return Comment(
@@ -45,7 +39,7 @@ data class CommentGel(
             body = body,
             time = createdAt.parseDate(),
             creatorId = creatorId,
-            creatorName = creator
+            creatorName = creator,
         )
     }
 }

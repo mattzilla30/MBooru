@@ -13,14 +13,19 @@ object BooruPresets {
     private const val INSTALLED_KEY = "featured_boorus_v1_installed"
 
     // Return fresh instances: Booru contains mutable settings and database IDs.
-    fun featured(): List<Booru> = listOf(
-        Booru(name = "Danbooru", host = "danbooru.donmai.us", type = Values.BOORU_TYPE_DAN),
-        Booru(name = "Yande.re", host = "yande.re", type = Values.BOORU_TYPE_MOE),
-        Booru(name = "Konachan", host = "konachan.com", type = Values.BOORU_TYPE_MOE),
-        Booru(name = "Gelbooru", host = "gelbooru.com", type = Values.BOORU_TYPE_GEL),
-        Booru(name = "Safebooru", host = "safebooru.org", type = Values.BOORU_TYPE_GEL_LEGACY),
-        Booru(name = "Sankaku", host = "capi-v2.sankakucomplex.com", type = Values.BOORU_TYPE_SANKAKU),
-    )
+    fun featured(): List<Booru> =
+        listOf(
+            Booru(name = "Danbooru", host = "danbooru.donmai.us", type = Values.BOORU_TYPE_DAN),
+            Booru(name = "Yande.re", host = "yande.re", type = Values.BOORU_TYPE_MOE),
+            Booru(name = "Konachan", host = "konachan.com", type = Values.BOORU_TYPE_MOE),
+            Booru(name = "Gelbooru", host = "gelbooru.com", type = Values.BOORU_TYPE_GEL),
+            Booru(name = "Safebooru", host = "safebooru.org", type = Values.BOORU_TYPE_GEL_LEGACY),
+            Booru(
+                name = "Sankaku",
+                host = "capi-v2.sankakucomplex.com",
+                type = Values.BOORU_TYPE_SANKAKU,
+            ),
+        )
 
     /** Runs on first launch after installing/updating; never replaces saved site credentials. */
     suspend fun installOnce(dao: BooruDao, preferences: SharedPreferences) {

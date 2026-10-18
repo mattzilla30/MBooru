@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Nincs találat</string>
-  <string name="browse_offline">Nincs kapcsolat. Ellenőrizd a kapcsolatot, majd próbáld újra.</string>
-  <string name="image_load_retry">A kép nem tölthető be. Koppints az újrapróbálkozáshoz.</string>
-  <string name="post_actions">Bejegyzés műveletei</string>
-  <string name="post_accessibility">Bejegyzés: %1$d</string>
+    <string name="browse_empty">Nincs találat</string>
+    <string name="browse_offline">Nincs kapcsolat. Ellenőrizd a kapcsolatot, majd próbáld újra.</string>
+    <string name="image_load_retry">A kép nem tölthető be. Koppints az újrapróbálkozáshoz.</string>
+    <string name="post_actions">Bejegyzés műveletei</string>
+    <string name="post_accessibility">Bejegyzés: %1$d</string>
+    <string name="booru_empty_message">A böngészéshez adj hozzá egy ajánlott vagy saját oldalt.</string>
+    <string name="title_downloads">Letöltések</string>
+    <string name="download_resume_policy">Az újrapróbálás folytatja a letöltést, ha a szerver és a tárhely támogatja; egyébként elölről kezdi. Az Android szüneteltetheti a háttérben futó átviteleket.</string>
+    <string name="download_queue_empty">Még nincsenek letöltések.</string>
+    <string name="download_state_queued">Sorban áll · átvitelre vár</string>
+    <string name="download_state_running">Letöltés</string>
+    <string name="download_state_completed">Befejezve</string>
+    <string name="download_state_failed">Sikertelen · ellenőrizd a kapcsolatot, a bejelentkezést és a mappaelérést</string>
+    <string name="download_state_cancelled">Megszakítva</string>
+    <string name="download_bytes_unknown">%1$d bájt · a teljes méret ismeretlen</string>
+    <string name="download_bytes_total">%1$d / %2$d bájt</string>
+    <string name="download_open_file">Fájl megnyitása</string>
+    <string name="settings_load_failed">A beállítások nem tölthetők be</string>
+    <string name="settings_load_recovery">A beállításaid megmaradtak. Próbáld újra; az MBooru nem állítja vissza őket automatikusan.</string>
+    <string name="settings_write_failed">A beállítások nem menthetők. Próbáld újra az alkalmazás bezárása előtt.</string>
 </resources>

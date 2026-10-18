@@ -15,10 +15,10 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import kotlinx.coroutines.flow.Flow
 import androidx.lifecycle.ViewModel
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.data.model.common.Post
+import kotlinx.coroutines.flow.Flow
 
 class ShortcutViewModel(private val postDao: PostDao) : ViewModel() {
 

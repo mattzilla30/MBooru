@@ -1,0 +1,610 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:BooruManager.kt$BooruManager$updated &amp;&amp; (before?.user != null || before?.auth != null) &amp;&amp; booru.user == null &amp;&amp; booru.auth == null</ID>
+    <ID>ComplexCondition:BooruManager.kt$BooruManager$updated &amp;&amp; previous != null &amp;&amp; previous != booru.user?.credentialReference &amp;&amp; booruDao.credentialReferences(previous) == 0</ID>
+    <ID>ComplexCondition:BooruManager.kt$BooruManager$updated &amp;&amp; previousAuth != null &amp;&amp; previousAuth != booru.auth?.credentialReference &amp;&amp; booruDao.credentialReferences(previousAuth) == 0</ID>
+    <ID>ComplexCondition:CommentActivity.kt$CommentActivity$current != null &amp;&amp; current.postId > 0 &amp;&amp; current.booru.user != null &amp;&amp; current.booru.type !in arrayOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY)</ID>
+    <ID>ComplexCondition:DownloadTransfer.kt$seekable &amp;&amp; validator != null &amp;&amp; record != null &amp;&amp; record.bytesWritten > 0 &amp;&amp; seekableOutput!!.channel.size() >= record.bytesWritten</ID>
+    <ID>ComplexCondition:DownloadWorker.kt$DownloadWorker$id &lt; 0 || scheme.isNullOrEmpty() || host.isNullOrEmpty() || username.isNullOrEmpty() || passwordHash.isNullOrEmpty() || docId == null</ID>
+    <ID>ComplexCondition:DownloadWorker.kt$DownloadWorker$url == null || id &lt; 0 || host == null || docId == null</ID>
+    <ID>ComplexCondition:MuzeiProvider.kt$MuzeiProvider$context != null &amp;&amp; uri != null &amp;&amp; (uri.scheme == "http" || uri.scheme == "https")</ID>
+    <ID>ConstructorParameterNaming:ResultData.kt$ResultData$@SerialName("author_name") var author_name: String? = null</ID>
+    <ID>ConstructorParameterNaming:ResultData.kt$ResultData$@SerialName("author_url") var author_url: String? = null</ID>
+    <ID>CyclomaticComplexMethod:AccountConfigViewModel.kt$AccountConfigViewModel$fun submit()</ID>
+    <ID>CyclomaticComplexMethod:BaseActivity.kt$BaseActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>CyclomaticComplexMethod:BooruEditorScreen.kt$@Composable fun BooruEditorScreen(state: BooruEditorState, field: (String, String) -> Unit)</ID>
+    <ID>CyclomaticComplexMethod:BrowseScreen.kt$@Composable fun BrowseScreen( state: BrowseUiState, hint: String, suggestions: List&lt;String>, onQuery: (String) -> Unit, onMode: (Int) -> Unit, onSearch: (String) -> Unit, onNavigate: () -> Unit, onMenu: (AppActionKey) -> Unit, onAddToMuzei: (String) -> Unit, bottomPadding: Boolean, autoHideBottomBar: Boolean = false, filters: @Composable () -> Unit = {}, content: @Composable (Modifier) -> Unit, )</ID>
+    <ID>CyclomaticComplexMethod:CatalogRows.kt$fun tagCategoryLabel(tag: Tag): Int</ID>
+    <ID>CyclomaticComplexMethod:DataStorePreferences.kt$DataStorePreferences$private fun launchProcessor(): Job</ID>
+    <ID>CyclomaticComplexMethod:DownloadTransfer.kt$internal suspend fun transferDownload( context: Context, queue: DownloadDao, workId: String, url: String, destination: Uri, client: okhttp3.OkHttpClient, )</ID>
+    <ID>CyclomaticComplexMethod:DownloadWorker.kt$DownloadWorker$override suspend fun doWork(): Result</ID>
+    <ID>CyclomaticComplexMethod:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPool(): Boolean</ID>
+    <ID>CyclomaticComplexMethod:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPost(): Boolean</ID>
+    <ID>CyclomaticComplexMethod:DownloadsActivity.kt$DownloadsActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
+    <ID>CyclomaticComplexMethod:LoadStatesMerger.kt$LoadStatesMerger$private fun computeNextLoadStateAndMergedState( sourceRefreshState: LoadState, sourceState: LoadState, remoteState: LoadState?, currentMergedState: MergedState, ): Pair&lt;LoadState, MergedState></ID>
+    <ID>CyclomaticComplexMethod:MainActivity.kt$MainActivity$private fun openDestination(key: DrawerDestination)</ID>
+    <ID>CyclomaticComplexMethod:MainShell.kt$@Composable fun MainShell( boorus: List&lt;Booru>, selectedUid: Long, tabs: List&lt;BrowseTab>, currentTab: Int, navigationVisible: Boolean, drawerRequests: kotlinx.coroutines.flow.Flow&lt;Unit>, onBooru: (Long) -> Unit, onAction: (DrawerDestination) -> Unit, onTab: (Int) -> Unit, content: @Composable () -> Unit, )</ID>
+    <ID>CyclomaticComplexMethod:MenuActions.kt$fun AppMenu.actions(): List&lt;AppAction></ID>
+    <ID>CyclomaticComplexMethod:PostGrid.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class) @Composable fun PostGrid( posts: LazyPagingItems&lt;Post>, scrollPositions: Flow&lt;Int>, options: PostDisplayOptions, onClick: (Post, Int, View) -> Unit, onLongClick: (Post) -> Unit, modifier: Modifier = Modifier, onImage: (Int, View?) -> Unit = { _, _ -> }, )</ID>
+    <ID>CyclomaticComplexMethod:PostInfo.kt$fun tagDotColor(type: Int, category: Int): Int</ID>
+    <ID>CyclomaticComplexMethod:SauceNaoActivity.kt$SauceNaoActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
+    <ID>CyclomaticComplexMethod:SettingsScreen.kt$@Composable fun SettingsScreen( state: SettingsUiState, onToggle: (String, Boolean) -> Unit, onChoose: (String, String, List&lt;String>) -> Unit, onExpand: () -> Unit, onPickDirectory: () -> Unit, onClearCache: () -> Unit, onRetrySave: () -> Unit = {}, )</ID>
+    <ID>CyclomaticComplexMethod:TagScreenController.kt$TagScreenController$override fun onMenuAction(menuItem: AppActionKey)</ID>
+    <ID>EmptyFunctionBlock:DefaultDatabaseProvider.kt$DefaultDatabaseProvider${}</ID>
+    <ID>EmptyFunctionBlock:DetailActivity.kt$DetailActivity${}</ID>
+    <ID>EmptyFunctionBlock:LinkTransformationMethod.kt$LinkTransformationMethod${}</ID>
+    <ID>EmptyFunctionBlock:PostMediaRenderer.kt$PostMediaRenderer.&lt;no name provided>${}</ID>
+    <ID>EmptyFunctionBlock:SimpleAnimatorListener.kt$SimpleAnimatorListener${}</ID>
+    <ID>EmptyFunctionBlock:ViewAnimation.kt$ViewAnimation.&lt;no name provided>${}</ID>
+    <ID>FunctionNaming:AboutScreen.kt$@Composable fun AboutScreen()</ID>
+    <ID>FunctionNaming:AboutScreen.kt$@Composable private fun AboutRow(title: Int, summary: String, onClick: (() -> Unit)? = null)</ID>
+    <ID>FunctionNaming:AboutScreen.kt$@Composable private fun AboutSection(title: Int)</ID>
+    <ID>FunctionNaming:AccountActivity.kt$AccountActivity$@Composable private fun AccountAction(title: Int, icon: Int, click: () -> Unit)</ID>
+    <ID>FunctionNaming:AccountConfigScreen.kt$@Composable fun AccountConfigScreen( state: AccountConfigState, booru: Booru, username: (String) -> Unit, token: (String) -> Unit, submit: () -> Unit, forgot: () -> Unit, )</ID>
+    <ID>FunctionNaming:ActivityAppBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ActivityAppBar(activity: BaseActivity)</ID>
+    <ID>FunctionNaming:BooruEditorScreen.kt$@Composable fun BooruEditorScreen(state: BooruEditorState, field: (String, String) -> Unit)</ID>
+    <ID>FunctionNaming:BooruList.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun BooruList( boorus: List&lt;Booru>, selected: Long, select: (Long) -> Unit, delete: (Long) -> Unit, action: (Booru, AppActionKey) -> Unit, )</ID>
+    <ID>FunctionNaming:BrowseController.kt$BrowseController$@Composable fun Content()</ID>
+    <ID>FunctionNaming:BrowseController.kt$BrowseController$@Composable protected abstract fun BrowseContent(modifier: Modifier)</ID>
+    <ID>FunctionNaming:BrowseController.kt$BrowseController$@Composable protected open fun Filters()</ID>
+    <ID>FunctionNaming:BrowseScreen.kt$@Composable fun BrowseScreen( state: BrowseUiState, hint: String, suggestions: List&lt;String>, onQuery: (String) -> Unit, onMode: (Int) -> Unit, onSearch: (String) -> Unit, onNavigate: () -> Unit, onMenu: (AppActionKey) -> Unit, onAddToMuzei: (String) -> Unit, bottomPadding: Boolean, autoHideBottomBar: Boolean = false, filters: @Composable () -> Unit = {}, content: @Composable (Modifier) -> Unit, )</ID>
+    <ID>FunctionNaming:CatalogRows.kt$@Composable private fun WebDescription(text: String)</ID>
+    <ID>FunctionNaming:CatalogRows.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun ArtistRow(artist: Artist, search: () -> Unit, copy: () -> Unit, link: (String) -> Unit)</ID>
+    <ID>FunctionNaming:CatalogRows.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun PoolRow(pool: Pool, date: String, search: () -> Unit, download: () -> Unit, user: () -> Unit)</ID>
+    <ID>FunctionNaming:CatalogRows.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun TagRow(tag: Tag, search: () -> Unit, copy: () -> Unit)</ID>
+    <ID>FunctionNaming:CatalogRows.kt$@OptIn(ExperimentalMaterialApi::class) @Composable fun &lt;T : Any> PagingList( items: LazyPagingItems&lt;T>, key: (T) -> Any, positions: Flow&lt;Int>, modifier: Modifier = Modifier, row: @Composable (T) -> Unit, )</ID>
+    <ID>FunctionNaming:CommentRow.kt$@Composable fun CommentRow( comment: Comment, booru: Booru, date: String, onPost: () -> Unit, onUser: () -> Unit, onReply: () -> Unit, onQuote: (String) -> Unit, onDelete: () -> Unit, )</ID>
+    <ID>FunctionNaming:Connectivity.kt$@Composable fun ConnectivityBanner()</ID>
+    <ID>FunctionNaming:DetailScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun DetailScreen( posts: LazyPagingItems&lt;Post>, state: DetailUiState, booru: Booru, size: String, dismiss: DismissFrameLayout.OnDismissListener, select: (Post, Int) -> Unit, ready: () -> Unit, back: () -> Unit, toggleBars: () -> Unit, longActions: () -> Unit, closeLongActions: () -> Unit, action: (AppActionKey) -> Unit, info: () -> Unit, download: () -> Unit, save: () -> Unit, favorite: () -> Unit, longAction: (Int) -> Unit, )</ID>
+    <ID>FunctionNaming:ImageSearchScreen.kt$@Composable fun &lt;T> ImageSearchScreen( results: List&lt;T>, loading: Boolean, error: String?, add: () -> Unit, retry: () -> Unit = add, key: (T, Int) -> String, row: @Composable (T) -> Unit, )</ID>
+    <ID>FunctionNaming:MBooruTheme.kt$@Composable fun MBooruTheme(content: @Composable () -> Unit)</ID>
+    <ID>FunctionNaming:MainBrowseNavHost.kt$@Composable fun MainBrowseNavHost(navigation: NavHostController, tabs: List&lt;BrowseTab>)</ID>
+    <ID>FunctionNaming:MainBrowseNavHost.kt$@Composable private fun BrowseDestination(id: Int, entry: androidx.navigation.NavBackStackEntry)</ID>
+    <ID>FunctionNaming:MainShell.kt$@Composable fun MainShell( boorus: List&lt;Booru>, selectedUid: Long, tabs: List&lt;BrowseTab>, currentTab: Int, navigationVisible: Boolean, drawerRequests: kotlinx.coroutines.flow.Flow&lt;Unit>, onBooru: (Long) -> Unit, onAction: (DrawerDestination) -> Unit, onTab: (Int) -> Unit, content: @Composable () -> Unit, )</ID>
+    <ID>FunctionNaming:PostFilters.kt$@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class) @Composable fun PostFilters( tags: List&lt;TagFilter>, selected: Set&lt;Long>, groups: List&lt;Pair&lt;String, List&lt;String>>>, selections: List&lt;String>, onToggle: (Long) -> Unit, onDelete: (TagFilter) -> Unit, onSelect: (Int, String) -> Unit, onAdd: () -> Unit, onSearch: () -> Unit, )</ID>
+    <ID>FunctionNaming:PostGrid.kt$@Composable fun PagingStatus( state: LoadState, retry: () -> Unit, modifier: Modifier = Modifier, empty: Boolean = false, )</ID>
+    <ID>FunctionNaming:PostGrid.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class) @Composable fun PostGrid( posts: LazyPagingItems&lt;Post>, scrollPositions: Flow&lt;Int>, options: PostDisplayOptions, onClick: (Post, Int, View) -> Unit, onLongClick: (Post) -> Unit, modifier: Modifier = Modifier, onImage: (Int, View?) -> Unit = { _, _ -> }, )</ID>
+    <ID>FunctionNaming:PostInfo.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun PostMetadata( post: Post, booru: Booru, date: String, originalSize: String, onUser: () -> Unit, onSource: () -> Unit, onCopy: (String) -> Unit, onDownload: (String) -> Unit, onOpen: (String) -> Unit, )</ID>
+    <ID>FunctionNaming:PostInfo.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun PostTags( post: Post, booru: Booru, search: (String) -> Unit, copy: (String) -> Unit, include: (TagBase, Boolean) -> Unit, )</ID>
+    <ID>FunctionNaming:PostMedia.kt$@Composable fun PostMedia( post: Post, booru: Booru, size: String, active: Boolean, dismiss: DismissFrameLayout.OnDismissListener, tap: () -> Unit, hold: () -> Unit, zoom: (Boolean) -> Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>FunctionNaming:PostMedia.kt$@Composable private fun PostMediaContent( post: Post, booru: Booru, size: String, active: Boolean, dismiss: DismissFrameLayout.OnDismissListener, tap: () -> Unit, hold: () -> Unit, zoom: (Boolean) -> Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>FunctionNaming:RowMenu.kt$@Composable fun RowMenu( menu: AppMenu, iconTint: androidx.compose.ui.graphics.Color = LocalContentColor.current, onAction: (AppActionKey) -> Unit, )</ID>
+    <ID>FunctionNaming:ScrollBehavior.kt$@Composable fun BrowseScrollTop( visible: Boolean, onClick: () -> Unit, modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier, )</ID>
+    <ID>FunctionNaming:ScrollBehavior.kt$@Composable fun ObserveBrowseScroll(position: () -> Pair&lt;Int, Int>)</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable fun PreferenceRow( key: String, title: String, summary: String?, icon: Int = 0, checked: Boolean? = null, enabled: Boolean = true, onClick: () -> Unit, onToggle: (Boolean) -> Unit = {}, )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable fun SettingsScreen( state: SettingsUiState, onToggle: (String, Boolean) -> Unit, onChoose: (String, String, List&lt;String>) -> Unit, onExpand: () -> Unit, onPickDirectory: () -> Unit, onClearCache: () -> Unit, onRetrySave: () -> Unit = {}, )</ID>
+    <ID>FunctionNaming:VideoPreview.kt$@Composable fun VideoPreview( url: String, modifier: Modifier = Modifier, booru: Booru? = null, active: Boolean = true, )</ID>
+    <ID>FunctionParameterNaming:WebViewInterceptor.kt$_name: String</ID>
+    <ID>FunctionParameterNaming:WebViewInterceptor.kt$_value: String</ID>
+    <ID>ImplicitDefaultLocale:ActionComment.kt$ActionComment$String.format("%s://%s/comment/create.json", booru.scheme, booru.host)</ID>
+    <ID>ImplicitDefaultLocale:ActionComment.kt$ActionComment$String.format("%s://%s/comment/destroy.json", booru.scheme, booru.host)</ID>
+    <ID>ImplicitDefaultLocale:ActionVote.kt$ActionVote$String.format("%s://%s/favorite/create.json", booru.scheme, booru.host)</ID>
+    <ID>ImplicitDefaultLocale:ActionVote.kt$ActionVote$String.format("%s://%s/favorite/destroy.json", booru.scheme, booru.host)</ID>
+    <ID>ImplicitDefaultLocale:ActionVote.kt$ActionVote$String.format("%s://%s/post/vote.json", booru.scheme, booru.host)</ID>
+    <ID>ImplicitDefaultLocale:DetailActivity.kt$DetailActivity$String.format( "%s://%s/%s/post/view/%d", booru.scheme, booru.host, booru.path, post.id, )</ID>
+    <ID>ImplicitDefaultLocale:DetailActivity.kt$DetailActivity$String.format( "%s://%s/index.php?page=post&amp;s=view&amp;id=%d", booru.scheme, booru.host, post.id, )</ID>
+    <ID>ImplicitDefaultLocale:DetailActivity.kt$DetailActivity$String.format( "%s://%s/post/show/%d", booru.scheme, booru.host.replace("capi-v2.", "beta."), post.id, )</ID>
+    <ID>ImplicitDefaultLocale:DetailActivity.kt$DetailActivity$String.format("%s://%s/post/show/%d", booru.scheme, booru.host, post.id)</ID>
+    <ID>ImplicitDefaultLocale:DetailActivity.kt$DetailActivity$String.format("%s://%s/post/view/%d", booru.scheme, booru.host, post.id)</ID>
+    <ID>ImplicitDefaultLocale:DetailActivity.kt$DetailActivity$String.format("%s://%s/posts/%d", booru.scheme, booru.host, post.id)</ID>
+    <ID>ImplicitDefaultLocale:MuzeiArtWorker.kt$MuzeiArtWorker$String.format( "%s://%s/%s/post/view/%d", booru.scheme, booru.host, booru.path, postId, )</ID>
+    <ID>ImplicitDefaultLocale:MuzeiArtWorker.kt$MuzeiArtWorker$String.format( "%s://%s/index.php?page=post&amp;s=view&amp;id=%d", booru.scheme, booru.host, postId, )</ID>
+    <ID>ImplicitDefaultLocale:MuzeiArtWorker.kt$MuzeiArtWorker$String.format( "%s://%s/post/show/%d", booru.scheme, if (booru.host.startsWith("capi-v2.")) booru.host.replaceFirst("capi-v2.", "chan.") else booru.host, postId, )</ID>
+    <ID>ImplicitDefaultLocale:MuzeiArtWorker.kt$MuzeiArtWorker$String.format("%s://%s/post/view/%d", booru.scheme, booru.host, postId)</ID>
+    <ID>ImplicitDefaultLocale:MuzeiArtWorker.kt$MuzeiArtWorker$String.format("%s://%s/posts/%d", booru.scheme, booru.host, postId)</ID>
+    <ID>InstanceOfCheckForException:ArtistPagingSource.kt$ArtistPagingSource$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:BooruViewModel.kt$BooruViewModel$failure is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:CommentPagingSource.kt$CommentPagingSource$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:CommentRepositoryImpl.kt$CommentRepositoryImpl$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:HistoryViewModel.kt$HistoryViewModel$failure is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:MuzeiViewModel.kt$MuzeiViewModel$failure is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:PoolPagingSource.kt$PoolPagingSource$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:PostRemoteMediator.kt$PostRemoteMediator$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:PostRemoteMediator.kt$PostRemoteMediator$failure is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:SauceNaoViewModel.kt$SauceNaoViewModel$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:SuggestionRepositoryImpl.kt$SuggestionRepositoryImpl$failure is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:TagPagingSource.kt$TagPagingSource$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:TraceMoeViewModel.kt$TraceMoeViewModel$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:UserRepositoryImpl.kt$UserRepositoryImpl$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:UserRepositoryImpl.kt$UserRepositoryImpl$ex is kotlinx.coroutines.CancellationException</ID>
+    <ID>InstanceOfCheckForException:VoteRepositoryImpl.kt$VoteRepositoryImpl$e is HttpException</ID>
+    <ID>InstanceOfCheckForException:VoteRepositoryImpl.kt$VoteRepositoryImpl$e is kotlinx.coroutines.CancellationException</ID>
+    <ID>LongMethod:AboutScreen.kt$@Composable fun AboutScreen()</ID>
+    <ID>LongMethod:AccountActivity.kt$AccountActivity$private fun initializeContent()</ID>
+    <ID>LongMethod:AccountConfigScreen.kt$@Composable fun AccountConfigScreen( state: AccountConfigState, booru: Booru, username: (String) -> Unit, token: (String) -> Unit, submit: () -> Unit, forgot: () -> Unit, )</ID>
+    <ID>LongMethod:ActivityAppBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ActivityAppBar(activity: BaseActivity)</ID>
+    <ID>LongMethod:BooruEditorScreen.kt$@Composable fun BooruEditorScreen(state: BooruEditorState, field: (String, String) -> Unit)</ID>
+    <ID>LongMethod:BrowseController.kt$BrowseController$@Composable fun Content()</ID>
+    <ID>LongMethod:BrowseScreen.kt$@Composable fun BrowseScreen( state: BrowseUiState, hint: String, suggestions: List&lt;String>, onQuery: (String) -> Unit, onMode: (Int) -> Unit, onSearch: (String) -> Unit, onNavigate: () -> Unit, onMenu: (AppActionKey) -> Unit, onAddToMuzei: (String) -> Unit, bottomPadding: Boolean, autoHideBottomBar: Boolean = false, filters: @Composable () -> Unit = {}, content: @Composable (Modifier) -> Unit, )</ID>
+    <ID>LongMethod:CloudflareInterceptor.kt$CloudflareInterceptor$@SuppressLint("SetJavaScriptEnabled") private fun resolveWithWebView( originalRequest: Request, oldCookie: Cookie?, cancelled: () -> Boolean, )</ID>
+    <ID>LongMethod:CommentActivity.kt$CommentActivity$private fun initializeContent()</ID>
+    <ID>LongMethod:CommentRow.kt$@Composable fun CommentRow( comment: Comment, booru: Booru, date: String, onPost: () -> Unit, onUser: () -> Unit, onReply: () -> Unit, onQuote: (String) -> Unit, onDelete: () -> Unit, )</ID>
+    <ID>LongMethod:DetailScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun DetailScreen( posts: LazyPagingItems&lt;Post>, state: DetailUiState, booru: Booru, size: String, dismiss: DismissFrameLayout.OnDismissListener, select: (Post, Int) -> Unit, ready: () -> Unit, back: () -> Unit, toggleBars: () -> Unit, longActions: () -> Unit, closeLongActions: () -> Unit, action: (AppActionKey) -> Unit, info: () -> Unit, download: () -> Unit, save: () -> Unit, favorite: () -> Unit, longAction: (Int) -> Unit, )</ID>
+    <ID>LongMethod:DownloadTransfer.kt$internal suspend fun transferDownload( context: Context, queue: DownloadDao, workId: String, url: String, destination: Uri, client: okhttp3.OkHttpClient, )</ID>
+    <ID>LongMethod:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPool(): Boolean</ID>
+    <ID>LongMethod:DownloadsActivity.kt$DownloadsActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:InfoDialog.kt$InfoDialog$@OptIn(ExperimentalFoundationApi::class) override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?, ): View</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:MainShell.kt$@Composable fun MainShell( boorus: List&lt;Booru>, selectedUid: Long, tabs: List&lt;BrowseTab>, currentTab: Int, navigationVisible: Boolean, drawerRequests: kotlinx.coroutines.flow.Flow&lt;Unit>, onBooru: (Long) -> Unit, onAction: (DrawerDestination) -> Unit, onTab: (Int) -> Unit, content: @Composable () -> Unit, )</ID>
+    <ID>LongMethod:MenuActions.kt$fun AppMenu.actions(): List&lt;AppAction></ID>
+    <ID>LongMethod:MuzeiActivity.kt$MuzeiActivity$private fun initializeContent()</ID>
+    <ID>LongMethod:PostGrid.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class) @Composable fun PostGrid( posts: LazyPagingItems&lt;Post>, scrollPositions: Flow&lt;Int>, options: PostDisplayOptions, onClick: (Post, Int, View) -> Unit, onLongClick: (Post) -> Unit, modifier: Modifier = Modifier, onImage: (Int, View?) -> Unit = { _, _ -> }, )</ID>
+    <ID>LongMethod:PostInfo.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun PostMetadata( post: Post, booru: Booru, date: String, originalSize: String, onUser: () -> Unit, onSource: () -> Unit, onCopy: (String) -> Unit, onDownload: (String) -> Unit, onOpen: (String) -> Unit, )</ID>
+    <ID>LongMethod:SauceNaoActivity.kt$SauceNaoActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:SettingsScreen.kt$@Composable fun SettingsScreen( state: SettingsUiState, onToggle: (String, Boolean) -> Unit, onChoose: (String, String, List&lt;String>) -> Unit, onExpand: () -> Unit, onPickDirectory: () -> Unit, onClearCache: () -> Unit, onRetrySave: () -> Unit = {}, )</ID>
+    <ID>LongMethod:TagBlacklistActivity.kt$TagBlacklistActivity$override fun onSettingsReady(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:TagScreenController.kt$TagScreenController$override fun onMenuAction(menuItem: AppActionKey)</ID>
+    <ID>LongMethod:UserRepositoryImpl.kt$UserRepositoryImpl$override suspend fun gelLogin( username: String, password: String, booru: Booru, ): NetResult&lt;User></ID>
+    <ID>LongParameterList:AccountConfigScreen.kt$( state: AccountConfigState, booru: Booru, username: (String) -> Unit, token: (String) -> Unit, submit: () -> Unit, forgot: () -> Unit, )</ID>
+    <ID>LongParameterList:BrowseScreen.kt$( state: BrowseUiState, hint: String, suggestions: List&lt;String>, onQuery: (String) -> Unit, onMode: (Int) -> Unit, onSearch: (String) -> Unit, onNavigate: () -> Unit, onMenu: (AppActionKey) -> Unit, onAddToMuzei: (String) -> Unit, bottomPadding: Boolean, autoHideBottomBar: Boolean = false, filters: @Composable () -> Unit = {}, content: @Composable (Modifier) -> Unit, )</ID>
+    <ID>LongParameterList:CommentRow.kt$( comment: Comment, booru: Booru, date: String, onPost: () -> Unit, onUser: () -> Unit, onReply: () -> Unit, onQuote: (String) -> Unit, onDelete: () -> Unit, )</ID>
+    <ID>LongParameterList:Danbooru1Api.kt$Danbooru1Api$( @Url url: String, @Field("comment[post_id]") postId: Int, @Field("comment[body]") body: String, @Field("comment[anonymous]") anonymous: Int, @Field("login") username: String, @Field("password_hash") passwordHash: String, )</ID>
+    <ID>LongParameterList:DanbooruApi.kt$DanbooruApi$( @Url url: HttpUrl, @Field("comment[post_id]") postId: Int, @Field("comment[body]") body: String, @Field("comment[do_not_bump_post]") anonymous: Int, @Field("login") username: String, @Field("api_key") apiKey: String, )</ID>
+    <ID>LongParameterList:DetailScreen.kt$( posts: LazyPagingItems&lt;Post>, state: DetailUiState, booru: Booru, size: String, dismiss: DismissFrameLayout.OnDismissListener, select: (Post, Int) -> Unit, ready: () -> Unit, back: () -> Unit, toggleBars: () -> Unit, longActions: () -> Unit, closeLongActions: () -> Unit, action: (AppActionKey) -> Unit, info: () -> Unit, download: () -> Unit, save: () -> Unit, favorite: () -> Unit, longAction: (Int) -> Unit, )</ID>
+    <ID>LongParameterList:DownloadTransfer.kt$( context: Context, queue: DownloadDao, workId: String, url: String, destination: Uri, client: okhttp3.OkHttpClient, )</ID>
+    <ID>LongParameterList:ImageSearchScreen.kt$( results: List&lt;T>, loading: Boolean, error: String?, add: () -> Unit, retry: () -> Unit = add, key: (T, Int) -> String, row: @Composable (T) -> Unit, )</ID>
+    <ID>LongParameterList:MainShell.kt$( boorus: List&lt;Booru>, selectedUid: Long, tabs: List&lt;BrowseTab>, currentTab: Int, navigationVisible: Boolean, drawerRequests: kotlinx.coroutines.flow.Flow&lt;Unit>, onBooru: (Long) -> Unit, onAction: (DrawerDestination) -> Unit, onTab: (Int) -> Unit, content: @Composable () -> Unit, )</ID>
+    <ID>LongParameterList:MoebooruApi.kt$MoebooruApi$( @Url url: String, @Field("comment[post_id]") postId: Int, @Field("comment[body]") body: String, @Field("comment[anonymous]") anonymous: Int, @Field("login") username: String, @Field("password_hash") passwordHash: String, )</ID>
+    <ID>LongParameterList:PostDan.kt$PostDan$( booruUid: Long, query: String, scheme: String, host: String, index: Int, isFavored: Boolean, )</ID>
+    <ID>LongParameterList:PostDan1.kt$PostDan1$( booruUid: Long, query: String, scheme: String, host: String, index: Int, isFavored: Boolean, )</ID>
+    <ID>LongParameterList:PostFilters.kt$( tags: List&lt;TagFilter>, selected: Set&lt;Long>, groups: List&lt;Pair&lt;String, List&lt;String>>>, selections: List&lt;String>, onToggle: (Long) -> Unit, onDelete: (TagFilter) -> Unit, onSelect: (Int, String) -> Unit, onAdd: () -> Unit, onSearch: () -> Unit, )</ID>
+    <ID>LongParameterList:PostGel.kt$PostGel$( booruUid: Long, query: String, scheme: String, host: String, index: Int, isFavored: Boolean, )</ID>
+    <ID>LongParameterList:PostGrid.kt$( posts: LazyPagingItems&lt;Post>, scrollPositions: Flow&lt;Int>, options: PostDisplayOptions, onClick: (Post, Int, View) -> Unit, onLongClick: (Post) -> Unit, modifier: Modifier = Modifier, onImage: (Int, View?) -> Unit = { _, _ -> }, )</ID>
+    <ID>LongParameterList:PostInfo.kt$( post: Post, booru: Booru, date: String, originalSize: String, onUser: () -> Unit, onSource: () -> Unit, onCopy: (String) -> Unit, onDownload: (String) -> Unit, onOpen: (String) -> Unit, )</ID>
+    <ID>LongParameterList:PostMedia.kt$( post: Post, booru: Booru, size: String, active: Boolean, dismiss: DismissFrameLayout.OnDismissListener, tap: () -> Unit, hold: () -> Unit, zoom: (Boolean) -> Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongParameterList:PostMediaRenderer.kt$PostMediaRenderer$( context: Context, post: Post, size: String, executor: Executor, dismiss: DismissFrameLayout.OnDismissListener, tap: () -> Unit, hold: () -> Unit, zoom: (Boolean) -> Unit, )</ID>
+    <ID>LongParameterList:PostMoe.kt$PostMoe$( booruUid: Long, query: String, scheme: String, host: String, index: Int, tagTypes: Map&lt;String, String>, votes: Map&lt;String, Int>, )</ID>
+    <ID>LongParameterList:SettingsScreen.kt$( key: String, title: String, summary: String?, icon: Int = 0, checked: Boolean? = null, enabled: Boolean = true, onClick: () -> Unit, onToggle: (Boolean) -> Unit = {}, )</ID>
+    <ID>LongParameterList:SettingsScreen.kt$( state: SettingsUiState, onToggle: (String, Boolean) -> Unit, onChoose: (String, String, List&lt;String>) -> Unit, onExpand: () -> Unit, onPickDirectory: () -> Unit, onClearCache: () -> Unit, onRetrySave: () -> Unit = {}, )</ID>
+    <ID>MagicNumber:ActionPost.kt$ActionPost.Date$10</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$12</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$128</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$13</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$2048</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$23</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$256</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$29</ID>
+    <ID>MagicNumber:AndroidCredentialCipher.kt$AndroidCredentialCipher$30</ID>
+    <ID>MagicNumber:App.kt$App$26</ID>
+    <ID>MagicNumber:ArtistScreenController.kt$ArtistScreenController$20</ID>
+    <ID>MagicNumber:Booru.kt$Booru.Companion$5</ID>
+    <ID>MagicNumber:Booru.kt$Booru.Companion$6</ID>
+    <ID>MagicNumber:BooruViewModel.kt$BooruViewModel$5000</ID>
+    <ID>MagicNumber:BoundedApiResponseInterceptor.kt$BoundedApiResponseInterceptor$1024</ID>
+    <ID>MagicNumber:BoundedApiResponseInterceptor.kt$BoundedApiResponseInterceptor$8L</ID>
+    <ID>MagicNumber:BrowseScreen.kt$135f</ID>
+    <ID>MagicNumber:CatalogRows.kt$5</ID>
+    <ID>MagicNumber:CatalogRows.kt$6</ID>
+    <ID>MagicNumber:CatalogRows.kt$8</ID>
+    <ID>MagicNumber:CatalogRows.kt$9</ID>
+    <ID>MagicNumber:CloudflareInterceptor.kt$403</ID>
+    <ID>MagicNumber:CloudflareInterceptor.kt$503</ID>
+    <ID>MagicNumber:CloudflareInterceptor.kt$CloudflareInterceptor$100</ID>
+    <ID>MagicNumber:CloudflareInterceptor.kt$CloudflareInterceptor$30_000</ID>
+    <ID>MagicNumber:Connectivity.kt$23</ID>
+    <ID>MagicNumber:DetailActivity.kt$DetailActivity$21</ID>
+    <ID>MagicNumber:DeviceCredentialRepository.kt$DeviceCredentialRepository$1024</ID>
+    <ID>MagicNumber:DeviceCredentialRepository.kt$DeviceCredentialRepository$128</ID>
+    <ID>MagicNumber:DeviceCredentialRepository.kt$DeviceCredentialRepository$256</ID>
+    <ID>MagicNumber:DismissFrameLayout.kt$DismissFrameLayout$160.0</ID>
+    <ID>MagicNumber:DismissFrameLayout.kt$DismissFrameLayout$180</ID>
+    <ID>MagicNumber:DismissFrameLayout.kt$DismissFrameLayout$20.0</ID>
+    <ID>MagicNumber:DismissFrameLayout.kt$DismissFrameLayout$8f</ID>
+    <ID>MagicNumber:DismissFrameLayout.kt$DismissFrameLayout.ViewDragCallback$3</ID>
+    <ID>MagicNumber:DismissFrameLayout.kt$DismissFrameLayout.ViewDragCallback$6</ID>
+    <ID>MagicNumber:DownloadPublication.kt$180</ID>
+    <ID>MagicNumber:DownloadTransfer.kt$1024</ID>
+    <ID>MagicNumber:DownloadTransfer.kt$200</ID>
+    <ID>MagicNumber:DownloadTransfer.kt$206</ID>
+    <ID>MagicNumber:DownloadTransfer.kt$500</ID>
+    <ID>MagicNumber:DownloadTransfer.kt$64</ID>
+    <ID>MagicNumber:DownloadWorker.kt$DownloadWorker$100</ID>
+    <ID>MagicNumber:DownloadWorker.kt$DownloadWorker$1000000</ID>
+    <ID>MagicNumber:DownloadWorker.kt$DownloadWorker$33</ID>
+    <ID>MagicNumber:DownloadWorker.kt$DownloadWorker$500L</ID>
+    <ID>MagicNumber:DownloadWorker.kt$DownloadWorker.Companion$7</ID>
+    <ID>MagicNumber:DownloadsActivity.kt$DownloadsViewModel$5000</ID>
+    <ID>MagicNumber:EngineCapabilities.kt$BooruEngine.GELBOORU$3</ID>
+    <ID>MagicNumber:EngineCapabilities.kt$BooruEngine.GELBOORU_LEGACY$6</ID>
+    <ID>MagicNumber:EngineCapabilities.kt$BooruEngine.SANKAKU$4</ID>
+    <ID>MagicNumber:EngineCapabilities.kt$BooruEngine.SHIMMIE$5</ID>
+    <ID>MagicNumber:FixedImageView.kt$FixedImageView$3</ID>
+    <ID>MagicNumber:FixedImageView.kt$FixedImageView$4</ID>
+    <ID>MagicNumber:HashExt.kt$4</ID>
+    <ID>MagicNumber:HistoryViewModel.kt$HistoryViewModel$5000</ID>
+    <ID>MagicNumber:HttpTransport.kt$HttpTransport$15</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$33</ID>
+    <ID>MagicNumber:MediaResources.kt$MediaResources$1024</ID>
+    <ID>MagicNumber:MediaResources.kt$MediaResources$256L</ID>
+    <ID>MagicNumber:MuzeiViewModel.kt$MuzeiViewModel$5000</ID>
+    <ID>MagicNumber:MyDatabase.kt$MyDatabase.Companion$3</ID>
+    <ID>MagicNumber:MyDatabase.kt$MyDatabase.Companion$4</ID>
+    <ID>MagicNumber:MyDatabase.kt$MyDatabase.Companion$5</ID>
+    <ID>MagicNumber:MyDatabase.kt$MyDatabase.Companion$6</ID>
+    <ID>MagicNumber:MyDatabase.kt$MyDatabase.Companion$7</ID>
+    <ID>MagicNumber:MyMigration.kt$MyMigration$3</ID>
+    <ID>MagicNumber:MyMigration.kt$MyMigration$4</ID>
+    <ID>MagicNumber:MyMigration.kt$MyMigration$5</ID>
+    <ID>MagicNumber:MyMigration.kt$MyMigration$6</ID>
+    <ID>MagicNumber:MyMigration.kt$MyMigration$7</ID>
+    <ID>MagicNumber:NetworkFailure.kt$NetworkFailure.Companion$401</ID>
+    <ID>MagicNumber:NetworkFailure.kt$NetworkFailure.Companion$403</ID>
+    <ID>MagicNumber:NetworkFailure.kt$NetworkFailure.Companion$429</ID>
+    <ID>MagicNumber:NetworkFailure.kt$NetworkFailure.Companion$500</ID>
+    <ID>MagicNumber:NetworkFailure.kt$NetworkFailure.Companion$599</ID>
+    <ID>MagicNumber:NetworkFailure.kt$NetworkFailure.Companion$86400</ID>
+    <ID>MagicNumber:NoSniFactory.kt$NoSniFactory$1000</ID>
+    <ID>MagicNumber:OkHttp3Downloader.kt$OkHttp3Downloader.Companion$50</ID>
+    <ID>MagicNumber:PoolScreenController.kt$PoolScreenController$20</ID>
+    <ID>MagicNumber:PostDan.kt$PostDan$3</ID>
+    <ID>MagicNumber:PostDan.kt$PostDan$4</ID>
+    <ID>MagicNumber:PostGrid.kt$21f</ID>
+    <ID>MagicNumber:PostGrid.kt$9f</ID>
+    <ID>MagicNumber:PostInfo.kt$3</ID>
+    <ID>MagicNumber:PostInfo.kt$4</ID>
+    <ID>MagicNumber:PostInfo.kt$5</ID>
+    <ID>MagicNumber:PostInfo.kt$6</ID>
+    <ID>MagicNumber:PostInfo.kt$8</ID>
+    <ID>MagicNumber:PostInfo.kt$9</ID>
+    <ID>MagicNumber:PostInfoViewModel.kt$PostInfoViewModel$5000</ID>
+    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$0.01f</ID>
+    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$1024</ID>
+    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$2</ID>
+    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$28</ID>
+    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer$48</ID>
+    <ID>MagicNumber:PostMediaRenderer.kt$PostMediaRenderer.&lt;no name provided>$0.01f</ID>
+    <ID>MagicNumber:PostMoe.kt$PostMoe$3</ID>
+    <ID>MagicNumber:PostRemoteMediator.kt$PostRemoteMediator$401</ID>
+    <ID>MagicNumber:PostScreenController.kt$PostScreenController$3</ID>
+    <ID>MagicNumber:PostScreenController.kt$PostScreenController$4</ID>
+    <ID>MagicNumber:PostScreenController.kt$PostScreenController$5</ID>
+    <ID>MagicNumber:PostScreenController.kt$PostScreenController$6</ID>
+    <ID>MagicNumber:ProgressInterceptor.kt$100</ID>
+    <ID>MagicNumber:ResumePolicy.kt$ResumePolicy$3</ID>
+    <ID>MagicNumber:ScannerActivity.kt$ScannerActivity$25</ID>
+    <ID>MagicNumber:SearchTextToolbar.kt$SearchTextToolbar$23</ID>
+    <ID>MagicNumber:SettingsRepository.kt$SettingsRepository$100</ID>
+    <ID>MagicNumber:SettingsRepository.kt$SettingsRepository$20</ID>
+    <ID>MagicNumber:SettingsRepository.kt$SettingsRepository$200</ID>
+    <ID>MagicNumber:SettingsRepository.kt$SettingsRepository$30</ID>
+    <ID>MagicNumber:SettingsSpec.kt$5</ID>
+    <ID>MagicNumber:SignExt.kt$0xFF</ID>
+    <ID>MagicNumber:SignExt.kt$16</ID>
+    <ID>MagicNumber:SignExt.kt$28</ID>
+    <ID>MagicNumber:SiteBackup.kt$SiteBackups$1000</ID>
+    <ID>MagicNumber:SiteBackup.kt$SiteBackups$1024</ID>
+    <ID>MagicNumber:SiteBackup.kt$SiteBackups$2048</ID>
+    <ID>MagicNumber:SiteBackup.kt$SiteBackups$256</ID>
+    <ID>MagicNumber:SiteBackup.kt$SiteBackups$8192</ID>
+    <ID>MagicNumber:SuggestionViewModel.kt$SuggestionViewModel$150</ID>
+    <ID>MagicNumber:TagFilterViewModel.kt$TagFilterViewModel$5000</ID>
+    <ID>MagicNumber:TagScreenController.kt$TagScreenController$20</ID>
+    <ID>MagicNumber:TreeUriExt.kt$180</ID>
+    <ID>MagicNumber:UserRepositoryImpl.kt$UserRepositoryImpl$5</ID>
+    <ID>MagicNumber:Utils.kt$32</ID>
+    <ID>MagicNumber:ViewAnimation.kt$ViewAnimation$0.5f</ID>
+    <ID>MagicNumber:ViewAnimation.kt$ViewAnimation$135f</ID>
+    <ID>MagicNumber:ViewAnimation.kt$ViewAnimation$200</ID>
+    <ID>MagicNumber:ViewAnimation.kt$ViewAnimation$500</ID>
+    <ID>MagicNumber:ViewExt.kt$180f</ID>
+    <ID>MagicNumber:ViewExt.kt$200</ID>
+    <ID>MagicNumber:ViewExt.kt$300</ID>
+    <ID>MagicNumber:VoteRepositoryImpl.kt$VoteRepositoryImpl$3</ID>
+    <ID>MagicNumber:VoteRepositoryImpl.kt$VoteRepositoryImpl$403</ID>
+    <ID>MagicNumber:VoteRepositoryImpl.kt$VoteRepositoryImpl$422</ID>
+    <ID>MagicNumber:VoteRepositoryImpl.kt$VoteRepositoryImpl$423</ID>
+    <ID>MagicNumber:VoteRepositoryImpl.kt$VoteRepositoryImpl$500</ID>
+    <ID>MagicNumber:WebViewInterceptor.kt$WebViewInterceptor$30</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$100</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$60</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$100</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$1000</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$16f</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$28</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$50</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity$9f</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity.AnimePlayerDialog$16f</ID>
+    <ID>MagicNumber:WhatAnimeActivity.kt$WhatAnimeActivity.AnimePlayerDialog$9f</ID>
+    <ID>MatchingDeclarationName:NetworkExt.kt$NetResult&lt;out T : Any></ID>
+    <ID>MatchingDeclarationName:PostFilters.kt$PostFiltersViewModel : ViewModel</ID>
+    <ID>MaxLineLength:ActionPost.kt$ActionPost.Date$return "$yearStart-$monthStringStart-${dayStringStart}T16:00..$yearEnd-$monthStringEnd-${dayStringEnd}T16:00"</ID>
+    <ID>MaxLineLength:CommentRow.kt$"[quote]${comment.creatorName} said:\r\n${body[0]?.getLastCommentText() ?: comment.body}[/quote]"</ID>
+    <ID>MaxLineLength:DownloadDao.kt$DownloadDao$"UPDATE downloads SET bytesWritten = :bytes, totalBytes = :total, etag = :etag, lastModified = :modified WHERE workId = :id"</ID>
+    <ID>MaxLineLength:DownloadWorker.kt$DownloadWorker$"${inputData.getString(HOST_KEY).orEmpty()} - ${inputData.getInt(POST_ID_KEY, inputData.getInt(POOL_ID_KEY, -1))}"</ID>
+    <ID>MaxLineLength:DownloadWorker.kt$DownloadWorker.Companion$"${safeData.getString(HOST_KEY).orEmpty()} - ${safeData.getInt(POST_ID_KEY, safeData.getInt(POOL_ID_KEY, -1))}"</ID>
+    <ID>MaxLineLength:InfoDialog.kt$InfoDialog$"${item.width} x ${item.height} ${Formatter.formatFileSize(requireContext(), item.size.toLong())}"</ID>
+    <ID>MaxLineLength:MyMigration.kt$MyMigration$"CREATE TABLE IF NOT EXISTS `history` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `booru_uid` INTEGER NOT NULL, `query` TEXT NOT NULL, FOREIGN KEY(`booru_uid`) REFERENCES `boorus`(`uid`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:MyMigration.kt$MyMigration$"CREATE TABLE IF NOT EXISTS `next` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `booru_uid` INTEGER NOT NULL, `query` TEXT NOT NULL, `next` TEXT, FOREIGN KEY(`booru_uid`) REFERENCES `boorus`(`uid`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:MyMigration.kt$MyMigration$"CREATE TABLE IF NOT EXISTS `posts` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `booru_uid` INTEGER NOT NULL, `index` INTEGER NOT NULL, `query` TEXT NOT NULL, `id` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `size` INTEGER NOT NULL, `score` INTEGER NOT NULL, `rating` TEXT NOT NULL, `is_favored` INTEGER NOT NULL, `time` INTEGER, `tags` TEXT NOT NULL, `preview` TEXT NOT NULL, `sample` TEXT NOT NULL, `medium` TEXT NOT NULL, `origin` TEXT NOT NULL, `pixiv_id` INTEGER, `source` TEXT, `uploader` TEXT NOT NULL, FOREIGN KEY(`booru_uid`) REFERENCES `boorus`(`uid`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:MyMigration.kt$MyMigration$"CREATE UNIQUE INDEX IF NOT EXISTS `index_history_booru_uid_query` ON `history` (`booru_uid`, `query`)"</ID>
+    <ID>MaxLineLength:MyMigration.kt$MyMigration$"CREATE UNIQUE INDEX IF NOT EXISTS `index_posts_booru_uid_query_id` ON `posts` (`booru_uid`, `query`, `id`)"</ID>
+    <ID>MaxLineLength:TextExt.kt$"^(?=.{1,255}\$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\\.?\$"</ID>
+    <ID>MaxLineLength:Values.kt$Values$"Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; ${Build.MODEL}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"</ID>
+    <ID>NestedBlockDepth:CommentPagingSource.kt$CommentPagingSource$private suspend fun getSankakuPostsComments( action: ActionComment, page: Int, ): LoadResult&lt;Int, Comment></ID>
+    <ID>NestedBlockDepth:LinkTransformationMethod.kt$LinkTransformationMethod$override fun getTransformation(source: CharSequence?, view: View?): CharSequence?</ID>
+    <ID>NestedBlockDepth:MuzeiProvider.kt$MuzeiProvider$@Throws(IOException::class) override fun openFile(artwork: Artwork): InputStream</ID>
+    <ID>NestedBlockDepth:SettingsSpec.kt$fun SettingsUiState.rows(night: Boolean): List&lt;SettingsRow></ID>
+    <ID>NestedBlockDepth:ViewTransition.kt$ViewTransition$@JvmOverloads fun showView(shownView: Int, animation: Boolean = true): Boolean</ID>
+    <ID>PrintStackTrace:Booru.kt$Booru.Companion$ex</ID>
+    <ID>PrintStackTrace:Extensions.kt$e</ID>
+    <ID>PrintStackTrace:TagFilterManager.kt$TagFilterManager$ex</ID>
+    <ID>ReturnCount:AccountActivity.kt$AccountActivity$private fun action(action: String)</ID>
+    <ID>ReturnCount:AndroidCredentialCipher.kt$AndroidCredentialCipher$@Synchronized private fun key(): SecretKey</ID>
+    <ID>ReturnCount:CloudflareInterceptor.kt$CloudflareInterceptor.&lt;no name provided>$private fun outsideOrigin(url: String): Boolean</ID>
+    <ID>ReturnCount:CommentViewModel.kt$CommentViewModel$fun sendReply()</ID>
+    <ID>ReturnCount:DetailActivity.kt$DetailActivity$private fun vote()</ID>
+    <ID>ReturnCount:DeviceCredentialRepository.kt$DeviceCredentialRepository$override fun read(reference: String): String?</ID>
+    <ID>ReturnCount:DeviceCredentialRepository.kt$DeviceCredentialRepository$private fun file(reference: String): File?</ID>
+    <ID>ReturnCount:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPool(): Boolean</ID>
+    <ID>ReturnCount:DownloadWorker.kt$DownloadWorker$private suspend fun downloadPost(): Boolean</ID>
+    <ID>ReturnCount:MainActivity.kt$MainActivity$private fun openDestination(key: DrawerDestination)</ID>
+    <ID>ReturnCount:MuzeiArtWorker.kt$MuzeiArtWorker$override suspend fun doWork(): Result</ID>
+    <ID>ReturnCount:MyConverters.kt$MyConverters$@TypeConverter fun fromStringToAuth(value: String?): AuthCredential?</ID>
+    <ID>ReturnCount:MyConverters.kt$MyConverters$@TypeConverter fun fromStringToUser(value: String?): User?</ID>
+    <ID>ReturnCount:MyConverters.kt$MyConverters$@TypeConverter fun fromUserToString(user: User?): String?</ID>
+    <ID>ReturnCount:PostRemoteMediator.kt$PostRemoteMediator$override suspend fun load(loadType: LoadType, state: PagingState&lt;Int, Post>): MediatorResult</ID>
+    <ID>ReturnCount:PostRemoteMediator.kt$PostRemoteMediator$private suspend fun fetchPostsMoe(page: Int, indexInNext: Int): List&lt;Post></ID>
+    <ID>ReturnCount:ResumePolicy.kt$ResumePolicy$fun acceptsPartial( offset: Long, contentRange: String?, expectedValidator: String?, actualValidator: String?, ): Boolean</ID>
+    <ID>ReturnCount:SignExt.kt$fun Context.matchesPlaySigningCertificate(expected: String): Boolean</ID>
+    <ID>ReturnCount:StorageFolderLifecycleObserver.kt$StorageFolderLifecycleObserver$private fun Context.getRootUri(): Uri?</ID>
+    <ID>ReturnCount:TreeUriExt.kt$fun ContentResolver.getFileUriByDocId(docId: String): Uri?</ID>
+    <ID>ReturnCount:Utils.kt$fun String.toSafeUrl(scheme: String, host: String): String</ID>
+    <ID>ReturnCount:WebViewInterceptor.kt$WebViewInterceptor$override fun intercept(chain: Interceptor.Chain): Response</ID>
+    <ID>ReturnCount:WebViewInterceptor.kt$private fun isRequestHeaderSafe(_name: String, _value: String): Boolean</ID>
+    <ID>SwallowedException:BooruManager.kt$BooruManager$ex: SQLException</ID>
+    <ID>SwallowedException:CloudflareInterceptor.kt$CloudflareInterceptor$e: CloudflareBypassException</ID>
+    <ID>SwallowedException:DeviceUtil.kt$DeviceUtil$e: Exception</ID>
+    <ID>SwallowedException:Extensions.kt$ex: ActivityNotFoundException</ID>
+    <ID>SwallowedException:WebViewInterceptor.kt$e: Throwable</ID>
+    <ID>ThrowsCount:CloudflareInterceptor.kt$CloudflareInterceptor$@SuppressLint("SetJavaScriptEnabled") private fun resolveWithWebView( originalRequest: Request, oldCookie: Cookie?, cancelled: () -> Boolean, )</ID>
+    <ID>TooGenericExceptionCaught:AccountConfigViewModel.kt$AccountConfigViewModel$error: Exception</ID>
+    <ID>TooGenericExceptionCaught:AndroidCookieJar.kt$AndroidCookieJar$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:AndroidCredentialCipher.kt$AndroidCredentialCipher$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:ArtistPagingSource.kt$ArtistPagingSource$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:Booru.kt$Booru.Companion$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:BooruViewModel.kt$BooruViewModel$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:CloudflareInterceptor.kt$CloudflareInterceptor$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CommentPagingSource.kt$CommentPagingSource$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CommentRepositoryImpl.kt$CommentRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DataStorePreferences.kt$DataStorePreferences$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:DeviceCredentialRepository.kt$DeviceCredentialRepository$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:DeviceUtil.kt$DeviceUtil$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DownloadTransfer.kt$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:DownloadWorker.kt$DownloadWorker.Companion$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:HistoryViewModel.kt$HistoryViewModel$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:MuzeiViewModel.kt$MuzeiViewModel$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:PoolPagingSource.kt$PoolPagingSource$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PostRemoteMediator.kt$PostRemoteMediator$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PostRemoteMediator.kt$PostRemoteMediator$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:SauceNaoViewModel.kt$SauceNaoViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SuggestionRepositoryImpl.kt$SuggestionRepositoryImpl$failure: Exception</ID>
+    <ID>TooGenericExceptionCaught:TagPagingSource.kt$TagPagingSource$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TraceMoeViewModel.kt$TraceMoeViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:UserRepositoryImpl.kt$UserRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:UserRepositoryImpl.kt$UserRepositoryImpl$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:VoteRepositoryImpl.kt$VoteRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WebViewInterceptor.kt$e: Throwable</ID>
+    <ID>TooGenericExceptionThrown:CustomRegionDecoder.kt$CustomRegionDecoder$throw RuntimeException( "Region decoder returned null bitmap - image format may not be supported" )</ID>
+    <ID>TooGenericExceptionThrown:RippleAnimation.kt$RippleAnimation$throw RuntimeException("Activity not found!")</ID>
+    <ID>TooManyFunctions:ActionComment.kt$ActionComment</ID>
+    <ID>TooManyFunctions:ActionPost.kt$ActionPost</ID>
+    <ID>TooManyFunctions:Booru.kt$Booru</ID>
+    <ID>TooManyFunctions:BooruActivity.kt$BooruActivity : BaseActivity</ID>
+    <ID>TooManyFunctions:BooruDao.kt$BooruDao</ID>
+    <ID>TooManyFunctions:BrowseController.kt$BrowseController : ComponentCallbacksViewModelStoreOwnerLifecycleOwnerHasDefaultViewModelProviderFactorySavedStateRegistryOwnerBrowseNavigationOnSharedPreferenceChangeListenerKoinComponent</ID>
+    <ID>TooManyFunctions:CommentPagingSource.kt$CommentPagingSource : PagingSource</ID>
+    <ID>TooManyFunctions:CommentRepositoryImpl.kt$CommentRepositoryImpl : CommentRepository</ID>
+    <ID>TooManyFunctions:DanbooruApi.kt$DanbooruApi</ID>
+    <ID>TooManyFunctions:DataStorePreferences.kt$DataStorePreferences : SharedPreferences</ID>
+    <ID>TooManyFunctions:DataStorePreferences.kt$DataStorePreferences$Editor : Editor</ID>
+    <ID>TooManyFunctions:DetailActivity.kt$DetailActivity : PathActivityOnDismissListenerKoinComponent</ID>
+    <ID>TooManyFunctions:Extensions.kt$com.mattzilla30.mbooru.extension.Extensions.kt</ID>
+    <ID>TooManyFunctions:MoebooruApi.kt$MoebooruApi</ID>
+    <ID>TooManyFunctions:PostDao.kt$PostDao</ID>
+    <ID>TooManyFunctions:PostRemoteMediator.kt$PostRemoteMediator : RemoteMediator</ID>
+    <ID>TooManyFunctions:PostScreenController.kt$PostScreenController : BrowseControllerKoinComponent</ID>
+    <ID>TooManyFunctions:RippleAnimation.kt$RippleAnimation : View</ID>
+    <ID>TooManyFunctions:SankakuApi.kt$SankakuApi</ID>
+    <ID>TooManyFunctions:TreeUriExt.kt$com.mattzilla30.mbooru.extension.TreeUriExt.kt</ID>
+    <ID>TooManyFunctions:UserRepositoryImpl.kt$UserRepositoryImpl : UserRepository</ID>
+    <ID>TooManyFunctions:ViewAnimation.kt$ViewAnimation</ID>
+    <ID>TooManyFunctions:ViewModelFactory.kt$com.mattzilla30.mbooru.ui.viewmodel.ViewModelFactory.kt</ID>
+    <ID>TooManyFunctions:VoteRepositoryImpl.kt$VoteRepositoryImpl : VoteRepository</ID>
+    <ID>UnusedPrivateMember:OkHttp3Downloader.kt$OkHttp3Downloader.Companion$private fun calculateDiskCacheSize(dir: File): Long</ID>
+    <ID>UnusedPrivateMember:OkHttp3Downloader.kt$OkHttp3Downloader.Companion$private fun createDefaultCacheDir(context: Context): File</ID>
+    <ID>UnusedPrivateMember:PostSankaku.kt$PostSankaku$private fun String.getTags(): List&lt;TagBase></ID>
+    <ID>UnusedPrivateProperty:BooruActivity.kt$BooruActivity$private val json get() = Json { ignoreUnknownKeys = true prettyPrint = true }</ID>
+    <ID>UnusedPrivateProperty:DetailActivity.kt$private const val ALPHA_MAX = 0xFF</ID>
+    <ID>UnusedPrivateProperty:DetailActivity.kt$private const val ALPHA_MIN = 0x00</ID>
+    <ID>UnusedPrivateProperty:PostScreenController.kt$private const val PERIOD_YEAR = "1y"</ID>
+    <ID>UnusedPrivateProperty:PostScreenController.kt$private const val ROTATION_DEGREE = 135f</ID>
+    <ID>UseCheckOrError:ProgressResponseBody.kt$ProgressResponseBody$throw IllegalStateException("source is null")</ID>
+    <ID>UseCheckOrError:ViewTransition.kt$ViewTransition$throw IllegalStateException("You must pass view to ViewTransition")</ID>
+    <ID>WildcardImport:AboutScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AboutScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AccountActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AccountActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AccountActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AccountActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:AccountConfigActivity.kt$import com.mattzilla30.mbooru.ui.compose.account.*</ID>
+    <ID>WildcardImport:AccountConfigScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AccountConfigScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AccountConfigViewModel.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:AccountConfigViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:AccountViewModel.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:AccountViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:ActivityAppBar.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ActivityAppBar.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ActivityAppBar.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ArtistScreenController.kt$import com.mattzilla30.mbooru.ui.compose.browse.*</ID>
+    <ID>WildcardImport:ArtistViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:BaseActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:BaseActivity.kt$import com.mattzilla30.mbooru.ui.activity.*</ID>
+    <ID>WildcardImport:BaseActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:BooruActivity.kt$import android.view.*</ID>
+    <ID>WildcardImport:BooruActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:BooruConfigActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:BooruConfigActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:BooruConfigActivity.kt$import com.mattzilla30.mbooru.ui.compose.booru.*</ID>
+    <ID>WildcardImport:BooruConfigActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:BooruDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:BooruEditorScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:BooruEditorScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:BooruEditorScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:BooruEditorViewModel.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:BooruEditorViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:BooruList.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:BooruList.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:BooruViewModel.kt$import androidx.lifecycle.*</ID>
+    <ID>WildcardImport:BrowseController.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:BrowseController.kt$import androidx.lifecycle.*</ID>
+    <ID>WildcardImport:BrowseController.kt$import com.mattzilla30.mbooru.ui.viewmodel.*</ID>
+    <ID>WildcardImport:BrowseScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:BrowseScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:BrowseScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CatalogRows.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CatalogRows.kt$import androidx.compose.material.pullrefresh.*</ID>
+    <ID>WildcardImport:CatalogRows.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CatalogRows.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CatalogRows.kt$import com.mattzilla30.mbooru.data.model.common.*</ID>
+    <ID>WildcardImport:CommentActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CommentActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CommentActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:CommentRepositoryImpl.kt$import androidx.paging.*</ID>
+    <ID>WildcardImport:CommentRow.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CommentRow.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CommentRow.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CommentViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:ComposeContent.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:Connectivity.kt$import android.net.*</ID>
+    <ID>WildcardImport:Connectivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:Connectivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:Connectivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:Connectivity.kt$import androidx.compose.ui.semantics.*</ID>
+    <ID>WildcardImport:CopyrightActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:CoroutinesExt.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:CustomRegionDecoder.kt$import android.graphics.*</ID>
+    <ID>WildcardImport:Danbooru1Api.kt$import retrofit2.http.*</ID>
+    <ID>WildcardImport:DanbooruApi.kt$import com.mattzilla30.mbooru.data.model.danbooru.*</ID>
+    <ID>WildcardImport:DanbooruApi.kt$import retrofit2.http.*</ID>
+    <ID>WildcardImport:DataStorePreferences.kt$import androidx.datastore.preferences.core.*</ID>
+    <ID>WildcardImport:DataStorePreferences.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:DataStorePreferences.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import android.view.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import androidx.core.view.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import com.mattzilla30.mbooru.extension.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import java.io.*</ID>
+    <ID>WildcardImport:DetailActivity.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:DetailScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DetailScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DetailScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:DownloadDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:DownloadNotificationClickReceiver.kt$import android.content.*</ID>
+    <ID>WildcardImport:DownloadQueueRepository.kt$import androidx.work.*</ID>
+    <ID>WildcardImport:DownloadWorker.kt$import androidx.work.*</ID>
+    <ID>WildcardImport:DownloadWorker.kt$import com.mattzilla30.mbooru.extension.*</ID>
+    <ID>WildcardImport:DownloadsActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DownloadsActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DownloadsActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:DownloadsActivity.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:FileStreamExt.kt$import java.io.*</ID>
+    <ID>WildcardImport:GelbooruApi.kt$import com.mattzilla30.mbooru.data.model.gelbooru.*</ID>
+    <ID>WildcardImport:History.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:HistoryActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:HistoryActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:HistoryActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:HistoryActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:HistoryDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:HistoryViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:HttpTransport.kt$import com.mattzilla30.mbooru.okhttp.*</ID>
+    <ID>WildcardImport:ImageSearchScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ImageSearchScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ImageSearchScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:InfoDialog.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:InfoDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:InfoDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:InfoDialog.kt$import com.mattzilla30.mbooru.extension.*</ID>
+    <ID>WildcardImport:InfoDialog.kt$import com.mattzilla30.mbooru.ui.compose.detail.*</ID>
+    <ID>WildcardImport:MainActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:MainActivity.kt$import com.mattzilla30.mbooru.ui.compose.navigation.*</ID>
+    <ID>WildcardImport:MainBrowseNavHost.kt$import com.mattzilla30.mbooru.ui.compose.browse.*</ID>
+    <ID>WildcardImport:MainBrowseNavHost.kt$import com.mattzilla30.mbooru.ui.fragment.*</ID>
+    <ID>WildcardImport:MainShell.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:MainShell.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:MainShell.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:MoebooruApi.kt$import com.mattzilla30.mbooru.data.model.moebooru.*</ID>
+    <ID>WildcardImport:MoebooruApi.kt$import retrofit2.http.*</ID>
+    <ID>WildcardImport:Muzei.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:MuzeiActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:MuzeiActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:MuzeiActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:MuzeiActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:MuzeiActivity.kt$import com.mattzilla30.mbooru.ui.viewmodel.*</ID>
+    <ID>WildcardImport:MuzeiArtWorker.kt$import androidx.work.*</ID>
+    <ID>WildcardImport:MuzeiDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:MuzeiViewModel.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:MuzeiViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:MyDatabase.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:MyDatabase.kt$import com.mattzilla30.mbooru.data.database.dao.*</ID>
+    <ID>WildcardImport:MyDatabase.kt$import com.mattzilla30.mbooru.data.model.common.*</ID>
+    <ID>WildcardImport:Next.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:OkHttp3Downloader.kt$import okhttp3.*</ID>
+    <ID>WildcardImport:PoolRepositoryImpl.kt$import androidx.paging.*</ID>
+    <ID>WildcardImport:PoolScreenController.kt$import com.mattzilla30.mbooru.ui.compose.browse.*</ID>
+    <ID>WildcardImport:PoolViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:Post.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:PostDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:PostFilters.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PostFilters.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import androidx.compose.foundation.lazy.staggeredgrid.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import androidx.compose.material.pullrefresh.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PostGrid.kt$import androidx.compose.ui.semantics.*</ID>
+    <ID>WildcardImport:PostInfo.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PostInfo.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:PostMedia.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PostMediaRenderer.kt$import com.mattzilla30.mbooru.extension.*</ID>
+    <ID>WildcardImport:PostRepositoryImpl.kt$import androidx.paging.*</ID>
+    <ID>WildcardImport:PostScreenController.kt$import android.content.*</ID>
+    <ID>WildcardImport:PostScreenController.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PostScreenController.kt$import com.mattzilla30.mbooru.ui.compose.browse.*</ID>
+    <ID>WildcardImport:PostViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:ProgressResponseBody.kt$import okio.*</ID>
+    <ID>WildcardImport:RippleAnimation.kt$import android.graphics.*</ID>
+    <ID>WildcardImport:RowMenu.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RowMenu.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SankakuApi.kt$import com.mattzilla30.mbooru.data.model.sankaku.*</ID>
+    <ID>WildcardImport:SankakuApi.kt$import retrofit2.http.*</ID>
+    <ID>WildcardImport:SauceNaoActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SauceNaoActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:SauceNaoActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SauceNaoActivity.kt$import com.mattzilla30.mbooru.extension.*</ID>
+    <ID>WildcardImport:SauceNaoActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:SauceNaoApiService.kt$import retrofit2.http.*</ID>
+    <ID>WildcardImport:ScannerActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:TagBlacklistActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:TagBlacklistActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:TagBlacklistActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:TagBlacklistActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:TagFilter.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:TagFilterDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:TagFilterViewModel.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:TagRepositoryImpl.kt$import androidx.paging.*</ID>
+    <ID>WildcardImport:TagScreenController.kt$import com.mattzilla30.mbooru.ui.compose.browse.*</ID>
+    <ID>WildcardImport:TagViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:UserRepositoryImpl.kt$import okhttp3.*</ID>
+    <ID>WildcardImport:VideoPreview.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:WhatAnimeActivity.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:WhatAnimeActivity.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:WhatAnimeActivity.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:WhatAnimeActivity.kt$import com.mattzilla30.mbooru.ui.compose.common.*</ID>
+    <ID>WildcardImport:WindowExt.kt$import androidx.core.view.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

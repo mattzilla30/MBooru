@@ -19,26 +19,50 @@ import javax.crypto.spec.SecretKeySpec
 import javax.security.auth.x500.X500Principal
 
 /** AES-GCM; API 21–22 wrap a random AES key with an Android Keystore RSA key. */
-class AndroidCredentialCipher(private val context: Context, private val alias: String = "mbooru.credentials.v1") : CredentialCipher {
-    @Synchronized private fun key(): SecretKey {
+class AndroidCredentialCipher(
+    private val context: Context,
+    private val alias: String = "mbooru.credentials.v1",
+) : CredentialCipher {
+    @Synchronized
+    private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         if (Build.VERSION.SDK_INT >= 23) {
-            (store.getKey(alias, null) as? SecretKey)?.let { return it }
-            return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").apply {
-                init(KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setKeySize(256).build())
-            }.generateKey()
+            (store.getKey(alias, null) as? SecretKey)?.let {
+                return it
+            }
+            return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+                .apply {
+                    init(
+                        KeyGenParameterSpec.Builder(
+                                alias,
+                                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+                            )
+                            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                            .setKeySize(256)
+                            .build()
+                    )
+                }
+                .generateKey()
         }
         val wrappedFile = AtomicFile(File(context.noBackupFilesDir, "$alias.wrapped"))
         if (!store.containsAlias(alias)) {
-            wrappedFile.delete() // The old envelope cannot be recovered after its device key is lost.
+            wrappedFile
+                .delete() // The old envelope cannot be recovered after its device key is lost.
             val end = Calendar.getInstance().apply { add(Calendar.YEAR, 30) }
             @Suppress("DEPRECATION")
-            val spec = KeyPairGeneratorSpec.Builder(context).setAlias(alias)
-                .setSubject(X500Principal("CN=MBooru credentials")).setSerialNumber(BigInteger.ONE)
-                .setStartDate(java.util.Date()).setEndDate(end.time).setKeySize(2048).build()
-            KeyPairGenerator.getInstance("RSA", "AndroidKeyStore").apply { initialize(spec) }.generateKeyPair()
+            val spec =
+                KeyPairGeneratorSpec.Builder(context)
+                    .setAlias(alias)
+                    .setSubject(X500Principal("CN=MBooru credentials"))
+                    .setSerialNumber(BigInteger.ONE)
+                    .setStartDate(java.util.Date())
+                    .setEndDate(end.time)
+                    .setKeySize(2048)
+                    .build()
+            KeyPairGenerator.getInstance("RSA", "AndroidKeyStore")
+                .apply { initialize(spec) }
+                .generateKeyPair()
         }
         val rsa = Cipher.getInstance("RSA/ECB/PKCS1Padding")
         if (wrappedFile.baseFile.exists()) {
@@ -49,10 +73,16 @@ class AndroidCredentialCipher(private val context: Context, private val alias: S
         rsa.init(Cipher.ENCRYPT_MODE, store.getCertificate(alias).publicKey)
         val wrapped = rsa.doFinal(aes.encoded)
         val output = wrappedFile.startWrite()
-        try { output.write(wrapped); wrappedFile.finishWrite(output) }
-        catch (failure: Exception) { wrappedFile.failWrite(output); throw failure }
+        try {
+            output.write(wrapped)
+            wrappedFile.finishWrite(output)
+        } catch (failure: Exception) {
+            wrappedFile.failWrite(output)
+            throw failure
+        }
         return aes
     }
+
     override fun encrypt(plaintext: ByteArray): ByteArray {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         val secret = key()
@@ -65,10 +95,17 @@ class AndroidCredentialCipher(private val context: Context, private val alias: S
         require(cipher.iv.size == 12)
         return byteArrayOf(1) + cipher.iv + cipher.doFinal(plaintext)
     }
+
     override fun decrypt(ciphertext: ByteArray): ByteArray {
-        require(ciphertext.size >= 29 && ciphertext[0] == 1.toByte()) { "Invalid credential envelope" }
+        require(ciphertext.size >= 29 && ciphertext[0] == 1.toByte()) {
+            "Invalid credential envelope"
+        }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, ciphertext.copyOfRange(1,13)))
-        return cipher.doFinal(ciphertext.copyOfRange(13,ciphertext.size))
+        cipher.init(
+            Cipher.DECRYPT_MODE,
+            key(),
+            GCMParameterSpec(128, ciphertext.copyOfRange(1, 13)),
+        )
+        return cipher.doFinal(ciphertext.copyOfRange(13, ciphertext.size))
     }
 }

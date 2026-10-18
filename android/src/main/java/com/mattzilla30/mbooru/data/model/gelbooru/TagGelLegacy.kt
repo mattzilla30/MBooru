@@ -1,21 +1,17 @@
 package com.mattzilla30.mbooru.data.model.gelbooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.Tag
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("tag")
 data class TagGelLegacy(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("count")
-    val count: Int,
-    @SerialName("type")
-    val type: Int
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("count") val count: Int,
+    @SerialName("type") val type: Int,
 ) {
     fun toTag(): Tag {
         return Tag(
@@ -23,7 +19,7 @@ data class TagGelLegacy(
             id = id,
             name = name,
             category = type,
-            count = count
+            count = count,
         )
     }
 }

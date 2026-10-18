@@ -15,22 +15,22 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionArtist
 import com.mattzilla30.mbooru.data.repository.artist.ArtistRepository
+import kotlinx.coroutines.flow.*
 
 class ArtistViewModel(private val repository: ArtistRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionArtist?>(null)
     val state = actions.asStateFlow()
-    val artists = actions.flatMapLatest { action ->
-        if (action == null) flowOf(PagingData.empty()) else repository.getArtists(action)
-    }.cachedIn(viewModelScope)
+    val artists =
+        actions
+            .flatMapLatest { action ->
+                if (action == null) flowOf(PagingData.empty()) else repository.getArtists(action)
+            }
+            .cachedIn(viewModelScope)
 
     fun show(action: ActionArtist): Boolean {
         val snapshot = action.copy(booru = action.booru.copy())

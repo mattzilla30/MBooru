@@ -15,12 +15,6 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
-import org.koin.core.component.inject
-
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import android.os.Bundle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,8 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.api.BooruApis
@@ -49,11 +43,14 @@ import com.mattzilla30.mbooru.data.repository.suggestion.SuggestionRepositoryImp
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.extension.openAppInMarket
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.viewmodel.*
 import com.mattzilla30.mbooru.worker.MuzeiArtWorker
+import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
+class MuzeiActivity : BaseActivity(), org.koin.core.component.KoinComponent {
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
 
     private val dao by inject<MuzeiDao>()
@@ -70,6 +67,7 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
             initializeContent()
         }
     }
+
     private fun initializeContent() {
         val site = booru ?: return finish()
         setScreenTitle(R.string.title_muzei)
@@ -194,8 +192,6 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) startActivity(intent) else openAppInMarket(packageName)
     }
-
-
 
     override fun onAction(action: AppActionKey): Boolean =
         when (action) {

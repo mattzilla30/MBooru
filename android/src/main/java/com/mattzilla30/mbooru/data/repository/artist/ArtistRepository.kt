@@ -16,9 +16,9 @@
 package com.mattzilla30.mbooru.data.repository.artist
 
 import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionArtist
 import com.mattzilla30.mbooru.data.model.common.Artist
+import kotlinx.coroutines.flow.Flow
 
 interface ArtistRepository {
     fun getArtists(action: ActionArtist): Flow<PagingData<Artist>>

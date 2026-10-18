@@ -16,10 +16,10 @@
 package com.mattzilla30.mbooru.ui.activity
 
 import android.os.Bundle
-import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
-import com.mattzilla30.mbooru.ui.compose.about.AboutScreen
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.ui.base.BaseActivity
+import com.mattzilla30.mbooru.ui.compose.about.AboutScreen
+import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 
 class AboutActivity : BaseActivity() {
 

@@ -15,16 +15,18 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
+import androidx.lifecycle.viewModelScope
+import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepository
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
-import com.mattzilla30.mbooru.data.model.common.TagFilter
-import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepository
 
 class TagFilterViewModel(private val repo: TagFilterRepository) : androidx.lifecycle.ViewModel() {
 
-    val tags = repo.loadTagsFilter().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val tags =
+        repo
+            .loadTagsFilter()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Collection starts with the screen lifecycle; no accumulating observer sources.
     fun loadTags() = Unit

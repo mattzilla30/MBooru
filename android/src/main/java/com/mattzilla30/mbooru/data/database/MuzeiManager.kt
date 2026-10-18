@@ -20,29 +20,23 @@ import com.mattzilla30.mbooru.data.model.common.Muzei
 import java.io.IOException
 import java.sql.SQLException
 
-/**
- * Manage [Muzei] table
- * */
+/** Manage [Muzei] table */
 class MuzeiManager(private val muzeiDao: MuzeiDao) {
-    /**
-     * Create a [Muzei]
-     * */
+    /** Create a [Muzei] */
     @Throws(SQLException::class)
     suspend fun createMuzei(muzei: Muzei): Muzei {
         muzei.uid = 0L
         muzei.uid = muzeiDao.insert(muzei)
         return muzei
     }
-    /**
-     * Delete a [Muzei]
-     * */
+
+    /** Delete a [Muzei] */
     @Throws(SQLException::class)
     suspend fun deleteMuzei(muzei: Muzei) {
         muzeiDao.delete(muzei)
     }
-    /**
-     * return [Muzei] list by booru uid
-     * */
+
+    /** return [Muzei] list by booru uid */
     @Throws(IOException::class)
     suspend fun getMuzeiByBooruUid(booruUid: Long): List<Muzei>? {
         return muzeiDao.getMuzeiByBooruUid(booruUid)

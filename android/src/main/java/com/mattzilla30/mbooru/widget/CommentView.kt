@@ -25,14 +25,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import com.mattzilla30.mbooru.R
 
-
-class CommentView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+class CommentView
+@JvmOverloads
+constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     private data class Comment(
         val text: String,
-        val type: Int
+        val type: Int,
     )
 
     private fun getComments(body: String): MutableList<Comment> {
@@ -44,7 +47,7 @@ class CommentView @JvmOverloads constructor(
                 it.split("[quote]").forEachIndexed { index, s ->
                     if (index == 0 && s.isNotEmpty()) {
                         comments.add(Comment(text = s, type = 0))
-                    } else if(index == 1 && s.isNotEmpty()) {
+                    } else if (index == 1 && s.isNotEmpty()) {
                         comments.add(Comment(text = s, type = 1))
                     }
                 }
@@ -58,7 +61,7 @@ class CommentView @JvmOverloads constructor(
     internal fun getLastCommentText(): String = lastCommentText
 
     internal fun setComment(body: String) {
-        if(childCount > 0) removeAllViews()
+        if (childCount > 0) removeAllViews()
         val comments = getComments(body)
         val size = comments.size
         if (size < 1) return
@@ -74,45 +77,63 @@ class CommentView @JvmOverloads constructor(
 
     private fun addComment(comment: String) {
         val margin = context.resources.getDimensionPixelSize(R.dimen.spacing_medium)
-        val textView = TextView(context).apply {
-            layoutParams = LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT).apply {
-                setMargins(margin, margin, margin, margin)
+        val textView =
+            TextView(context).apply {
+                layoutParams =
+                    LayoutParams(
+                            LayoutParams.MATCH_PARENT,
+                            LayoutParams.WRAP_CONTENT,
+                        )
+                        .apply {
+                            setMargins(margin, margin, margin, margin)
+                        }
+                setTextIsSelectable(true)
+                autoLinkMask = Linkify.WEB_URLS
+                linksClickable = true
+                transformationMethod = LinkTransformationMethod()
+                text = comment.trim()
             }
-            setTextIsSelectable(true)
-            autoLinkMask = Linkify.WEB_URLS
-            linksClickable = true
-            transformationMethod = LinkTransformationMethod()
-            text = comment.trim()
-        }
-        TextViewCompat.setTextAppearance(textView,
-            com.google.android.material.R.style.TextAppearance_MaterialComponents_Body2)
+        TextViewCompat.setTextAppearance(
+            textView,
+            com.google.android.material.R.style.TextAppearance_MaterialComponents_Body2,
+        )
         addView(textView)
     }
 
     private fun addQuote(quote: String) {
         val margin = context.resources.getDimensionPixelSize(R.dimen.spacing_medium)
-        val layout = FrameLayout(context).apply {
-            LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT).apply {
-                setBackgroundColor(ContextCompat.getColor(context, R.color.background_quote))
+        val layout =
+            FrameLayout(context).apply {
+                LayoutParams(
+                        LayoutParams.MATCH_PARENT,
+                        LayoutParams.WRAP_CONTENT,
+                    )
+                    .apply {
+                        setBackgroundColor(
+                            ContextCompat.getColor(context, R.color.background_quote)
+                        )
+                    }
             }
-        }
-        val textView = TextView(context).apply {
-            layoutParams = LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                setMargins(margin * 2, margin, margin * 2, margin)
+        val textView =
+            TextView(context).apply {
+                layoutParams =
+                    LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.WRAP_CONTENT,
+                        )
+                        .apply {
+                            setMargins(margin * 2, margin, margin * 2, margin)
+                        }
+                setTextIsSelectable(true)
+                autoLinkMask = Linkify.WEB_URLS
+                linksClickable = true
+                transformationMethod = LinkTransformationMethod()
+                text = quote.trim()
             }
-            setTextIsSelectable(true)
-            autoLinkMask = Linkify.WEB_URLS
-            linksClickable = true
-            transformationMethod = LinkTransformationMethod()
-            text = quote.trim()
-        }
-        TextViewCompat.setTextAppearance(textView,
-            com.google.android.material.R.style.TextAppearance_MaterialComponents_Body2)
+        TextViewCompat.setTextAppearance(
+            textView,
+            com.google.android.material.R.style.TextAppearance_MaterialComponents_Body2,
+        )
         layout.addView(textView)
         addView(layout)
     }

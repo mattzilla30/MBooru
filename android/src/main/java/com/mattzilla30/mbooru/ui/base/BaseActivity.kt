@@ -15,72 +15,93 @@
 
 package com.mattzilla30.mbooru.ui.base
 
-import com.mattzilla30.mbooru.ui.compose.common.*
-
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-
+import android.os.Build
+import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.*
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.mattzilla30.mbooru.R
+import com.mattzilla30.mbooru.data.settings.DataStorePreferences
+import com.mattzilla30.mbooru.extension.applySafeDrawingInsets
+import com.mattzilla30.mbooru.ui.activity.*
+import com.mattzilla30.mbooru.ui.compose.common.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.helper.isNightEnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.koin.android.ext.android.inject
-import com.mattzilla30.mbooru.data.settings.DataStorePreferences
-import android.os.Build
-import android.os.Bundle
-import android.view.WindowManager
-import androidx.compose.runtime.*
-import android.view.View
-import androidx.core.view.WindowCompat
-import com.mattzilla30.mbooru.extension.applySafeDrawingInsets
-import androidx.appcompat.app.AppCompatActivity
-import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings
-import com.mattzilla30.mbooru.ui.activity.*
-import com.mattzilla30.mbooru.ui.helper.isNightEnable
 
 abstract class BaseActivity : AppCompatActivity() {
     val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
     private val durablePreferences by inject<DataStorePreferences>()
-    protected open fun onSettingsReady(savedInstanceState: Bundle?) = Unit
 
+    protected open fun onSettingsReady(savedInstanceState: Bundle?) = Unit
 
     var screenTitle: CharSequence by mutableStateOf("")
     var screenSubtitle: CharSequence by mutableStateOf("")
-    val appMenu: AppMenu get() = when (this) {
-        is HistoryActivity -> AppMenu.History
-        is MuzeiActivity -> AppMenu.Muzei
-        is SauceNaoActivity -> AppMenu.SauceNao
-        is BooruConfigActivity -> AppMenu.BooruConfig
-        is BooruActivity -> AppMenu.Booru
-        is AccountActivity -> AppMenu.Account
-        is CommentActivity -> AppMenu.Comment
-        else -> AppMenu.None
-    }
-    val hasComposeAppBar: Boolean get() = this !is MainActivity && this !is SearchActivity &&
-        this !is DetailActivity && this !is AccountConfigActivity
-    fun setScreenTitle(resource: Int) { screenTitle = getString(resource) }
-    @Composable open fun appActions(): List<AppAction> = appMenu.actions()
-    internal var renderedActions: List<AppAction> = emptyList()
-    open fun onAction(action: AppActionKey): Boolean = if (action == AppActionKey.Back) {
-        onBackPressedDispatcher.onBackPressed(); true
-    } else false
-    override fun onKeyShortcut(keyCode: Int, event: android.view.KeyEvent): Boolean {
-        if (event.isCtrlPressed && event.keyCode in android.view.KeyEvent.KEYCODE_A..android.view.KeyEvent.KEYCODE_Z) {
-            val character = ('a'.code + event.keyCode - android.view.KeyEvent.KEYCODE_A).toChar()
-            fun find(items: List<AppAction>): AppAction? = items.filter { it.visible && it.enabled }.firstNotNullOfOrNull {
-                if (it.shortcut == character) it else find(it.children)
+    val appMenu: AppMenu
+        get() =
+            when (this) {
+                is HistoryActivity -> AppMenu.History
+                is MuzeiActivity -> AppMenu.Muzei
+                is SauceNaoActivity -> AppMenu.SauceNao
+                is BooruConfigActivity -> AppMenu.BooruConfig
+                is BooruActivity -> AppMenu.Booru
+                is AccountActivity -> AppMenu.Account
+                is CommentActivity -> AppMenu.Comment
+                else -> AppMenu.None
             }
-            find(renderedActions)?.let { return onAction(it.key) }
+
+    val hasComposeAppBar: Boolean
+        get() =
+            this !is MainActivity &&
+                this !is SearchActivity &&
+                this !is DetailActivity &&
+                this !is AccountConfigActivity
+
+    fun setScreenTitle(resource: Int) {
+        screenTitle = getString(resource)
+    }
+
+    @Composable open fun appActions(): List<AppAction> = appMenu.actions()
+
+    internal var renderedActions: List<AppAction> = emptyList()
+
+    open fun onAction(action: AppActionKey): Boolean =
+        if (action == AppActionKey.Back) {
+            onBackPressedDispatcher.onBackPressed()
+            true
+        } else false
+
+    override fun onKeyShortcut(keyCode: Int, event: android.view.KeyEvent): Boolean {
+        if (
+            event.isCtrlPressed &&
+                event.keyCode in android.view.KeyEvent.KEYCODE_A..android.view.KeyEvent.KEYCODE_Z
+        ) {
+            val character = ('a'.code + event.keyCode - android.view.KeyEvent.KEYCODE_A).toChar()
+            fun find(items: List<AppAction>): AppAction? =
+                items
+                    .filter { it.visible && it.enabled }
+                    .firstNotNullOfOrNull {
+                        if (it.shortcut == character) it else find(it.children)
+                    }
+            find(renderedActions)?.let {
+                return onAction(it.key)
+            }
         }
         return super.onKeyShortcut(keyCode, event)
     }
 
-
-    private fun getThemeRes(): Int = when (this) {
-        is MainActivity -> R.style.AppTheme_Black_NoActionBar_Scrim_Main
-        is SearchActivity -> R.style.AppTheme_Black_NoActionBar_Scrim_NoAnimation
-        else -> R.style.AppTheme_Black_NoActionBar_Animation
-    }
+    private fun getThemeRes(): Int =
+        when (this) {
+            is MainActivity -> R.style.AppTheme_Black_NoActionBar_Scrim_Main
+            is SearchActivity -> R.style.AppTheme_Black_NoActionBar_Scrim_NoAnimation
+            else -> R.style.AppTheme_Black_NoActionBar_Animation
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -106,14 +127,20 @@ abstract class BaseActivity : AppCompatActivity() {
                     androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(settings.nightMode)
                     onSettingsReady(savedInstanceState)
                 }
-            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
-            catch (_: Exception) {
-                if (!isFinishing && !isDestroyed) androidx.appcompat.app.AlertDialog.Builder(this@BaseActivity)
-                    .setTitle(R.string.settings_load_failed)
-                    .setMessage(R.string.settings_load_recovery)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.action_retry) { _, _ -> durablePreferences.retryInitialization(); recreate() }
-                    .setNegativeButton(R.string.dialog_cancel) { _, _ -> finish() }.show()
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (!isFinishing && !isDestroyed)
+                    androidx.appcompat.app.AlertDialog.Builder(this@BaseActivity)
+                        .setTitle(R.string.settings_load_failed)
+                        .setMessage(R.string.settings_load_recovery)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.action_retry) { _, _ ->
+                            durablePreferences.retryInitialization()
+                            recreate()
+                        }
+                        .setNegativeButton(R.string.dialog_cancel) { _, _ -> finish() }
+                        .show()
             }
         }
     }
@@ -127,5 +154,4 @@ abstract class BaseActivity : AppCompatActivity() {
             (content.parent as View).applySafeDrawingInsets()
         }
     }
-
 }

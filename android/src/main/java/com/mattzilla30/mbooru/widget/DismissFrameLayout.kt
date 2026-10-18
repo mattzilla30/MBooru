@@ -28,8 +28,12 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.max
 
-class DismissFrameLayout @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+class DismissFrameLayout
+@JvmOverloads
+constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     var isDismissEnabled: Boolean = true
@@ -60,7 +64,8 @@ class DismissFrameLayout @JvmOverloads constructor(
                 dragHelper.cancel()
                 parent?.requestDisallowInterceptTouchEvent(true)
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_MOVE -> {
                 val dx = ev.x - lastX
                 val dy = ev.y - lastY
                 val angle = atan2(dy, dx) * 180 / PI
@@ -95,14 +100,18 @@ class DismissFrameLayout @JvmOverloads constructor(
 
     interface OnDismissListener {
         fun onDismissStart()
+
         fun onDismissProgress(progress: Float)
+
         fun onDismissed()
+
         fun onDismissCancel()
     }
 
     private inner class ViewDragCallback : ViewDragHelper.Callback() {
 
-        override fun tryCaptureView(child: View, pointerId: Int): Boolean = isDismissEnabled && !multiTouch
+        override fun tryCaptureView(child: View, pointerId: Int): Boolean =
+            isDismissEnabled && !multiTouch
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int = 0
 
@@ -116,7 +125,13 @@ class DismissFrameLayout @JvmOverloads constructor(
             dismissListener?.onDismissStart()
         }
 
-        override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
+        override fun onViewPositionChanged(
+            changedView: View,
+            left: Int,
+            top: Int,
+            dx: Int,
+            dy: Int,
+        ) {
             dismissListener?.onDismissProgress(top.toFloat() / height.toFloat())
         }
 
