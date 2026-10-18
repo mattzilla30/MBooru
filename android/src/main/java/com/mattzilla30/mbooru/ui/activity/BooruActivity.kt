@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
 import android.app.AlertDialog
 import android.content.ClipboardManager
 import android.content.Context
@@ -33,11 +35,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.activatedBooruUid
 import com.mattzilla30.mbooru.data.database.BooruPresets
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.data.model.common.Booru
-import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.compose.booru.BooruList
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
@@ -86,30 +86,31 @@ class BooruActivity : BaseActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 booruViewModel.loadBoorus().collect { boorus ->
             if (boorus.isNullOrEmpty()) {
-                activatedBooruUid = -1L
+                settings.activatedBooruUid = -1L
             } else {
-                val uid = activatedBooruUid
+                val uid = settings.activatedBooruUid
                 if (boorus.indexOfFirst { it.uid == uid } < 0) {
-                    activatedBooruUid = boorus[0].uid
+                    settings.activatedBooruUid = boorus[0].uid
                 }
             }
-            booruViewModel.select(activatedBooruUid)
+            booruViewModel.select(settings.activatedBooruUid)
         }
             }
         }
-        booruViewModel.select(activatedBooruUid)
+        booruViewModel.select(settings.activatedBooruUid)
         setComposeContent {
             val sites by booruViewModel.boorusState.collectAsStateWithLifecycle()
             val selected by booruViewModel.selectedUid.collectAsStateWithLifecycle()
             Column {
                 BooruList(sites, selected,
-                    select = { activatedBooruUid = it; booruViewModel.select(it) },
+                    select = { settings.activatedBooruUid = it; booruViewModel.select(it) },
                     delete = booruViewModel::deleteBooru,
                     action = { booru, id -> when (id) {
-                        R.id.action_booru_share_qr_code -> QRCodeDialog(booru.toString()).show(supportFragmentManager, "qr")
-                        R.id.action_booru_share_clipboard -> copyText(booru.toString())
-                        R.id.action_booru_edit -> startActivity(Intent(this@BooruActivity, BooruConfigActivity::class.java).putExtra(BooruConfigActivity.EXTRA_BOORU_UID, booru.uid))
-                        R.id.action_booru_delete -> booruViewModel.deleteBooru(booru.uid)
+                        AppActionKey.BooruShareQrCode -> QRCodeDialog(booru.toString()).show(supportFragmentManager, "qr")
+                        AppActionKey.BooruShareClipboard -> copyText(booru.toString())
+                        AppActionKey.BooruEdit -> startActivity(Intent(this@BooruActivity, BooruConfigActivity::class.java).putExtra(BooruConfigActivity.EXTRA_BOORU_UID, booru.uid))
+                        AppActionKey.BooruDelete -> booruViewModel.deleteBooru(booru.uid)
+                        else -> Unit
                     } })
             }
         }
@@ -140,42 +141,39 @@ class BooruActivity : BaseActivity() {
             .show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.booru, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
+
+    override fun onAction(action: AppActionKey): Boolean {
+        return when (action) {
+            AppActionKey.Back -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
-            R.id.action_booru_add_featured -> {
+            AppActionKey.BooruAddFeatured -> {
                 addFeaturedBooru()
                 true
             }
-            R.id.action_booru_add_qr -> {
+            AppActionKey.BooruAddQr -> {
                 addConfigFromQRCode()
                 true
             }
-            R.id.action_booru_add_clipboard -> {
+            AppActionKey.BooruAddClipboard -> {
                 addConfigFromClipboard()
                 true
             }
-            R.id.action_booru_add_manual -> {
+            AppActionKey.BooruAddManual -> {
                 addConfig()
                 true
             }
-            R.id.action_booru_backup_to_file -> {
+            AppActionKey.BooruBackupToFile -> {
                 backupToFile()
                 true
             }
-            R.id.action_booru_restore_from_file -> {
+            AppActionKey.BooruRestoreFromFile -> {
                 restoreFromFile()
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onAction(action)
         }
     }
 
@@ -195,7 +193,7 @@ class BooruActivity : BaseActivity() {
             .setItems(presets.map { "${it.name} (${it.host})" }.toTypedArray()) { _, index ->
                 lifecycleScope.launch {
                 val uid = BooruPresets.add(booruDao, presets[index])
-                activatedBooruUid = uid
+                settings.activatedBooruUid = uid
                 booruViewModel.select(uid)
                 }
             }

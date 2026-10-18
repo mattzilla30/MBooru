@@ -1,5 +1,8 @@
 package com.mattzilla30.mbooru.ui.compose.detail
 
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -35,7 +38,7 @@ fun DetailScreen(posts: LazyPagingItems<Post>, state: DetailUiState, booru: Boor
     dismiss: DismissFrameLayout.OnDismissListener,
     select: (Post, Int) -> Unit, ready: () -> Unit, back: () -> Unit,
     toggleBars: () -> Unit, longActions: () -> Unit, closeLongActions: () -> Unit,
-    action: (Int) -> Unit, info: () -> Unit, download: () -> Unit, save: () -> Unit, favorite: () -> Unit,
+    action: (AppActionKey) -> Unit, info: () -> Unit, download: () -> Unit, save: () -> Unit, favorite: () -> Unit,
     longAction: (Int) -> Unit,
 ) {
     var current by remember { mutableStateOf<Post?>(null) }
@@ -63,8 +66,8 @@ fun DetailScreen(posts: LazyPagingItems<Post>, state: DetailUiState, booru: Boor
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)).statusBarsPadding().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(androidx.appcompat.R.string.abc_action_bar_up_description), tint = Color.White) }
                 Text(current?.let { "Post ${it.id}" }.orEmpty(), Modifier.weight(1f), color = Color.White, style = MaterialTheme.typography.titleLarge)
-                RowMenu(if (booru.type == Values.BOORU_TYPE_SHIMMIE) R.menu.detail_shimmie else R.menu.detail,
-                    iconTint = Color.White) { action(it.itemId) }
+                RowMenu(if (booru.type == Values.BOORU_TYPE_SHIMMIE) AppMenu.DetailShimmie else AppMenu.Detail,
+                    iconTint = Color.White) { action(it) }
             }
         }
         AnimatedVisibility(state.barsVisible, modifier = Modifier.align(Alignment.BottomCenter)) {

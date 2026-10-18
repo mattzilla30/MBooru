@@ -33,7 +33,7 @@ abstract class PathActivity : BaseActivity() {
                 // Acquire the new grant before releasing any working destination.
                 contentResolver.takePersistableUriPermission(uri, flags)
                 val previous = contentResolver.persistedUriPermissions
-                Settings.downloadDirPath = uri.toDecodedString()
+                settings.downloadDirPath = uri.toDecodedString()
                 previous.filter { it.isWritePermission && it.uri != uri }.forEach { permission ->
                     val oldFlags = (if (permission.isReadPermission) Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION

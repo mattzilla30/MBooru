@@ -40,7 +40,11 @@ val appModules = module {
     single { get<MyDatabase>().muzeiDao() }
     single { get<MyDatabase>().historyDao() }
     single { get<MyDatabase>().nextDao() }
-    single { BooruApis() }
+    single { SettingsRepository(get()) }
+    single { com.mattzilla30.mbooru.data.api.HttpTransport(androidApplication(), get()) } onClose { it?.close() }
+    single { BooruApis(get()) }
+    single { com.mattzilla30.mbooru.player.MediaResources(androidApplication(), get()) } onClose { it?.close() }
+    single { com.mattzilla30.mbooru.data.api.AppUpdaterRepository(get(), get()) }
     single { com.mattzilla30.mbooru.data.repository.download.DownloadQueueRepository(androidApplication(), get()) }
     single { com.mattzilla30.mbooru.data.database.BooruManager(get(), get()) }
     single { com.mattzilla30.mbooru.data.database.HistoryManager(get()) }

@@ -65,7 +65,7 @@ class SettingsActivity : PathActivity() {
     }
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
-        Settings.downloadDirPath = contentResolver.getTreeUri()?.toDecodedString()
+        settings.downloadDirPath = contentResolver.getTreeUri()?.toDecodedString()
         setScreenTitle(R.string.title_settings)
         setComposeContent {
             val state by model.state.collectAsStateWithLifecycle()

@@ -144,7 +144,7 @@ class VoteRepositoryImpl(
                 if (e is HttpException) {
                     val code = e.code()
                     if (code == 403) {
-                        NetResult.Error(App.app.getString(R.string.msg_password_or_hash_salt_wrong))
+                        NetResult.Error("Password or hash salt is incorrect.")
                     } else {
                         NetResult.Error("code: $code")
                     }

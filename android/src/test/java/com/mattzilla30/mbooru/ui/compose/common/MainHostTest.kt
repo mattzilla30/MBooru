@@ -42,7 +42,7 @@ class MainHostTest {
                 ?: dao.insert(com.mattzilla30.mbooru.data.model.common.Booru(
                     name = "All tabs", scheme = "https", host = "moe.invalid",
                     type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE))
-            com.mattzilla30.mbooru.app.Settings.activatedBooruUid = uid
+            compose.activity.settings.activatedBooruUid = uid
             compose.activity.forceShowNavBar()
         } }
         compose.waitUntil(10000) {
@@ -82,7 +82,7 @@ class MainHostTest {
             val uid = dao.insert(com.mattzilla30.mbooru.data.model.common.Booru(
                 name = "Posts only", scheme = "https", host = "shimmie.invalid",
                 type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE))
-            com.mattzilla30.mbooru.app.Settings.activatedBooruUid = uid
+            compose.activity.settings.activatedBooruUid = uid
         } }
         compose.waitUntil(10000) {
             compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isEmpty()
@@ -121,7 +121,7 @@ class MainHostTest {
         compose.onNodeWithText("Safebooru")
             .performSemanticsAction(SemanticsActions.OnClick) { it() }
         compose.waitUntil(10000) {
-            kotlinx.coroutines.runBlocking { com.mattzilla30.mbooru.app.Settings.activatedBooruUid.let { uid ->
+            kotlinx.coroutines.runBlocking { compose.activity.settings.activatedBooruUid.let { uid ->
                 org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
                     .getBooruByUid(uid)?.host == "safebooru.org"
             } }

@@ -17,7 +17,7 @@ import java.io.OutputStream
 import kotlin.coroutines.coroutineContext
 
 /** Range writes are allowed only after validating both the server and the destination. */
-internal suspend fun transferDownload(context: Context, queue: DownloadDao, workId: String, url: String, destination: Uri) = withContext(Dispatchers.IO) {
+internal suspend fun transferDownload(context: Context, queue: DownloadDao, workId: String, url: String, destination: Uri, client: okhttp3.OkHttpClient) = withContext(Dispatchers.IO) {
     val record = queue.get(workId)
     val validator = ResumePolicy.validator(record?.etag, record?.lastModified)
     var descriptor: ParcelFileDescriptor? = try { context.contentResolver.openFileDescriptor(destination, "rw") }
@@ -28,7 +28,7 @@ internal suspend fun transferDownload(context: Context, queue: DownloadDao, work
     var offset = if (seekable && validator != null && record != null && record.bytesWritten > 0 &&
         runCatching { Os.fstat(descriptor!!.fileDescriptor).st_size }.getOrDefault(-1) >= record.bytesWritten) record.bytesWritten else 0L
     if (!seekable) { descriptor?.close(); descriptor = null }
-    val downloader = OkHttp3Downloader(context, useDiskCache = false)
+    val downloader = OkHttp3Downloader(client)
     try {
         fun request(resume: Boolean): Request = Request.Builder().url(url).apply {
             if (resume) { header("Range", "bytes=$offset-"); header("If-Range", validator!!) }

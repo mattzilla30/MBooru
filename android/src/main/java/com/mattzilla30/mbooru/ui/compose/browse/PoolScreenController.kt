@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.pageLimit
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.data.action.ActionPool
@@ -126,7 +125,7 @@ class PoolScreenController(
         return when (booruType) {
             BOORU_TYPE_MOE,
             BOORU_TYPE_DAN1 -> 20
-            else -> pageLimit
+            else -> settings.pageLimit
         }
     }
 

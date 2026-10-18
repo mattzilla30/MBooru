@@ -15,12 +15,13 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -49,7 +50,6 @@ import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.ui.base.BaseActivity
 import com.mattzilla30.mbooru.ui.base.BaseBottomSheetDialog
-import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.compose.detail.VideoPreview
 import com.mattzilla30.mbooru.ui.compose.search.ImageSearchScreen
 import com.mattzilla30.mbooru.ui.helper.OpenFileLifecycleObserver
@@ -181,12 +181,12 @@ class WhatAnimeActivity : BaseActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
+    override fun onAction(action: AppActionKey): Boolean {
+        if (action == AppActionKey.Back) {
             onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return super.onAction(action)
     }
 
     class AnimePlayerDialog : BaseBottomSheetDialog() {

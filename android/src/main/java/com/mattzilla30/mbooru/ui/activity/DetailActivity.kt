@@ -15,6 +15,11 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import org.koin.core.component.inject
 
 import android.app.Activity
@@ -29,7 +34,6 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.IntRange
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
@@ -53,8 +57,6 @@ import com.mattzilla30.mbooru.app.Keys.POST_QUERY
 import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.app.Settings.POST_SIZE_LARGER
 import com.mattzilla30.mbooru.app.Settings.POST_SIZE_SAMPLE
-import com.mattzilla30.mbooru.app.Settings.activatedBooruUid
-import com.mattzilla30.mbooru.app.Settings.detailSize
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
@@ -96,7 +98,7 @@ private const val ACTION_SAVE_AS = 12
 private const val ACTION_SET_AS = 13
 private const val ACTION_SEND = 14
 
-class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissFrameLayout.OnDismissListener , org.koin.core.component.KoinComponent {
+class DetailActivity : PathActivity(), DismissFrameLayout.OnDismissListener , org.koin.core.component.KoinComponent {
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
 
     companion object {
@@ -141,7 +143,7 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            val site = booruManager.getBooruByUid(activatedBooruUid)
+            val site = booruManager.getBooruByUid(settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch
             if (site == null) { finish(); return@launch }
             initializeContent(site)
@@ -155,7 +157,7 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
         if (detailViewModel.currentPosition < 0) detailViewModel.currentPosition = intent.getIntExtra(POST_POSITION, 0)
         if (Build.VERSION.SDK_INT > 21) postponeEnterTransition()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val selectedSize = detailSize
+        val selectedSize = settings.detailSize
         setContent {
             MBooruTheme {
                 val posts = detailViewModel.posts.collectAsLazyPagingItems()
@@ -229,17 +231,17 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
     override fun onDismissProgress(progress: Float) {}
     override fun onDismissed() { finishAfterTransition() }
     override fun onDismissCancel() { detailViewModel.dismissing(false) }
-    private fun handleMenuAction(id: Int) {
+    private fun handleMenuAction(id: AppActionKey) {
         val post = currentPost ?: return
         when (id) {
-            R.id.action_browse_comment -> CommentActivity.startActivity(this, postId = post.id)
-            R.id.action_browse_set_as -> saveAndAction(post, ACTION_SET_AS)
-            R.id.action_browse_send -> saveAndAction(post, ACTION_SEND)
-            R.id.action_browse_share -> shareLink(post)
-            R.id.action_browse_open_browser -> openBrowser(post)
+            AppActionKey.BrowseComment -> CommentActivity.startActivity(this, postId = post.id)
+            AppActionKey.BrowseSetAs -> saveAndAction(post, ACTION_SET_AS)
+            AppActionKey.BrowseSend -> saveAndAction(post, ACTION_SEND)
+            AppActionKey.BrowseShare -> shareLink(post)
+            AppActionKey.BrowseOpenBrowser -> openBrowser(post)
+            else -> Unit
         }
     }
-    override fun onMenuItemClick(item: MenuItem?): Boolean { item?.let { handleMenuAction(it.itemId) }; return true }
     private fun download(post: Post) {
         if (post.origin.isVideo()) {
             downloadByAdm(post.origin)
@@ -290,7 +292,7 @@ class DetailActivity : PathActivity(), Toolbar.OnMenuItemClickListener, DismissF
     private val mutex = Mutex()
 
     private fun saveAndAction(post: Post, @IntRange(from = ACTION_SAVE.toLong(), to = ACTION_SEND.toLong()) action: Int) {
-        val url = when (detailSize) {
+        val url = when (settings.detailSize) {
             POST_SIZE_SAMPLE -> post.sample
             POST_SIZE_LARGER -> post.medium
             else -> post.origin

@@ -1,5 +1,8 @@
 package com.mattzilla30.mbooru.ui.compose.comments
 
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -36,11 +39,12 @@ fun CommentRow(comment: Comment, booru: Booru, date: String,
             }
             val user = booru.user
             if (user != null && booru.type !in arrayOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY)) {
-                RowMenu(if (user.id == comment.creatorId) R.menu.comment_item_me else R.menu.comment_item) { action ->
-                    when (action.itemId) {
-                        R.id.action_comment_reply -> onReply()
-                        R.id.action_comment_quote -> onQuote("[quote]${comment.creatorName} said:\r\n${body[0]?.getLastCommentText() ?: comment.body}[/quote]")
-                        R.id.action_comment_delete -> onDelete()
+                RowMenu(if (user.id == comment.creatorId) AppMenu.CommentItemMe else AppMenu.CommentItem) { action ->
+                    when (action) {
+                        AppActionKey.CommentReply -> onReply()
+                        AppActionKey.CommentQuote -> onQuote("[quote]${comment.creatorName} said:\r\n${body[0]?.getLastCommentText() ?: comment.body}[/quote]")
+                        AppActionKey.CommentDelete -> onDelete()
+                        else -> Unit
                     }
                 }
             }

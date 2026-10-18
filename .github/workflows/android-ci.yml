@@ -25,6 +25,8 @@ jobs:
         with:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Build, unit tests and lint
         run: bash ./gradlew --no-daemon --max-workers=2 :core:model:test :android:assembleDebug :android:testDebugUnitTest :android:lintDebug :android:assembleRelease :android:assembleDebugAndroidTest :baselineprofile:assembleNonMinifiedRelease
@@ -54,6 +56,8 @@ jobs:
         with:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
       - name: Install Android compile SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Enable KVM

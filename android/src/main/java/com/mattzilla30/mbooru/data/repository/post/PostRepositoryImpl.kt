@@ -24,7 +24,8 @@ import com.mattzilla30.mbooru.data.model.common.Post
 
 class PostRepositoryImpl(
     private val db: MyDatabase,
-    private val booruApis: BooruApis
+    private val booruApis: BooruApis,
+    private val settings: com.mattzilla30.mbooru.app.SettingsRepository
 ) : PostRepository {
 
     override fun getPosts(action: ActionPost): Flow<PagingData<Post>> {
@@ -34,7 +35,7 @@ class PostRepositoryImpl(
                 initialLoadSize = action.limit,
                 enablePlaceholders = true
             ),
-            remoteMediator = PostRemoteMediator(action, db, booruApis),
+            remoteMediator = PostRemoteMediator(action, db, booruApis, settings),
             initialKey = 0
         ) {
             db.postDao().getPosts(booruUid = action.booru.uid, query = action.query)

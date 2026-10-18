@@ -73,10 +73,13 @@ class DownloadWorker(
     context: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(context, workerParameters) , org.koin.core.component.KoinComponent {
+    private val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
+
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
 
 
     private val queue by inject<DownloadDao>()
+    private val transport by inject<com.mattzilla30.mbooru.data.api.HttpTransport>()
 
     companion object {
         const val DOWNLOAD_TAG = "mbooru-download"
@@ -101,8 +104,9 @@ class DownloadWorker(
         const val INPUT_DATA_KEY = "input_data"
 
         fun downloadPost(post: Post?, host: String, activity: PathActivity) {
+            val settings = activity.settings
             if (post == null) return
-            val url = when (Settings.downloadSize) {
+            val url = when (settings.downloadSize) {
                 Settings.POST_SIZE_SAMPLE -> post.sample
                 Settings.POST_SIZE_LARGER -> post.medium
                 else -> post.origin
@@ -330,7 +334,7 @@ class DownloadWorker(
     }
 
     private suspend fun transfer(url: String, destination: Uri) =
-        transferDownload(applicationContext, queue, id.toString(), url, destination)
+        transferDownload(applicationContext, queue, id.toString(), url, destination, transport.mediaClient())
 
     private fun notifyDownload(manager: NotificationManager, id: Int, notification: Notification) {
         // Permission denial must not turn an otherwise successful download into a failed worker.

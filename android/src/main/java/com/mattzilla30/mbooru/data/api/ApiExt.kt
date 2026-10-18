@@ -32,39 +32,12 @@ import com.mattzilla30.mbooru.okhttp.CloudflareInterceptor
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
-fun createHttpClient(isSankaku: Boolean): OkHttpClient {
-    val builder = OkHttpClient.Builder()
-        .cookieJar(AndroidCookieJar)
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .writeTimeout(15, TimeUnit.SECONDS)
-
-    if (Settings.isDohEnable) {
-        builder.dns(Settings.doh)
-    }
-
-    if (isSankaku) {
-        builder.addInterceptor(ApiSankakuInterceptor())
-    } else {
-        builder.addInterceptor(ApiInterceptor())
-    }
-
-    if (Settings.isBypassWAF) {
-        builder.addInterceptor(CloudflareInterceptor(App.app))
-    }
-
-    // Even BASIC URL logging exposes API keys carried in engine query parameters.
-    // Transport diagnostics must report status/timing without URLs or credentials.
-
-    return builder.build()
-}
-
 val defaultJson get() = Json {
     ignoreUnknownKeys = true
     isLenient = true
 }
 
-inline fun <reified T> createApi(): T {
+inline fun <reified T> createApi(client: OkHttpClient): T {
     val classJava = T::class
     val baseUrl = when (classJava) {
         AppUpdaterApi::class -> "https://raw.githubusercontent.com"
@@ -85,10 +58,9 @@ inline fun <reified T> createApi(): T {
             defaultJson.asConverterFactory("application/json".toMediaType())
         }
     }
-    val isSankaku = classJava == SankakuApi::class
     return Retrofit.Builder()
         .baseUrl(baseUrl)
-        .client(createHttpClient(isSankaku))
+        .client(client)
         .addConverterFactory(converterFactory)
         .build()
         .create(classJava.java)

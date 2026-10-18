@@ -20,7 +20,7 @@ import okhttp3.OkHttpClient
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.mattzilla30.mbooru.data.api.createHttpClient
+import com.mattzilla30.mbooru.data.api.HttpTransport
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApi
 import com.mattzilla30.mbooru.common.saucenao.api.SauceNaoApiService
 import com.mattzilla30.mbooru.common.tracemoe.api.TraceMoeApi
@@ -35,7 +35,7 @@ internal inline fun <reified T> reverseSearchApi(client: OkHttpClient, baseUrl: 
     .build().create(T::class.java)
 
 val commonModules = module {
-    single<OkHttpClient> { createHttpClient(false) }
+    single<OkHttpClient> { get<HttpTransport>().apiClient(false) }
     single<SauceNaoApi> { SauceNaoApiService(get(), "https://saucenao.com") }
     single<TraceMoeApi> { TraceMoeApiService(get(), "https://api.trace.moe") }
 }

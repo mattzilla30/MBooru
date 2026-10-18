@@ -15,9 +15,12 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,7 +49,7 @@ class HistoryActivity : BaseActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_history)
-        model.loadHistory(Settings.activatedBooruUid)
+        model.loadHistory(settings.activatedBooruUid)
         setComposeContent {
             val history by model.history.collectAsStateWithLifecycle()
             LazyColumn {
@@ -82,7 +85,7 @@ class HistoryActivity : BaseActivity() {
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                model.deleteAll(Settings.activatedBooruUid)
+                                model.deleteAll(settings.activatedBooruUid)
                                 clearDialog = false
                             }
                         ) {
@@ -98,21 +101,18 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.history, menu)
-        return true
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            android.R.id.home -> {
+
+    override fun onAction(action: AppActionKey): Boolean =
+        when (action) {
+            AppActionKey.Back -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
-            R.id.action_history_clear_all -> {
+            AppActionKey.HistoryClearAll -> {
                 if (model.history.value.isNotEmpty()) clearDialog = true
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onAction(action)
         }
 }

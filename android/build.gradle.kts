@@ -61,6 +61,7 @@ object Configs {
 }
 
 android {
+    sourceSets.getByName("test").resources.srcDir("$projectDir/schemas")
     signingConfigs {
         if (storePropertyFile.exists() && releaseStoreFile.exists()) {
             create("release") {

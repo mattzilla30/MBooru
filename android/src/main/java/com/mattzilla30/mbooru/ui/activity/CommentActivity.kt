@@ -15,13 +15,16 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import org.koin.core.component.inject
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
@@ -70,7 +73,7 @@ class CommentActivity : BaseActivity() , org.koin.core.component.KoinComponent {
     private val model by lazy { getCommentViewModel(CommentRepositoryImpl(apis)) }
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            booru = booruManager.getBooruByUid(settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch
             initializeContent()
         }
@@ -80,7 +83,7 @@ class CommentActivity : BaseActivity() , org.koin.core.component.KoinComponent {
         val action = ActionComment(site, limit = when (site.type) {
             Values.BOORU_TYPE_MOE -> 30
             Values.BOORU_TYPE_DAN1, Values.BOORU_TYPE_SANKAKU -> 25
-            else -> Settings.pageLimit
+            else -> settings.pageLimit
         }, postId = intent.getIntExtra(POST_ID_KEY, -1), query = intent.getStringExtra(QUERY_KEY).orEmpty())
         setScreenTitle(R.string.title_comments)
         screenSubtitle = if (action.postId > 0) "Post ${action.postId}" else action.query
@@ -108,14 +111,18 @@ class CommentActivity : BaseActivity() , org.koin.core.component.KoinComponent {
             model.mutationResults.collect { if (it is NetResult.Error) Toast.makeText(this@CommentActivity, R.string.msg_cloudflare_challenges, Toast.LENGTH_LONG).show() }
         } }
     }
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val action = model.action.value
-        if (action != null && action.postId > 0 && action.booru.user != null && action.booru.type !in arrayOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY)) menuInflater.inflate(R.menu.comment, menu)
-        return true
+
+    override fun onAction(action: AppActionKey): Boolean = when (action) {
+        AppActionKey.Back -> { onBackPressedDispatcher.onBackPressed(); true }
+        AppActionKey.CommentReply -> { model.action.value?.let { model.reply(it.postId) }; true }
+        else -> super.onAction(action)
     }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> { onBackPressedDispatcher.onBackPressed(); true }
-        R.id.action_comment_reply -> { model.action.value?.let { model.reply(it.postId) }; true }
-        else -> super.onOptionsItemSelected(item)
+    @androidx.compose.runtime.Composable
+    override fun appActions(): List<AppAction> {
+        val action by model.action.collectAsStateWithLifecycle()
+        val current = action
+        return if (current != null && current.postId > 0 && current.booru.user != null &&
+            current.booru.type !in arrayOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_GEL_LEGACY)) AppMenu.Comment.actions() else emptyList()
     }
+
 }

@@ -1,5 +1,7 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mattzilla30.mbooru.data.model.common.Booru
@@ -13,7 +15,7 @@ data class BrowseUiState(
     val query: String = "",
     val mode: Int = 0,
     val title: String = "",
-    val menu: Int = 0,
+    val menu: AppMenu = AppMenu.None,
     val booru: Booru? = null,
     val preferencesRevision: Int = 0,
 )
@@ -30,7 +32,7 @@ class BrowseStateViewModel(private val saved: SavedStateHandle) : ViewModel() {
     fun query(text: String) { saved["query"] = text; mutable.update { it.copy(query = text) } }
     fun mode(value: Int) { saved["mode"] = value; mutable.update { it.copy(mode = value) } }
     fun title(value: String) { mutable.update { it.copy(title = value) } }
-    fun menu(value: Int) { mutable.update { it.copy(menu = value) } }
+    fun menu(value: AppMenu) { mutable.update { it.copy(menu = value) } }
     fun booru(value: Booru?) { mutable.update { it.copy(booru = value) } }
     fun preferencesChanged() { mutable.update { it.copy(preferencesRevision = it.preferencesRevision + 1) } }
     fun scrollTo(position: Int) { positions.trySend(position.coerceAtLeast(0)) }

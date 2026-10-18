@@ -31,7 +31,6 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import com.mattzilla30.mbooru.app.App.Companion.app
 import com.mattzilla30.mbooru.app.Keys
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.Booru
@@ -43,24 +42,10 @@ import java.io.File
  * */
 @SuppressLint("UnsafeOptInUsageError")
 class PlayerHolder(
+    val resources: MediaResources,
     private val booru: Booru? = null
 ) {
 
-    companion object {
-        private var cache: SimpleCache? = null
-        /**
-         * return player network cache [SimpleCache]
-         * */
-        fun cache(): SimpleCache {
-            if (cache == null) {
-                cache = SimpleCache(
-                    File(app.cacheDir, "video"),
-                    LeastRecentlyUsedCacheEvictor(1024 * 1024 * 256L),
-                    DefaultDatabaseProvider.databaseProvider())
-            }
-            return cache!!
-        }
-    }
     private var currentPlayerState: PlayerState? = null
     private val playerStates: MutableList<PlayerState> = mutableListOf()
     private var player: ExoPlayer? = null
@@ -79,17 +64,16 @@ class PlayerHolder(
                 it.proceed(request.newBuilder().addHeader(Keys.HEADER_REFERER, referer).build())
             }
         }
-        val okHttpClientBuilder = OkHttpClient.Builder()
-            .cookieJar(AndroidCookieJar)
+        val okHttpClientBuilder = resources.transport.mediaClient().newBuilder()
         if (interceptor != null) {
-            okHttpClientBuilder.addInterceptor(interceptor)
+            okHttpClientBuilder.addNetworkInterceptor(interceptor)
         }
         val okHttpClient = okHttpClientBuilder.build()
         val okHttpFactory = OkHttpDataSource.Factory(okHttpClient)
             .setUserAgent(Values.PC_USER_AGENT)
         val sourceFactory = DefaultDataSource.Factory(context, okHttpFactory)
         val cacheSourceFactory = CacheDataSource.Factory().apply {
-            setCache(cache())
+            setCache(resources.cache)
             setUpstreamDataSourceFactory(sourceFactory)
         }
         return ProgressiveMediaSource.Factory(cacheSourceFactory)
@@ -135,6 +119,7 @@ class PlayerHolder(
     }
 
     fun create(context: Context): ExoPlayer {
+        this.player?.let { return it }
         val player = ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
                 repeatMode = Player.REPEAT_MODE_ALL

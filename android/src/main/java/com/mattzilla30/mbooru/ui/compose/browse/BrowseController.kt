@@ -1,5 +1,8 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import org.koin.core.component.inject
 
 import android.content.ComponentCallbacks
@@ -9,7 +12,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.*
@@ -43,6 +45,7 @@ abstract class BrowseController(
     SavedStateRegistryOwner by owner,
     BrowseNavigation,
     SharedPreferences.OnSharedPreferenceChangeListener , org.koin.core.component.KoinComponent {
+    protected val settings get() = host.settings
     private val muzeiManager by inject<com.mattzilla30.mbooru.data.database.MuzeiManager>()
 
     override val lifecycle: Lifecycle
@@ -95,7 +98,7 @@ abstract class BrowseController(
 
     open fun onApplySearch(query: String) {}
 
-    open fun onMenuItemClick(item: MenuItem) {}
+    open fun onMenuAction(item: AppActionKey) {}
 
     open fun onBooruLoaded(booru: Booru?) {
         currentBooru = booru
@@ -119,7 +122,7 @@ abstract class BrowseController(
             saved.setSavedStateProvider("browse_request_state") {
                 Bundle().apply(::onSaveInstanceState)
             }
-            boorus.loadBooru(Settings.activatedBooruUid)
+            boorus.loadBooru(settings.activatedBooruUid)
             preferences.registerOnSharedPreferenceChangeListener(this@BrowseController)
             (host as? MainActivity)?.activeBrowse = this@BrowseController
             val observer =
@@ -173,18 +176,19 @@ abstract class BrowseController(
                 browse.mode(0)
             },
             onNavigate = { (host as? MainActivity)?.openDrawer() ?: host.finish() },
-            onMenu = ::onMenuItemClick,
+            onMenu = ::onMenuAction,
             onAddToMuzei = { query ->
                 owner.lifecycleScope.launch {
                 muzeiManager.createMuzei(
                     com.mattzilla30.mbooru.data.model.common.Muzei(
-                        booruUid = Settings.activatedBooruUid,
+                        booruUid = settings.activatedBooruUid,
                         query = query,
                     )
                 )
                 }
             },
             bottomPadding = host is MainActivity,
+            autoHideBottomBar = settings.autoHideBottomBar,
             filters = { Filters() },
             content = { BrowseContent(it) },
         )
@@ -192,7 +196,7 @@ abstract class BrowseController(
 
     protected fun setSearchBarTitle(value: CharSequence) = browse.title(value.toString())
 
-    protected fun setSearchBarMenu(menu: Int) = browse.menu(menu)
+    protected fun setSearchBarMenu(menu: AppMenu) = browse.menu(menu)
 
     protected fun setSearchBarText(text: CharSequence) = browse.query(text.toString())
 
@@ -210,7 +214,7 @@ abstract class BrowseController(
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        if (key == Settings.BOORU_UID_ACTIVATED_KEY) boorus.loadBooru(Settings.activatedBooruUid)
+        if (key == Settings.BOORU_UID_ACTIVATED_KEY) boorus.loadBooru(settings.activatedBooruUid)
         browse.preferencesChanged()
     }
 }

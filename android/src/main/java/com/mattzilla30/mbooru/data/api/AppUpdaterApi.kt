@@ -27,24 +27,6 @@ import retrofit2.http.GET
  * */
 interface AppUpdaterApi {
 
-    companion object {
-
-        suspend fun checkUpdate() {
-            withContext(Dispatchers.IO) {
-                try {
-                    val response = createApi<AppUpdaterApi>().checkUpdate()
-                    val data = response.body()
-                    if (response.isSuccessful && data != null) {
-                        Settings.latestVersionUrl = data.url
-                        Settings.latestVersionName = data.versionName
-                        Settings.latestVersionCode = data.versionCode
-                        Settings.isAvailableOnStore = data.isAvailableStore
-                    }
-                } catch (_: Exception) {}
-            }
-        }
-    }
-
     /**
      * check app new version
      * */

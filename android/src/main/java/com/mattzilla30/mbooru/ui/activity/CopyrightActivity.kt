@@ -15,13 +15,14 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
 import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.URLSpan
-import android.view.MenuItem
 import android.view.View
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
@@ -67,11 +68,11 @@ class CopyrightActivity : BaseActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
+    override fun onAction(action: AppActionKey): Boolean {
+        if (action == AppActionKey.Back) {
             onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return super.onAction(action)
     }
 }

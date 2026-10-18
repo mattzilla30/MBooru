@@ -15,6 +15,11 @@
 
 package com.mattzilla30.mbooru.ui.base
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -34,31 +39,42 @@ import com.mattzilla30.mbooru.ui.activity.*
 import com.mattzilla30.mbooru.ui.helper.isNightEnable
 
 abstract class BaseActivity : AppCompatActivity() {
+    val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
     private val durablePreferences by inject<DataStorePreferences>()
     protected open fun onSettingsReady(savedInstanceState: Bundle?) = Unit
 
 
     var screenTitle: CharSequence by mutableStateOf("")
     var screenSubtitle: CharSequence by mutableStateOf("")
-    val appBarMenuResource: Int get() = when (this) {
-        is HistoryActivity -> R.menu.history
-        is MuzeiActivity -> R.menu.muzei
-        is SauceNaoActivity -> R.menu.sauce_nao
-        is BooruConfigActivity -> R.menu.booru_config
-        is BooruActivity -> R.menu.booru
-        is AccountActivity -> R.menu.account
-        is CommentActivity -> R.menu.comment
-        else -> 0
+    val appMenu: AppMenu get() = when (this) {
+        is HistoryActivity -> AppMenu.History
+        is MuzeiActivity -> AppMenu.Muzei
+        is SauceNaoActivity -> AppMenu.SauceNao
+        is BooruConfigActivity -> AppMenu.BooruConfig
+        is BooruActivity -> AppMenu.Booru
+        is AccountActivity -> AppMenu.Account
+        is CommentActivity -> AppMenu.Comment
+        else -> AppMenu.None
     }
-    var menuRevision by mutableStateOf(0)
-        private set
     val hasComposeAppBar: Boolean get() = this !is MainActivity && this !is SearchActivity &&
         this !is DetailActivity && this !is AccountConfigActivity
     fun setScreenTitle(resource: Int) { screenTitle = getString(resource) }
-    override fun invalidateOptionsMenu() {
-        menuRevision++
-        super.invalidateOptionsMenu()
+    @Composable open fun appActions(): List<AppAction> = appMenu.actions()
+    internal var renderedActions: List<AppAction> = emptyList()
+    open fun onAction(action: AppActionKey): Boolean = if (action == AppActionKey.Back) {
+        onBackPressedDispatcher.onBackPressed(); true
+    } else false
+    override fun onKeyShortcut(keyCode: Int, event: android.view.KeyEvent): Boolean {
+        if (event.isCtrlPressed && event.keyCode in android.view.KeyEvent.KEYCODE_A..android.view.KeyEvent.KEYCODE_Z) {
+            val character = ('a'.code + event.keyCode - android.view.KeyEvent.KEYCODE_A).toChar()
+            fun find(items: List<AppAction>): AppAction? = items.filter { it.visible && it.enabled }.firstNotNullOfOrNull {
+                if (it.shortcut == character) it else find(it.children)
+            }
+            find(renderedActions)?.let { return onAction(it.key) }
+        }
+        return super.onKeyShortcut(keyCode, event)
     }
+
 
     private fun getThemeRes(): Int = when (this) {
         is MainActivity -> R.style.AppTheme_Black_NoActionBar_Scrim_Main
@@ -72,12 +88,12 @@ abstract class BaseActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
         if (this !is DetailActivity) {
-            if (resources.configuration.isNightEnable() && !Settings.isNightThemeDark) {
+            if (resources.configuration.isNightEnable() && !settings.isNightThemeDark) {
                 setTheme(getThemeRes())
             }
         }
         if (this !is MainActivity && this !is SearchActivity && this !is DetailActivity) {
-            if (!resources.configuration.isNightEnable() || Settings.isNightThemeDark)
+            if (!resources.configuration.isNightEnable() || settings.isNightThemeDark)
                 setTheme(R.style.AppTheme_NoActionBar_Animation)
         }
         super.onCreate(savedInstanceState)
@@ -87,7 +103,7 @@ abstract class BaseActivity : AppCompatActivity() {
             try {
                 durablePreferences.awaitReady()
                 if (!isFinishing && !isDestroyed) {
-                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(Settings.nightMode)
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(settings.nightMode)
                     onSettingsReady(savedInstanceState)
                 }
             } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }

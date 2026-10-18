@@ -25,16 +25,6 @@ import com.mattzilla30.mbooru.app.App
 @SuppressLint("UnsafeOptInUsageError")
 class DefaultDatabaseProvider(context: Context) : SQLiteOpenHelper(context, "ExoPlayer", null, 1), DatabaseProvider {
 
-    companion object {
-        private var databaseProvider: DatabaseProvider? = null
-        fun databaseProvider(): DatabaseProvider {
-            if (databaseProvider == null) {
-                databaseProvider = DefaultDatabaseProvider(App.app)
-            }
-            return databaseProvider!!
-        }
-    }
-
     override fun onCreate(db: SQLiteDatabase?) {
 
     }

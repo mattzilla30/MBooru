@@ -15,8 +15,12 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,7 +36,6 @@ import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import com.mattzilla30.mbooru.ui.base.BaseActivity
-import android.view.Menu
 import com.mattzilla30.mbooru.ui.compose.booru.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -66,13 +69,16 @@ class BooruConfigActivity : BaseActivity() {
         outState.putBoolean("confirmDelete", confirmDelete)
         super.onSaveInstanceState(outState)
     }
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.booru_config, menu)
-        return super.onCreateOptionsMenu(menu)
+
+    override fun onAction(action: AppActionKey): Boolean = when (action) {
+        AppActionKey.BooruConfigApply -> { model.save(); true }
+        AppActionKey.BooruConfigDelete -> { confirmDelete = true; true }
+        else -> super.onAction(action)
     }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_booru_config_apply -> { model.save(); true }
-        R.id.action_booru_config_delete -> { confirmDelete = true; true }
-        else -> super.onOptionsItemSelected(item)
+    @androidx.compose.runtime.Composable
+    override fun appActions(): List<AppAction> {
+        val state by model.state.collectAsStateWithLifecycle()
+        return AppMenu.BooruConfig.actions().map { it.copy(enabled = !state.busy) }
     }
+
 }

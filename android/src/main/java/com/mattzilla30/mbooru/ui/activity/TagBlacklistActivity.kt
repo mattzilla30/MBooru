@@ -15,8 +15,9 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -46,7 +47,7 @@ class TagBlacklistActivity : BaseActivity() {
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         setScreenTitle(R.string.title_tag_blacklist)
-        model.loadBooru(Settings.activatedBooruUid)
+        model.loadBooru(settings.activatedBooruUid)
         setComposeContent {
             val booru by model.booruState.collectAsStateWithLifecycle()
             var adding by rememberSaveable { mutableStateOf(false) }
@@ -147,11 +148,11 @@ class TagBlacklistActivity : BaseActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
+    override fun onAction(action: AppActionKey): Boolean {
+        if (action == AppActionKey.Back) {
             onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return super.onAction(action)
     }
 }

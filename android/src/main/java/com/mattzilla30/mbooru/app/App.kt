@@ -27,7 +27,6 @@ import coil.disk.DiskCache
 import com.google.android.material.color.DynamicColors
 import okhttp3.OkHttpClient
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.nightMode
 import com.mattzilla30.mbooru.common.di.commonModules
 import com.mattzilla30.mbooru.okhttp.AndroidCookieJar
 import com.mattzilla30.mbooru.okhttp.CloudflareInterceptor
@@ -38,19 +37,16 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class App : Application(), ImageLoaderFactory {
-
-    val preferences: android.content.SharedPreferences by inject()
+    private val settings by inject<SettingsRepository>()
 
     companion object {
-        lateinit var app: App
         private const val CACHE_MAX_BYTES = 256L * 1024L * 1024L
     }
 
     override fun onCreate() {
         super.onCreate()
-        app = this
         startKoin {
-            androidContext(app)
+            androidContext(this@App)
             modules(appModules + commonModules)
         }
         initial()
@@ -65,23 +61,14 @@ class App : Application(), ImageLoaderFactory {
             val store by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
             try {
                 store.awaitReady()
-                withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(nightMode) }
+                withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(settings.nightMode) }
             } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
             catch (_: Exception) { /* The foreground activity offers retry without clearing data. */ }
         }
     }
 
     override fun newImageLoader(): ImageLoader {
-        val builder = OkHttpClient.Builder()
-            .cookieJar(AndroidCookieJar)
-            .addNetworkInterceptor(RequestHeaderInterceptor())
-            .addInterceptor(ProgressInterceptor())
-        if (Settings.isBypassWAF) {
-            builder.addInterceptor(CloudflareInterceptor(this))
-        }
-        if (Settings.isDohEnable) {
-            builder.dns(Settings.doh)
-        }
+        val transport by inject<com.mattzilla30.mbooru.data.api.HttpTransport>()
         val diskCache = DiskCache.Builder()
             .directory(cacheDir.resolve("image_cache"))
             .maxSizeBytes(CACHE_MAX_BYTES)
@@ -89,7 +76,7 @@ class App : Application(), ImageLoaderFactory {
         return ImageLoader.Builder(this)
             .diskCache(diskCache)
             .allowHardware(false)
-            .okHttpClient(builder.build())
+            .okHttpClient(transport.mediaClient())
             .crossfade(true)
             .error(R.drawable.ic_placeholder_error)
             .build()

@@ -29,7 +29,6 @@ import com.mattzilla30.mbooru.ui.compose.navigation.browseTabs
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Keys.POST_QUERY
-import com.mattzilla30.mbooru.app.Settings.activatedBooruUid
 import com.mattzilla30.mbooru.data.database.HistoryManager
 import com.mattzilla30.mbooru.data.model.common.History
 import com.mattzilla30.mbooru.ui.base.PathActivity
@@ -46,7 +45,7 @@ class SearchActivity : PathActivity() , org.koin.core.component.KoinComponent {
     }
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
-        lifecycleScope.launch { historyManager.createHistory(History(booruUid = activatedBooruUid, query = intent.getStringExtra(POST_QUERY).orEmpty())) }
+        lifecycleScope.launch { historyManager.createHistory(History(booruUid = settings.activatedBooruUid, query = intent.getStringExtra(POST_QUERY).orEmpty())) }
         setComposeContent { MainBrowseNavHost(rememberNavController(), browseTabs(BOORU_TYPE_SHIMMIE)) }
     }
 }

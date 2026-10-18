@@ -15,12 +15,15 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -83,7 +86,7 @@ class SauceNaoActivity : BaseActivity() {
             var input by
                 remember(prompt) {
                     mutableStateOf(
-                        if (prompt == R.string.sauce_nao_change_api_key) Settings.sauceNaoApiKey
+                        if (prompt == R.string.sauce_nao_change_api_key) settings.sauceNaoApiKey
                         else ""
                     )
                 }
@@ -163,7 +166,7 @@ class SauceNaoActivity : BaseActivity() {
                         TextButton(
                             onClick = {
                                 if (title == R.string.sauce_nao_change_api_key) {
-                                    Settings.sauceNaoApiKey = input.trim()
+                                    settings.sauceNaoApiKey = input.trim()
                                     localError =
                                         if (input.isBlank())
                                             getString(R.string.sauce_nao_api_key_unset)
@@ -212,7 +215,7 @@ class SauceNaoActivity : BaseActivity() {
     }
 
     private fun search(url: String) {
-        val key = Settings.sauceNaoApiKey
+        val key = settings.sauceNaoApiKey
         if (key.isBlank()) localError = getString(R.string.sauce_nao_api_key_unset)
         else {
             localError = null
@@ -221,7 +224,7 @@ class SauceNaoActivity : BaseActivity() {
     }
 
     private fun search(uri: Uri) {
-        val key = Settings.sauceNaoApiKey
+        val key = settings.sauceNaoApiKey
         if (key.isBlank()) {
             localError = getString(R.string.sauce_nao_api_key_unset)
             return
@@ -237,26 +240,23 @@ class SauceNaoActivity : BaseActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.sauce_nao, menu)
-        return true
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            android.R.id.home -> {
+
+    override fun onAction(action: AppActionKey): Boolean =
+        when (action) {
+            AppActionKey.Back -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
-            R.id.action_sauce_nao_change_api_key -> {
+            AppActionKey.SauceNaoChangeApiKey -> {
                 prompt = R.string.sauce_nao_change_api_key
                 true
             }
-            R.id.action_sauce_nao_get_api_key -> {
+            AppActionKey.SauceNaoGetApiKey -> {
                 launchUrl("https://saucenao.com/user.php")
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onAction(action)
         }
 }
 

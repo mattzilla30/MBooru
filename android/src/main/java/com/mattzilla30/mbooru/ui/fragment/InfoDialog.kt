@@ -55,6 +55,7 @@ import com.mattzilla30.mbooru.worker.DownloadWorker
 import kotlinx.coroutines.launch
 
 class InfoDialog : BaseBottomSheetDialog() , org.koin.core.component.KoinComponent {
+    private val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
     private val tagFilterManager by inject<com.mattzilla30.mbooru.data.database.TagFilterManager>()
 
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
@@ -68,14 +69,14 @@ class InfoDialog : BaseBottomSheetDialog() , org.koin.core.component.KoinCompone
         ViewModelProvider(this, object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                PostInfoViewModel(dao, Settings.activatedBooruUid, requireArguments().getInt(Keys.POST_ID)) as T
+                PostInfoViewModel(dao, settings.activatedBooruUid, requireArguments().getInt(Keys.POST_ID)) as T
         })[PostInfoViewModel::class.java]
     }
 
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = composeView {
         val loadedSite by produceState<com.mattzilla30.mbooru.data.model.common.Booru?>(null) {
-            value = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            value = booruManager.getBooruByUid(settings.activatedBooruUid)
         }
         val site = loadedSite
         val post by model.post.collectAsStateWithLifecycle()

@@ -36,6 +36,16 @@ class CredentialVaultTest {
             val encrypted = File(context.noBackupFilesDir, "credential-vault/${reference!!.removePrefix(CredentialRepository.PREFIX)}").readBytes()
             assertFalse(encrypted.toString(Charsets.UTF_8).contains("private-api-key"))
             assertEquals("private-api-key", database.booruDao().getBooruByUid(uid)!!.user!!.token)
+            val vaultFile = File(context.noBackupFilesDir, "credential-vault/${reference!!.removePrefix(CredentialRepository.PREFIX)}")
+            val tampered = encrypted.copyOf().also { bytes -> bytes[bytes.lastIndex] = (bytes.last().toInt() xor 1).toByte() }
+            vaultFile.writeBytes(tampered)
+            assertNull(database.booruDao().getBooruByUid(uid)!!.user)
+            vaultFile.writeBytes(encrypted)
+            java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null); deleteEntry(alias) }
+            assertNull(database.booruDao().getBooruByUid(uid)!!.user)
+            val replacement = repository.store("new sign-in")
+            assertEquals("new sign-in", repository.read(replacement))
+            repository.remove(replacement)
             repository.remove(reference!!)
             assertNull(database.booruDao().getBooruByUid(uid)!!.user)
         } finally {

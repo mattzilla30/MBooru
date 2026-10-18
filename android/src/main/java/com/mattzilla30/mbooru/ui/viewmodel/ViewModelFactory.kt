@@ -130,11 +130,11 @@ fun ViewModelStoreOwner.getTraceMoeViewModel(traceMoeApi: TraceMoeApi): TraceMoe
         }
     })
 
-fun ViewModelStoreOwner.getMuzeiViewModel(muzeiDao: MuzeiDao): MuzeiViewModel =
+fun ViewModelStoreOwner.getMuzeiViewModel(muzeiDao: MuzeiDao, settings: com.mattzilla30.mbooru.app.SettingsRepository): MuzeiViewModel =
     getViewModel(object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
-            return MuzeiViewModel(muzeiDao) as T
+            return MuzeiViewModel(muzeiDao, settings) as T
         }
     })
 

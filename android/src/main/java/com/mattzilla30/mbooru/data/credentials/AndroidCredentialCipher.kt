@@ -30,7 +30,9 @@ class AndroidCredentialCipher(private val context: Context, private val alias: S
                     .setKeySize(256).build())
             }.generateKey()
         }
+        val wrappedFile = AtomicFile(File(context.noBackupFilesDir, "$alias.wrapped"))
         if (!store.containsAlias(alias)) {
+            wrappedFile.delete() // The old envelope cannot be recovered after its device key is lost.
             val end = Calendar.getInstance().apply { add(Calendar.YEAR, 30) }
             @Suppress("DEPRECATION")
             val spec = KeyPairGeneratorSpec.Builder(context).setAlias(alias)
@@ -38,7 +40,6 @@ class AndroidCredentialCipher(private val context: Context, private val alias: S
                 .setStartDate(java.util.Date()).setEndDate(end.time).setKeySize(2048).build()
             KeyPairGenerator.getInstance("RSA", "AndroidKeyStore").apply { initialize(spec) }.generateKeyPair()
         }
-        val wrappedFile = AtomicFile(File(context.noBackupFilesDir, "$alias.wrapped"))
         val rsa = Cipher.getInstance("RSA/ECB/PKCS1Padding")
         if (wrappedFile.baseFile.exists()) {
             rsa.init(Cipher.DECRYPT_MODE, store.getKey(alias, null))
@@ -54,7 +55,13 @@ class AndroidCredentialCipher(private val context: Context, private val alias: S
     }
     override fun encrypt(plaintext: ByteArray): ByteArray {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.ENCRYPT_MODE, key())
+        val secret = key()
+        if (Build.VERSION.SDK_INT < 23) {
+            // Legacy software providers may default to a 16-byte GCM IV. Use the
+            // envelope's explicit 96-bit nonce; hardware Keystore generates its own.
+            val nonce = ByteArray(12).also { java.security.SecureRandom().nextBytes(it) }
+            cipher.init(Cipher.ENCRYPT_MODE, secret, GCMParameterSpec(128, nonce))
+        } else cipher.init(Cipher.ENCRYPT_MODE, secret)
         require(cipher.iv.size == 12)
         return byteArrayOf(1) + cipher.iv + cipher.doFinal(plaintext)
     }

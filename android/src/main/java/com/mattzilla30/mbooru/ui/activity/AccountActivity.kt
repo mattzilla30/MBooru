@@ -15,11 +15,14 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import org.koin.core.component.inject
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
@@ -84,7 +87,7 @@ class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            booru = booruManager.getBooruByUid(settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch
             initializeContent()
         }
@@ -224,21 +227,21 @@ class AccountActivity : PathActivity() , org.koin.core.component.KoinComponent {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (booru?.user != null) menuInflater.inflate(R.menu.account, menu)
-        return true
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            android.R.id.home -> {
+
+    override fun onAction(action: AppActionKey): Boolean =
+        when (action) {
+            AppActionKey.Back -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
-            R.id.action_account_remove -> {
+            AppActionKey.AccountRemove -> {
                 confirmRemoval = true
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onAction(action)
         }
+    @androidx.compose.runtime.Composable
+    override fun appActions() = if (booru?.user != null) AppMenu.Account.actions() else emptyList()
+
 }

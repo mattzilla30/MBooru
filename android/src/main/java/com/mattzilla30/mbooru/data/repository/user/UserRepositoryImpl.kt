@@ -53,7 +53,7 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
             .addQueryParameter("code", "00")
             .build()
         val cookiesStore = HashMap<String, List<Cookie>>()
-        val builder = OkHttpClient.Builder()
+        val builder = booruApis.loginClient.newBuilder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .cookieJar(object : CookieJar {
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
@@ -63,13 +63,6 @@ class UserRepositoryImpl(private val booruApis: BooruApis) : UserRepository {
                     return cookiesStore[booru.host] ?: listOf()
                 }
             })
-//        if (Settings.isSniDisable) {
-//            builder.connectionSpecs(NoSniFactory.tls)
-//            builder.sslSocketFactory(NoSniFactory, NoSniFactory.defaultTrustManager)
-//        }
-        if (Settings.isDohEnable) {
-            builder.dns(Settings.doh)
-        }
         val client = builder.build()
         val formBody = FormBody.Builder()
             .add("user", username)

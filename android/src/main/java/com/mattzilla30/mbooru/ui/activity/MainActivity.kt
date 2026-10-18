@@ -57,6 +57,7 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private val booruDao by inject<BooruDao>()
     private val boorus by lazy { getBooruViewModel(booruDao) }
     private val shell by viewModels<MainShellViewModel>()
+    private val updater by inject<com.mattzilla30.mbooru.data.api.AppUpdaterRepository>()
     internal var activeBrowse: BrowseNavigation? = null
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
@@ -68,20 +69,20 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 boorus.loadBoorus().collect { list ->
             val available = list
-            if (available.none { it.uid == Settings.activatedBooruUid }) {
-                Settings.activatedBooruUid = available.firstOrNull()?.uid ?: -1
+            if (available.none { it.uid == settings.activatedBooruUid }) {
+                settings.activatedBooruUid = available.firstOrNull()?.uid ?: -1
             }
         }
             }
         }
-        boorus.loadBooru(Settings.activatedBooruUid)
+        boorus.loadBooru(settings.activatedBooruUid)
         setContent {
             MBooruTheme {
                 val sites by boorus.boorusState.collectAsStateWithLifecycle()
                 val site by boorus.booruState.collectAsStateWithLifecycle()
                 val visible by shell.navVisible.collectAsStateWithLifecycle()
                 val revision by shell.preferencesRevision.collectAsStateWithLifecycle()
-                val selectedUid = remember(revision) { Settings.activatedBooruUid }
+                val selectedUid = remember(revision) { settings.activatedBooruUid }
                 val type = site?.type ?: Values.BOORU_TYPE_UNKNOWN
                 val tabs = remember(type) { browseTabs(type) }
                 // A capability change resets the graph, as the former XML graphs did.
@@ -91,7 +92,7 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     val selected = tabs.firstOrNull { browseRoute(it.id) == entry?.destination?.route }?.id ?: R.id.nav_posts
                     MainShell(sites, selectedUid, tabs, selected,
                         visible, shell.drawerRequests,
-                        onBooru = { Settings.activatedBooruUid = it }, onAction = ::openDestination,
+                        onBooru = { settings.activatedBooruUid = it }, onAction = ::openDestination,
                         onTab = { id ->
                             if (selected == id) currentBrowse()?.toListTop()
                             else navigation.navigate(browseRoute(id)) {
@@ -103,18 +104,18 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                         MainBrowseNavHost(navigation, tabs)
                     }
                 }
-                if (Settings.latestVersionCode > BuildConfig.VERSION_CODE) {
+                if (settings.latestVersionCode > BuildConfig.VERSION_CODE) {
                     AlertDialog(onDismissRequest = {}, title = { Text(stringResource(R.string.update_found_update)) },
-                        text = { Text(stringResource(R.string.update_version, Settings.latestVersionName)) },
+                        text = { Text(stringResource(R.string.update_version, settings.latestVersionName)) },
                         confirmButton = { TextButton(onClick = {
-                            launchUrl(Settings.latestVersionUrl)
+                            launchUrl(settings.latestVersionUrl)
                             finish()
                         }) { Text(stringResource(R.string.dialog_update)) } },
                         dismissButton = { TextButton(onClick = { finish() }) { Text(stringResource(R.string.dialog_exit)) } })
                 }
             }
         }
-        lifecycleScope.launch { AppUpdaterApi.checkUpdate() }
+        lifecycleScope.launch { updater.checkUpdate() }
         if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
     }
 
@@ -148,13 +149,13 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     fun openDrawer() = shell.openDrawer()
     fun forceShowNavBar() = shell.navigationVisible(true)
     fun onContentScroll(down: Boolean) {
-        if (Settings.autoHideBottomBar) shell.navigationVisible(!down)
+        if (settings.autoHideBottomBar) shell.navigationVisible(!down)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         shell.preferencesChanged()
         when (key) {
-            Settings.BOORU_UID_ACTIVATED_KEY -> boorus.loadBooru(Settings.activatedBooruUid)
+            Settings.BOORU_UID_ACTIVATED_KEY -> boorus.loadBooru(settings.activatedBooruUid)
             Settings.NIGHT_THEME_KEY -> if (resources.configuration.isNightEnable()) recreate()
             Settings.AUTO_HIDE_BOTTOM_BAR_KEY -> forceShowNavBar()
         }

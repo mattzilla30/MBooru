@@ -49,7 +49,7 @@ class AccountConfigActivity : BaseActivity() , org.koin.core.component.KoinCompo
     }
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            booru = booruManager.getBooruByUid(settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch
             initializeContent()
         }

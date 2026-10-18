@@ -27,7 +27,8 @@ import retrofit2.HttpException
 class PostRemoteMediator(
     private val action: ActionPost,
     private val db: MyDatabase,
-    private val booruApis: BooruApis
+    private val booruApis: BooruApis,
+    private val settings: com.mattzilla30.mbooru.app.SettingsRepository
 ) : RemoteMediator<Int,  Post>() {
 
     private val isFavored = action.isFavoredQuery()
@@ -43,7 +44,7 @@ class PostRemoteMediator(
     private suspend fun nextSankakuKey(): String? = db.nextDao().getNext(action.booru.uid, action.query)?.next
 
     override suspend fun initialize(): InitializeAction {
-        return if (Settings.autoRefresh)
+        return if (settings.autoRefresh)
             InitializeAction.LAUNCH_INITIAL_REFRESH
         else
             InitializeAction.SKIP_INITIAL_REFRESH

@@ -76,11 +76,15 @@ class ComposeMigrationSmokeTest {
         }
         compose.onRoot().performTouchInput {
             val center = center
-            pinch(center - Offset(50f, 0f), center + Offset(50f, 0f),
-                center - Offset(220f, 0f), center + Offset(220f, 0f), 500)
+            // Android's minimum scaling span is physical (27 mm by default). Fixed-pixel
+            // endpoints can remain below it on dense emulators and never start a pinch.
+            val start = Offset(center.x * .4f, 0f)
+            val end = Offset(center.x * .84f, 0f)
+            pinch(center - start, center + start, center - end, center + end, 500)
         }
         compose.runOnIdle {
             val photo = checkNotNull(compose.activity.window.decorView.find<PhotoView>())
+            assertTrue("The gesture must change the native image scale", photo.scale > photo.minimumScale + .01f)
             assertTrue("Native zoom should disable paging/dismiss gestures (scale=${photo.scale}, min=${photo.minimumScale}, size=${photo.width}x${photo.height})", zoomed)
             photo.setScale(photo.minimumScale, false)
             assertFalse("Resetting zoom should restore paging/dismiss gestures", zoomed)
@@ -103,6 +107,43 @@ class ComposeMigrationSmokeTest {
             assertEquals(6000, view.sWidth)
             assertEquals(4000, view.sHeight)
         }
+    }
+
+    @Test fun localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer() {
+        val file = File(compose.activity.cacheDir, "viewer-fixture.mp4")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().context.assets.open("viewer-fixture.mp4").use { input ->
+            file.outputStream().use { output -> input.copyTo(output) }
+        }
+        var active by mutableStateOf(true)
+        compose.setContent {
+            MBooruTheme { PostMedia(sample(3, file.toUri().toString()), booru, "sample", active,
+                dismiss, {}, {}, {}, Modifier.fillMaxSize()) }
+        }
+        fun ready(): Boolean {
+            var ready = false
+            compose.runOnUiThread {
+                val player = compose.activity.window.decorView.find<androidx.media3.ui.PlayerView>()?.player
+                ready = player?.playbackState == androidx.media3.common.Player.STATE_READY && player.isPlaying
+            }
+            return ready
+        }
+        compose.waitUntil(30000, ::ready)
+        compose.runOnIdle {
+            val player = checkNotNull(compose.activity.window.decorView.find<androidx.media3.ui.PlayerView>()?.player)
+            assertEquals(320, player.videoSize.width)
+            active = false
+        }
+        compose.waitUntil(10000) {
+            var released = false
+            compose.runOnUiThread { released = compose.activity.window.decorView.find<androidx.media3.ui.PlayerView>()?.player == null }
+            released
+        }
+        compose.runOnIdle { active = true }
+        compose.waitUntil(30000, ::ready)
+        compose.activityRule.scenario.moveToState(androidx.lifecycle.Lifecycle.State.STARTED)
+        compose.runOnUiThread { assertNull(compose.activity.window.decorView.find<androidx.media3.ui.PlayerView>()?.player) }
+        compose.activityRule.scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+        compose.waitUntil(30000, ::ready)
     }
 
     private fun imageFile(name: String, width: Int, height: Int): File {

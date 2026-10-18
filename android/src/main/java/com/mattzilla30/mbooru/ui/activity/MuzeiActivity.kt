@@ -15,13 +15,13 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
 import org.koin.core.component.inject
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,7 +49,6 @@ import com.mattzilla30.mbooru.data.repository.suggestion.SuggestionRepositoryImp
 import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.extension.openAppInMarket
 import com.mattzilla30.mbooru.ui.base.BaseActivity
-import com.mattzilla30.mbooru.ui.compose.common.*
 import com.mattzilla30.mbooru.ui.viewmodel.*
 import com.mattzilla30.mbooru.worker.MuzeiArtWorker
 
@@ -59,14 +58,14 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
 
     private val dao by inject<MuzeiDao>()
     private val apis by inject<BooruApis>()
-    private val model by lazy { getMuzeiViewModel(dao) }
+    private val model by lazy { getMuzeiViewModel(dao, settings) }
     private val suggestions by lazy { getSuggestionViewModel(SuggestionRepositoryImpl(apis)) }
     private var booru: com.mattzilla30.mbooru.data.model.common.Booru? = null
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            booru = booruManager.getBooruByUid(Settings.activatedBooruUid)
+            booru = booruManager.getBooruByUid(settings.activatedBooruUid)
             if (isFinishing || isDestroyed) return@launch
             initializeContent()
         }
@@ -75,7 +74,7 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
         val site = booru ?: return finish()
         setScreenTitle(R.string.title_muzei)
         model.loadMuzei(site.uid)
-        model.select(Settings.activeMuzeiUid)
+        model.select(settings.activeMuzeiUid)
         setComposeContent {
             val items by model.entries.collectAsStateWithLifecycle()
             val selected by model.selectedUid.collectAsStateWithLifecycle()
@@ -149,16 +148,17 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
                                             Modifier.weight(1f),
                                             style = MaterialTheme.typography.bodyLarge,
                                         )
-                                        RowMenu(R.menu.muzei_item) { action ->
-                                            when (action.itemId) {
-                                                R.id.action_muzei_item_search ->
+                                        RowMenu(AppMenu.MuzeiItem) { action ->
+                                            when (action) {
+                                                AppActionKey.MuzeiItemSearch ->
                                                     SearchActivity.startSearch(
                                                         this@MuzeiActivity,
                                                         item.query,
                                                     )
-                                                R.id.action_muzei_item_copy -> copyText(item.query)
-                                                R.id.action_muzei_item_delete ->
+                                                AppActionKey.MuzeiItemCopy -> copyText(item.query)
+                                                AppActionKey.MuzeiItemDelete ->
                                                     model.deleteByUid(item.uid)
+                                                else -> Unit
                                             }
                                         }
                                     }
@@ -195,26 +195,22 @@ class MuzeiActivity : BaseActivity() , org.koin.core.component.KoinComponent {
         if (intent != null) startActivity(intent) else openAppInMarket(packageName)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.muzei, menu)
-        menu.findItem(R.id.action_muzei_search)?.actionView = null
-        return true
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            android.R.id.home -> {
+
+    override fun onAction(action: AppActionKey): Boolean =
+        when (action) {
+            AppActionKey.Back -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
-            R.id.action_muzei_search -> {
+            AppActionKey.MuzeiSearch -> {
                 model.searching(!model.searching.value)
                 true
             }
-            R.id.action_muzei_fetch -> {
+            AppActionKey.MuzeiFetch -> {
                 MuzeiArtWorker.enqueueLoad(this)
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onAction(action)
         }
 }

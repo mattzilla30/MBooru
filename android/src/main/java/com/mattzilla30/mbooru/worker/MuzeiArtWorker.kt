@@ -24,14 +24,11 @@ import androidx.work.*
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.mattzilla30.mbooru.app.App
-import com.mattzilla30.mbooru.app.Settings.activeMuzeiUid
 import com.mattzilla30.mbooru.data.database.MuzeiManager
 import com.mattzilla30.mbooru.data.database.dao.PostDao
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Settings.POST_SIZE_LARGER
 import com.mattzilla30.mbooru.app.Settings.POST_SIZE_SAMPLE
-import com.mattzilla30.mbooru.app.Settings.muzeiLimit
-import com.mattzilla30.mbooru.app.Settings.muzeiSize
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL_LEGACY
@@ -45,6 +42,8 @@ class MuzeiArtWorker(
     context: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(context, workerParameters) , org.koin.core.component.KoinComponent {
+    private val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
+
     private val muzeiManager by inject<com.mattzilla30.mbooru.data.database.MuzeiManager>()
 
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
@@ -59,11 +58,11 @@ class MuzeiArtWorker(
     override suspend fun doWork(): Result {
         val preferences by inject<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
         preferences.awaitReady()
-        val uid = activeMuzeiUid
+        val uid = settings.activeMuzeiUid
         val muzei = muzeiManager.getMuzeiByUid(uid) ?: return Result.failure()
         val booru = booruManager.getBooruByUid(muzei.booruUid) ?: return Result.failure()
         val postDao by inject<PostDao>()
-        val posts = postDao.getPostsRaw(booruUid = muzei.booruUid, query = muzei.query, limit = muzeiLimit).filter { it.origin.isStillImage() }
+        val posts = postDao.getPostsRaw(booruUid = muzei.booruUid, query = muzei.query, limit = settings.muzeiLimit).filter { it.origin.isStillImage() }
         if (posts.isEmpty() || isStopped) return Result.success()
         val providerClient = ProviderContract.getProviderClient(
             applicationContext, applicationContext.packageName + ".muzei")
@@ -74,7 +73,7 @@ class MuzeiArtWorker(
                 title = "Post ${post.id}",
                 byline = post.query,
                 attribution = attributionString,
-                persistentUri = when (muzeiSize) {
+                persistentUri = when (settings.muzeiSize) {
                     POST_SIZE_SAMPLE -> post.sample.toUri()
                     POST_SIZE_LARGER -> post.medium.toUri()
                     else -> post.origin.toUri()

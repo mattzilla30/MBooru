@@ -15,6 +15,9 @@
 
 package com.mattzilla30.mbooru.ui.compose.browse
 
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import org.koin.core.component.inject
 
 import android.annotation.SuppressLint
@@ -24,7 +27,6 @@ import android.os.Build
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.*
@@ -40,15 +42,6 @@ import com.mattzilla30.mbooru.app.Keys.POST_POSITION
 import com.mattzilla30.mbooru.app.Keys.POST_QUERY
 import com.mattzilla30.mbooru.app.Settings.PAGE_LIMIT_KEY
 import com.mattzilla30.mbooru.app.Settings.SAFE_MODE_KEY
-import com.mattzilla30.mbooru.app.Settings.gridMode
-import com.mattzilla30.mbooru.app.Settings.gridRatio
-import com.mattzilla30.mbooru.app.Settings.gridWidthResId
-import com.mattzilla30.mbooru.app.Settings.isLargeWidth
-import com.mattzilla30.mbooru.app.Settings.isRoundedGrid
-import com.mattzilla30.mbooru.app.Settings.isShowAllTags
-import com.mattzilla30.mbooru.app.Settings.pageLimit
-import com.mattzilla30.mbooru.app.Settings.safeMode
-import com.mattzilla30.mbooru.app.Settings.showInfoBar
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL_LEGACY
@@ -97,7 +90,7 @@ class PostScreenController(
 
     private val db by inject<MyDatabase>()
     private val voteRepository by lazy { VoteRepositoryImpl(booruApis, db.postDao()) }
-    private val postViewModel by lazy { getPostViewModel(PostRepositoryImpl(db, booruApis)) }
+    private val postViewModel by lazy { getPostViewModel(PostRepositoryImpl(db, booruApis, settings)) }
     private val tagFilterViewModel by lazy {
         getTagFilterViewModel(TagFilterRepositoryImpl(db.tagFilterDao()))
     }
@@ -142,11 +135,11 @@ class PostScreenController(
         val options =
             remember(state.preferencesRevision) {
                 PostDisplayOptions(
-                    isRoundedGrid,
-                    if (gridMode == "fixed") gridRatio else null,
-                    showInfoBar,
-                    isLargeWidth,
-                    resources.getDimension(gridWidthResId) / resources.displayMetrics.density,
+                    settings.isRoundedGrid,
+                    if (settings.gridMode == "fixed") settings.gridRatio else null,
+                    settings.showInfoBar,
+                    settings.isLargeWidth,
+                    resources.getDimension(settings.gridWidthResId) / resources.displayMetrics.density,
                 )
             }
         PostGrid(
@@ -179,7 +172,7 @@ class PostScreenController(
             remember(revision) {
                 listOf(filters.get("order"), filters.get("rating"), filters.get("threshold"))
             }
-        val tags = allTags.filter { isShowAllTags || it.booruUid == booru.uid }
+        val tags = allTags.filter { settings.isShowAllTags || it.booruUid == booru.uid }
         val orders =
             resources
                 .getStringArray(
@@ -232,9 +225,9 @@ class PostScreenController(
                     ?: ActionPost(
                         booru = booru,
                         pageType = currentPageType,
-                        limit = pageLimit,
+                        limit = settings.pageLimit,
                         date = date,
-                        isSafeMode = safeMode,
+                        isSafeMode = settings.safeMode,
                         query = query,
                         scale = restoredScale,
                         period = restoredPeriod,
@@ -243,8 +236,8 @@ class PostScreenController(
         postViewModel.show(action!!)
         setSearchBarMenu(
             if (isPopularPage()) {
-                if (booru.type == BOORU_TYPE_SANKAKU) R.menu.popular_sankaku else R.menu.popular_dan
-            } else R.menu.post
+                if (booru.type == BOORU_TYPE_SANKAKU) AppMenu.PopularSankaku else AppMenu.PopularDan
+            } else AppMenu.Post
         )
     }
 
@@ -335,40 +328,41 @@ class PostScreenController(
             .show()
     }
 
-    override fun onMenuItemClick(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.action_expand_or_clear -> {
+    override fun onMenuAction(menuItem: AppActionKey) {
+        when (menuItem) {
+            AppActionKey.ExpandOrClear -> {
                 if (browse.state.value.mode == 0) toExpandState() else clearSearchBarText()
             }
-            R.id.action_date -> {
+            AppActionKey.Date -> {
                 pickDate()
             }
-            R.id.action_date_range -> {
+            AppActionKey.DateRange -> {
                 if (action?.booru?.type == BOORU_TYPE_SANKAKU) {
                     pickDateRange()
                 }
             }
-            R.id.action_day -> {
+            AppActionKey.Day -> {
                 action?.let {
                     it.scale = SCALE_DAY
                     it.period = PERIOD_DAY
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_week -> {
+            AppActionKey.Week -> {
                 action?.let {
                     it.scale = SCALE_WEEK
                     it.period = PERIOD_WEEK
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_month -> {
+            AppActionKey.Month -> {
                 action?.let {
                     it.scale = SCALE_MONTH
                     it.period = PERIOD_MONTH
                     updateActionAndRefresh(it)
                 }
             }
+            else -> Unit
         }
     }
 
@@ -465,8 +459,8 @@ class PostScreenController(
         super.onSharedPreferenceChanged(sharedPreferences, key)
         val current = action ?: return
         if (key == PAGE_LIMIT_KEY || key == SAFE_MODE_KEY) {
-            current.limit = pageLimit
-            current.isSafeMode = safeMode
+            current.limit = settings.pageLimit
+            current.isSafeMode = settings.safeMode
             postViewModel.show(current)
         }
     }

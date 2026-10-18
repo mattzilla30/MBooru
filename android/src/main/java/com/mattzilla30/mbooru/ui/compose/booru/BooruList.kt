@@ -1,5 +1,8 @@
 package com.mattzilla30.mbooru.ui.compose.booru
 
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +21,7 @@ import com.mattzilla30.mbooru.ui.compose.common.RowMenu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BooruList(boorus: List<Booru>, selected: Long, select: (Long) -> Unit,
-    delete: (Long) -> Unit, action: (Booru, Int) -> Unit) {
+    delete: (Long) -> Unit, action: (Booru, AppActionKey) -> Unit) {
     LazyColumn {
         items(boorus, key = { it.uid }) { booru ->
             val dismiss = rememberSwipeToDismissBoxState(confirmValueChange = {
@@ -33,7 +36,7 @@ fun BooruList(boorus: List<Booru>, selected: Long, select: (Long) -> Unit,
                             Text("${booru.scheme}://${booru.host}", style = MaterialTheme.typography.bodyMedium)
                             Text(stringResource(booruTypeLabel(booru.type)), style = MaterialTheme.typography.bodySmall)
                         }
-                        RowMenu(R.menu.booru_action_menu) { action(booru, it.itemId) }
+                        RowMenu(AppMenu.BooruActionMenu) { action(booru, it) }
                     }
                 }
             }

@@ -15,6 +15,8 @@
 
 package com.mattzilla30.mbooru.ui.activity
 
+import com.mattzilla30.mbooru.ui.compose.common.*
+
 import org.koin.core.component.inject
 
 import android.Manifest
@@ -25,7 +27,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
@@ -134,12 +135,12 @@ class ScannerActivity : BaseActivity(), ImageAnalysis.Analyzer , org.koin.core.c
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
+    override fun onAction(action: AppActionKey): Boolean {
+        if (action == AppActionKey.Back) {
             onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return super.onAction(action)
     }
 
     private suspend inline fun process(crossinline image: () -> InputImage): Boolean {

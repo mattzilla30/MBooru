@@ -1,9 +1,10 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
-import android.view.MenuItem
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+
 import androidx.activity.compose.BackHandler
 import androidx.appcompat.view.SupportMenuInflater
-import androidx.appcompat.widget.PopupMenu
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -23,7 +24,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import com.mattzilla30.mbooru.ui.compose.common.menuActions
+import com.mattzilla30.mbooru.ui.compose.common.actions
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,9 +41,10 @@ fun BrowseScreen(
     onMode: (Int) -> Unit,
     onSearch: (String) -> Unit,
     onNavigate: () -> Unit,
-    onMenu: (MenuItem) -> Unit,
+    onMenu: (AppActionKey) -> Unit,
     onAddToMuzei: (String) -> Unit,
     bottomPadding: Boolean,
+    autoHideBottomBar: Boolean = false,
     filters: @Composable () -> Unit = {},
     content: @Composable (Modifier) -> Unit,
 ) {
@@ -58,8 +60,8 @@ fun BrowseScreen(
     val keyboard = LocalSoftwareKeyboardController.current
     LaunchedEffect(state.mode) { if (state.mode == 1) { focus.requestFocus(); keyboard?.show() } }
     val context = LocalContext.current
-    val actions = remember(state.menu, context) { menuActions(context, state.menu) }
-    var submenu by remember { mutableStateOf<Int?>(null) }
+    val actions = remember(state.menu, context) { state.menu.actions() }
+    var submenu by remember { mutableStateOf<AppActionKey?>(null) }
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)).statusBarsPadding().imePadding()) {
             com.mattzilla30.mbooru.ui.compose.common.ConnectivityBanner()
@@ -86,28 +88,27 @@ fun BrowseScreen(
                     } else Text(state.title.ifEmpty { stringResource(R.string.app_name) },
                         modifier = Modifier.weight(1f).testTag("browse-query-toggle").clickable { onMode(1) }.padding(vertical = 16.dp),
                         style = MaterialTheme.typography.bodyLarge)
-                    if (state.query.isNotEmpty() && state.mode != 0 && actions.none { it.item.itemId == R.id.action_expand_or_clear }) IconButton(onClick = { onQuery("") }) {
+                    if (state.query.isNotEmpty() && state.mode != 0 && actions.none { it.key == AppActionKey.ExpandOrClear }) IconButton(onClick = { onQuery("") }) {
                         Icon(painterResource(R.drawable.ic_close_24dp), stringResource(androidx.appcompat.R.string.abc_searchview_description_clear))
                     }
-                    actions.filter { it.direct && it.item.isVisible }.forEach { action ->
+                    actions.filter { it.direct && it.visible }.forEach { action ->
                         Box {
                             IconButton(onClick = {
-                                if (action.item.hasSubMenu()) submenu = action.item.itemId else onMenu(action.item)
-                            }) {
-                                Icon(painterResource(action.icon), action.item.title.toString(),
-                                    modifier = if (action.item.itemId == R.id.action_expand_or_clear && state.mode != 0) Modifier.rotate(135f) else Modifier)
+                                if (action.children.isNotEmpty()) submenu = action.key else onMenu(action.key)
+                            }, enabled = action.enabled) {
+                                Icon(painterResource(action.icon), stringResource(action.title),
+                                    modifier = if (action.key == AppActionKey.ExpandOrClear && state.mode != 0) Modifier.rotate(135f) else Modifier)
                             }
-                            val sub = action.item.subMenu
-                            DropdownMenu(expanded = submenu == action.item.itemId, onDismissRequest = { submenu = null }) {
-                                if (sub != null) repeat(sub.size()) { index ->
-                                    val item = sub.getItem(index)
-                                    DropdownMenuItem(text = { Text(item.title.toString()) }, onClick = { submenu = null; onMenu(item) })
+                            DropdownMenu(expanded = submenu == action.key, onDismissRequest = { submenu = null }) {
+                                action.children.filter { it.visible }.forEach { item ->
+                                    DropdownMenuItem(text = { Text(stringResource(item.title)) }, enabled = item.enabled,
+                                        onClick = { submenu = null; onMenu(item.key) })
                                 }
                             }
                         }
                     }
-                    val overflowItems = actions.filter { !it.direct && it.item.isVisible }.flatMap { action ->
-                        action.item.subMenu?.let { sub -> (0 until sub.size()).map { sub.getItem(it) } } ?: listOf(action.item)
+                    val overflowItems = actions.filter { !it.direct && it.visible }.flatMap { action ->
+                        action.children.takeIf { it.isNotEmpty() } ?: listOf(action)
                     }
                     if (overflowItems.isNotEmpty()) Box {
                         IconButton(onClick = { overflow = true }) {
@@ -115,7 +116,7 @@ fun BrowseScreen(
                         }
                         DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
                             overflowItems.forEach { item ->
-                                DropdownMenuItem(text = { Text(item.title.toString()) }, onClick = { overflow = false; onMenu(item) })
+                                DropdownMenuItem(text = { Text(stringResource(item.title)) }, onClick = { overflow = false; onMenu(item.key) })
                             }
                         }
                     }
@@ -132,7 +133,7 @@ fun BrowseScreen(
             if (state.mode == 2) Box(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()
                 .padding(bottom = if (bottomPadding && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600) 80.dp else 0.dp)) { filters() }
             else content(Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()
-                .padding(bottom = if (bottomPadding && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600 && !com.mattzilla30.mbooru.app.Settings.autoHideBottomBar) 80.dp else 0.dp))
+                .padding(bottom = if (bottomPadding && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600 && !autoHideBottomBar) 80.dp else 0.dp))
         }
     }
 }

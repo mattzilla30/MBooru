@@ -40,37 +40,6 @@ class OkHttp3Downloader : Downloader {
     private var sharedClient = true
 
     /**
-     * Create new downloader that uses OkHttp. This will install an image cache into your application
-     * cache directory.
-     */
-    constructor(context: Context) : this(createDefaultCacheDir(context))
-
-    constructor(context: Context, useDiskCache: Boolean) : this(createOkHttpClient(
-        createDefaultCacheDir(context), if (useDiskCache) calculateDiskCacheSize(createDefaultCacheDir(context)) else 0L))
-
-    /**
-     * Create new downloader that uses OkHttp. This will install an image cache into your application
-     * cache directory.
-     *
-     * @param maxSize The size limit for the cache.
-     */
-    constructor(context: Context, maxSize: Long) : this(createDefaultCacheDir(context), maxSize)
-
-    /**
-     * Create new downloader that uses OkHttp. This will install an image cache into the specified
-     * directory.
-     *
-     * @param cacheDir The directory in which the cache should be stored
-     * @param maxSize The size limit for the cache.
-     */
-    @JvmOverloads
-    constructor(
-        cacheDir: File,
-        maxSize: Long = calculateDiskCacheSize(cacheDir)) : this(createOkHttpClient(cacheDir, maxSize)) {
-        sharedClient = false
-    }
-
-    /**
      * Create a new downloader that uses the specified OkHttp instance. A response cache will not be
      * automatically configured.
      */
@@ -144,18 +113,6 @@ class OkHttp3Downloader : Downloader {
             }
             // Bound inside min/max size for disk cache.
             return max(min(size, MAX_DISK_CACHE_SIZE.toLong()), MIN_DISK_CACHE_SIZE.toLong())
-        }
-        private fun createOkHttpClient(cacheDir: File, maxSize: Long): OkHttpClient {
-            val builder = OkHttpClient.Builder()
-                .cache(if (maxSize > 0) Cache(cacheDir, maxSize) else null)
-                .cookieJar(AndroidCookieJar)
-                .addNetworkInterceptor(RequestHeaderInterceptor())
-                .addInterceptor(ProgressInterceptor())
-            if (Settings.isBypassWAF) builder.addInterceptor(CloudflareInterceptor(App.app))
-            if (Settings.isDohEnable) {
-                builder.dns(Settings.doh)
-            }
-            return builder.build()
         }
     }
 }

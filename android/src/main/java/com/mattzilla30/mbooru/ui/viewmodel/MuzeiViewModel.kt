@@ -22,7 +22,7 @@ import kotlinx.coroutines.*
 import com.mattzilla30.mbooru.data.database.dao.MuzeiDao
 import com.mattzilla30.mbooru.data.model.common.Muzei
 
-class MuzeiViewModel(private val muzeiDao: MuzeiDao) : androidx.lifecycle.ViewModel() {
+class MuzeiViewModel(private val muzeiDao: MuzeiDao, private val settings: com.mattzilla30.mbooru.app.SettingsRepository) : androidx.lifecycle.ViewModel() {
 
     private val siteUid = MutableStateFlow(-1L)
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -37,7 +37,7 @@ class MuzeiViewModel(private val muzeiDao: MuzeiDao) : androidx.lifecycle.ViewMo
     val searching = search.asStateFlow()
     fun query(value: String) { text.value = value }
     fun searching(value: Boolean) { search.value = value }
-    fun select(uid: Long) { selected.value = uid; Settings.activeMuzeiUid = uid }
+    fun select(uid: Long) { selected.value = uid; settings.activeMuzeiUid = uid }
 
     fun loadMuzei(booruUid: Long) { siteUid.value = booruUid }
 

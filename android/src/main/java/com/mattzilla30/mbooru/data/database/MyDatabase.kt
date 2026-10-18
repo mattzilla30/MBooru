@@ -48,8 +48,8 @@ import com.mattzilla30.mbooru.data.database.dao.*
 abstract class MyDatabase : RoomDatabase() {
 
     companion object {
-        fun create(context: Context, credentials: CredentialRepository): MyDatabase =
-            Room.databaseBuilder(context, MyDatabase::class.java, DB_FILE_NAME)
+        fun create(context: Context, credentials: CredentialRepository, databaseName: String = DB_FILE_NAME): MyDatabase =
+            Room.databaseBuilder(context, MyDatabase::class.java, databaseName)
                 .addTypeConverter(MyConverters(credentials))
                 .addCallback(object : Callback() {
                     override fun onOpen(db: SupportSQLiteDatabase) {
