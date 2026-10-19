@@ -1,0 +1,22 @@
+{
+  "format": "MBooru-release-provenance",
+  "version": 1,
+  "source": "https://github.com/mattzilla30/MBooru/commit/8c802bbbc849890e1423494e5268937a9073e3a6",
+  "artifact": "MBooru-7.apk",
+  "size": 15970909,
+  "sha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+  "gradleWrapper": "distributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\ndistributionSha256Sum=bbaeb2fef8710818cf0e261201dab964c572f92b942812df0c3620d62a529a01\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-9.6.0-bin.zip\nnetworkTimeout=10000\nretries=0\nretryBackOffMs=500\nvalidateDistributionUrl=true\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists\n",
+  "dependencies": {
+    "android/gradle.lockfile": "bc6b2a6bb9326d5999753e73a2b2cf4301f1de7154b4258fe8738c3dfc7bf42d",
+    "baselineprofile/gradle.lockfile": "dba5a1f95c483ccb86275c3fc1e5ab61e475e116ba339b9fe8572dfab21015b3",
+    "core/model/gradle.lockfile": "a924bbbb789196341752ec5685ff627db9a2905438edfba5399516bad1789e38",
+    "gradle.lockfile": "14def6acab660d49113472bb6903fb57ced23b3dba33bae5c333d9446430d8c5",
+    "settings-gradle.lockfile": "5e2d075903b5cd264613e7538c7c51b1484fe2ed489d4ead3e6b4ba0cf3911c4"
+  },
+  "verificationSha256": "2441f8b041b2893a01e6b91d4b395b2ff631543f0056ac391bca547107d2ab6d",
+  "signingCertificateSha256": "45eda769386657dd23164a70e25c2f92ae00660f884f3cb3dedc225385d79af7",
+  "baselineProfiles": {
+    "android/src/release/generated/baselineProfiles/baseline-prof.txt": "9c3ad00cc5e4e06ba30e281e168d85a2e58a5243ab76d767f003e11a4b78258e",
+    "android/src/release/generated/baselineProfiles/startup-prof.txt": "9c3ad00cc5e4e06ba30e281e168d85a2e58a5243ab76d767f003e11a4b78258e"
+  }
+}

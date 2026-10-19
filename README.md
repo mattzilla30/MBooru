@@ -48,4 +48,4 @@ UI design credit: [Boorusphere](https://github.com/azrim/boorusphere), copyright
 
 ## M34 integration
 
-The integrated Rule34 connection, five-tab navigation, local likes, named collections and versioned library transfer are documented in [the M34 integration guide](docs/integration/m34.md). Android API 21 compatibility and the existing MBooru package/signing identity are preserved.
+The integrated Rule34 connection, five-tab navigation, local likes, named collections and versioned library transfer are documented in [the M34 integration guide](docs/integration/m34.md). Android API 21 compatibility and the existing MBooru package/signing identity are preserved. See [release 7 notes](docs/releases/7.md) and [the validation report](docs/validation/m34-integration.md) for signed upgrades, executed tests and remaining device/service checks.

@@ -6,7 +6,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.443Z"
+      "timestamp": "2026-10-19T06:15:54.130Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.RequestHeaderTest",
@@ -14,7 +14,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.357Z"
+      "timestamp": "2026-10-19T06:15:54.056Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.api.rule34.Rule34TransportTest",
@@ -22,7 +22,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:07.840Z"
+      "timestamp": "2026-10-19T06:15:44.614Z"
     },
     {
       "name": "com.mattzilla30.mbooru.worker.DownloadCopyTest",
@@ -30,7 +30,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:36.688Z"
+      "timestamp": "2026-10-19T06:16:08.181Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.settings.SettingsScreenTest",
@@ -38,7 +38,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:31.508Z"
+      "timestamp": "2026-10-19T06:16:04.466Z"
     },
     {
       "name": "com.mattzilla30.mbooru.extension.WindowInsetsTest",
@@ -46,7 +46,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:12.849Z"
+      "timestamp": "2026-10-19T06:15:51.864Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.common.FragmentHostTest",
@@ -54,7 +54,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.646Z"
+      "timestamp": "2026-10-19T06:15:54.240Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.common.MainHostTest",
@@ -62,7 +62,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:21.177Z"
+      "timestamp": "2026-10-19T06:15:56.625Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.detail.RelatedPostsTest",
@@ -70,7 +70,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:31.484Z"
+      "timestamp": "2026-10-19T06:16:04.461Z"
     },
     {
       "name": "com.mattzilla30.mbooru.worker.DownloadStorageTest",
@@ -78,7 +78,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:36.941Z"
+      "timestamp": "2026-10-19T06:16:08.367Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ShimmieApiTest",
@@ -86,15 +86,15 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:38:53.667Z"
+      "timestamp": "2026-10-19T06:15:28.444Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.api.rule34.Rule34PagingTest",
-      "tests": "2",
+      "tests": "3",
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:03.042Z"
+      "timestamp": "2026-10-19T06:15:41.044Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.browse.PostLayoutTest",
@@ -102,7 +102,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.474Z"
+      "timestamp": "2026-10-19T06:15:54.166Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.booru.BooruValidationTest",
@@ -110,7 +110,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.440Z"
+      "timestamp": "2026-10-19T06:15:54.125Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.utils.MediaUrlTest",
@@ -118,7 +118,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:10.925Z"
+      "timestamp": "2026-10-19T06:15:50.525Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.MediaImageLoadingTest",
@@ -126,7 +126,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:15.742Z"
+      "timestamp": "2026-10-19T06:15:53.691Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.WafBoundaryTest",
@@ -134,7 +134,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.389Z"
+      "timestamp": "2026-10-19T06:15:54.079Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.database.DatabaseMigrationTest",
@@ -142,7 +142,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:09.466Z"
+      "timestamp": "2026-10-19T06:15:46.562Z"
     },
     {
       "name": "com.mattzilla30.mbooru.extension.SignExtTest",
@@ -150,7 +150,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:10.929Z"
+      "timestamp": "2026-10-19T06:15:50.541Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.common.LoadingStateTest",
@@ -158,7 +158,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:20.910Z"
+      "timestamp": "2026-10-19T06:15:56.513Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.database.BooruPresetsTest",
@@ -166,7 +166,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:08.219Z"
+      "timestamp": "2026-10-19T06:15:45.275Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.database.LibraryTest",
@@ -174,7 +174,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:10.421Z"
+      "timestamp": "2026-10-19T06:15:48.915Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.common.SearchResultsTest",
@@ -182,7 +182,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:30.359Z"
+      "timestamp": "2026-10-19T06:16:03.890Z"
     },
     {
       "name": "com.mattzilla30.mbooru.worker.DownloadQueueTest",
@@ -190,7 +190,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:36.730Z"
+      "timestamp": "2026-10-19T06:16:08.189Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.ApiResponseLimitsTest",
@@ -198,7 +198,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:15.457Z"
+      "timestamp": "2026-10-19T06:15:53.535Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.settings.DataStorePreferencesTest",
@@ -206,7 +206,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:10.766Z"
+      "timestamp": "2026-10-19T06:15:50.143Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.backup.SiteBackupsTest",
@@ -214,7 +214,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:08.015Z"
+      "timestamp": "2026-10-19T06:15:44.867Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.DownloadProgressTest",
@@ -222,7 +222,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:15.735Z"
+      "timestamp": "2026-10-19T06:15:53.688Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.settings.SettingsViewModelTest",
@@ -230,7 +230,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:32.066Z"
+      "timestamp": "2026-10-19T06:16:04.967Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.DnsSettingsTest",
@@ -238,7 +238,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:15.637Z"
+      "timestamp": "2026-10-19T06:15:53.641Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.api.rule34.Rule34AdapterTest",
@@ -246,7 +246,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:02.918Z"
+      "timestamp": "2026-10-19T06:15:40.919Z"
     },
     {
       "name": "com.mattzilla30.mbooru.TextExtUnitTest",
@@ -254,7 +254,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:38:59.341Z"
+      "timestamp": "2026-10-19T06:15:37.469Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.api.EngineProtocolTest",
@@ -262,7 +262,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:38:59.351Z"
+      "timestamp": "2026-10-19T06:15:37.482Z"
     },
     {
       "name": "com.mattzilla30.mbooru.ui.compose.theme.ThemeBridgeTest",
@@ -270,7 +270,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:32.345Z"
+      "timestamp": "2026-10-19T06:16:05.111Z"
     },
     {
       "name": "com.mattzilla30.mbooru.DispatchersIOUnitTest",
@@ -278,7 +278,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:38:53.355Z"
+      "timestamp": "2026-10-19T06:15:28.176Z"
     },
     {
       "name": "com.mattzilla30.mbooru.data.database.BooruCredentialsTest",
@@ -286,7 +286,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:08.080Z"
+      "timestamp": "2026-10-19T06:15:44.968Z"
     },
     {
       "name": "com.mattzilla30.mbooru.okhttp.MediaTransportTest",
@@ -294,7 +294,7 @@
       "failures": "0",
       "errors": "0",
       "skipped": "0",
-      "timestamp": "2026-10-19T05:39:16.293Z"
+      "timestamp": "2026-10-19T06:15:54.024Z"
     }
   ],
   "core/model": [

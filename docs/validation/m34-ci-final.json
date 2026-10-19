@@ -1,0 +1,31 @@
+{
+  "run": "https://github.com/mattzilla30/MBooru/actions/runs/39210506193",
+  "source": "561c24f6f3f6e9c44e7be74964a1c164f07577c6",
+  "conclusion": "success",
+  "verify": "success",
+  "devices": [
+    {
+      "api": 21,
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "api": 28,
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "api": 36,
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "liveMediaChecks": "Explicitly opt-in; not executed",
+  "benchmarkExecution": "Compilation and manifest checks only; hardware performance not measured"
+}
