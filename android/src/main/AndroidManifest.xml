@@ -50,6 +50,7 @@
         android:localeConfig="@xml/locales_config"
         android:enableOnBackInvokedCallback="true"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+        <activity android:name=".ui.activity.LicensesActivity" android:exported="false" />
         <activity android:name=".ui.activity.DesignLicenseActivity" android:exported="false" />
         <activity android:name=".ui.activity.FavoritesActivity" android:exported="false" />
         <activity android:name=".ui.activity.DownloadsActivity" android:exported="false" />

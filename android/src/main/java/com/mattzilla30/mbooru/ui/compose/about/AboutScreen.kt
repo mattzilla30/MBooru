@@ -24,10 +24,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mattzilla30.mbooru.BuildConfig
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.extension.copyText
@@ -39,7 +39,7 @@ fun AboutScreen() {
     val context = LocalContext.current
     fun getString(id: Int) = context.getString(id)
     Surface(color = MaterialTheme.colorScheme.background) {
-        LazyColumn {
+        LazyColumn(Modifier.testTag("about-list")) {
             item {
                 Column(
                     Modifier.fillMaxWidth().padding(top = 32.dp, bottom = 24.dp),
@@ -142,12 +142,12 @@ fun AboutScreen() {
                     R.string.about_licenses,
                     stringResource(R.string.about_open_source_licenses),
                 ) {
-                    context.let {
-                        OssLicensesMenuActivity.setActivityTitle(
-                            getString(R.string.about_open_source_licenses)
+                    context.startActivity(
+                        Intent(
+                            context,
+                            com.mattzilla30.mbooru.ui.activity.LicensesActivity::class.java,
                         )
-                        context.startActivity(Intent(it, OssLicensesMenuActivity::class.java))
-                    }
+                    )
                 }
             }
         }
