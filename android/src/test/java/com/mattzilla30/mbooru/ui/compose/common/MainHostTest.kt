@@ -133,6 +133,7 @@ class MainHostTest {
         compose.onNodeWithTag("post_grid").performScrollToIndex(50)
         val target = compose.activity.getString(R.string.post_accessibility, 2518)
         compose.onNodeWithContentDescription(target).assertIsDisplayed()
+        compose.runOnIdle { compose.activity.settings.autoRefresh = true }
         // End-of-cache append requests remain valid; returning to cached data must not refresh page
         // 1.
         val requests =

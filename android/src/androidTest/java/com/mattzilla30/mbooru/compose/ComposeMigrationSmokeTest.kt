@@ -58,6 +58,30 @@ class ComposeMigrationSmokeTest {
         }
 
     @Test
+    fun imageErrorPlaceholderDrawsAtSmallFaviconSize() {
+        val context =
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+        val drawable =
+            requireNotNull(
+                androidx.appcompat.content.res.AppCompatResources.getDrawable(
+                    context,
+                    com.mattzilla30.mbooru.R.drawable.ic_placeholder_error,
+                )
+            )
+        val bitmap =
+            android.graphics.Bitmap.createBitmap(21, 21, android.graphics.Bitmap.Config.ARGB_8888)
+        drawable.setBounds(0, 0, 21, 21)
+        drawable.draw(android.graphics.Canvas(bitmap))
+        val pixels = IntArray(21 * 21)
+        bitmap.getPixels(pixels, 0, 21, 0, 0, 21, 21)
+        org.junit.Assert.assertTrue(
+            "The fallback icon must render at favicon size",
+            pixels.any { android.graphics.Color.alpha(it) > 0 },
+        )
+        bitmap.recycle()
+    }
+
+    @Test
     fun safeOnlyChangeRemovesExplicitAndUnknownCardsBeforeImageRendering() {
         val safe = mutableStateOf(false)
         val data =

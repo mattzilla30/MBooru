@@ -77,10 +77,12 @@ def snapshot(destination):
     adb("pull", f"/data/user/0/{PACKAGE}/databases/.", destination / "databases")
     adb("pull", f"/data/user/0/{PACKAGE}/shared_prefs/.", destination / "shared_prefs", check=False)
 
-def launch():
-    if int(adb("shell", "getprop", "ro.build.version.sdk").strip()) >= 33:
+def launch(wait=True, require_alive=True):
+    api = int(adb("shell", "getprop", "ro.build.version.sdk").strip())
+    if api >= 33:
         adb("shell", "pm", "grant", PACKAGE, "android.permission.POST_NOTIFICATIONS")
-    result = adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", "-n", PACKAGE + "/.ui.activity.MainActivity")
+    wait_args = ["-W"] if wait else []
+    result = adb("shell", "am", "start", *wait_args, "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", "-n", PACKAGE + "/.ui.activity.MainActivity")
     print("Activity launch result:", result, flush=True)
     assert "Error" not in result, "Fixture activity did not launch: " + result
 
@@ -90,6 +92,9 @@ def launch():
         exists = adb("shell", "ls", f"/data/user/0/{PACKAGE}/databases/mbooru.db", check=False)
         if "no such" not in exists.lower():
             time.sleep(5)
+            if require_alive:
+                processes = adb("shell", "ps", *(["-A"] if api >= 26 else []))
+                assert any(row.split() and row.split()[-1] == PACKAGE for row in processes.splitlines()), "Application process did not survive startup"
             return
         time.sleep(.25)
     raise AssertionError("Application database did not initialize")
@@ -101,13 +106,17 @@ adb("root"); adb("wait-for-device")
 assert re.search(r"uid=0(?:\(|\s|$)", adb("shell", "id")), "A rooted google_apis emulator is required"
 # Upgrade/data retention does not require live sites; all account strings are artificial.
 adb("shell", "svc", "wifi", "disable", check=False)
-adb("shell", "svc", "data", "disable", check=False)
+if "android.hardware.telephony" in adb("shell", "pm", "list", "features"):
+    adb("shell", "svc", "data", "disable", check=False)
 def certificate(apk):
     output = subprocess.check_output([str(args.build_tools / "apksigner"), "verify", "--print-certs", str(apk)], text=True)
     return re.search(r"Signer #1 certificate SHA-256 digest: (\w+)", output).group(1)
 assert certificate(args.previous) == certificate(args.candidate), "Signing certificate changed"
 adb("install", args.previous)
-launch()
+# The immutable version-6 baseline crashes while drawing its icon on API 21.
+# Initialize its real schema without waiting for that first frame; candidate launches remain strict.
+baseline_draw_issue = baseline_sha != BASELINE_SHA256 and int(adb("shell", "getprop", "ro.build.version.sdk").strip()) == 21
+launch(wait=not baseline_draw_issue, require_alive=not baseline_draw_issue)
 with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     root = Path(directory)
     snapshot(root / "before")
@@ -204,7 +213,7 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     launch()
     report = {"checkedAt": datetime.now(timezone.utc).isoformat(), "baselineSha256": baseline_sha,
               "candidateSha256": hashlib.sha256(args.candidate.read_bytes()).hexdigest(), "signerUnchanged": True,
-              "installedWithReplace": True, "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs", "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersRetained": True, "retiredMuzeiTableRemoved": True, "localFavoritesCreated": True,
+              "installedWithReplace": True, "baselineFirstFrameIssue": baseline_draw_issue, "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs", "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersRetained": True, "retiredMuzeiTableRemoved": True, "localFavoritesCreated": True,
               "roomCredentialsMigratedToReferences": True, "settingsMigratedAndRestarted": True,
               "sauceKeyAbsentFromDataStorePlaintext": True, "api": adb("shell", "getprop", "ro.build.version.sdk").strip()}
     args.out.parent.mkdir(parents=True, exist_ok=True); args.out.write_text(json.dumps(report, indent=2) + "\n")

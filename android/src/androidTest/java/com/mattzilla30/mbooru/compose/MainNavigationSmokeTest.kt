@@ -94,68 +94,104 @@ class MainNavigationSmokeTest {
     fun cachedBrowseRestoresFarPositionAcrossTabsAndActivityRecreation() {
         awaitDrawer()
         compose.waitUntil(10000) { compose.activity.settings.activatedBooruUid > 0 }
-        val site = compose.activity.settings.activatedBooruUid
-        val file = java.io.File(compose.activity.cacheDir, "native-library-fixture.png")
-        val bitmap =
-            android.graphics.Bitmap.createBitmap(16, 16, android.graphics.Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(android.graphics.Color.rgb(245, 235, 212))
-        file.outputStream().use {
-            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
-        }
-        bitmap.recycle()
-        val image = android.net.Uri.fromFile(file).toString()
-        kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
-            val database =
-                org.koin.core.context.GlobalContext.get()
-                    .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
-            database
-                .postDao()
-                .insert(
-                    (0 until 80).map { offset ->
-                        com.mattzilla30.mbooru.data.model.common.Post(
-                            booruUid = site,
-                            id = 200000 + offset,
-                            index = offset,
-                            query = "",
-                            width = 100,
-                            height = 100,
-                            size = 1,
-                            score = 0,
-                            rating = "g",
-                            time = null,
-                            tags = emptyList(),
-                            preview = image,
-                            sample = image,
-                            medium = image,
-                            origin = image,
-                            source = null,
-                            uploader =
-                                com.mattzilla30.mbooru.data.model.common.User(
-                                    name = "Native fixture"
-                                ),
+        val database =
+            org.koin.core.context.GlobalContext.get()
+                .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
+        val originalSite = compose.activity.settings.activatedBooruUid
+        val originalAutoRefresh = compose.activity.settings.autoRefresh
+        val site =
+            kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                database
+                    .booruDao()
+                    .insert(
+                        com.mattzilla30.mbooru.data.model.common.Booru(
+                            name = "Native cached grid fixture",
+                            scheme = "https",
+                            host = "native-cache.invalid",
+                            type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE,
                         )
-                    }
+                    )
+            }
+        try {
+            val file = java.io.File(compose.activity.cacheDir, "native-library-fixture.png")
+            val bitmap =
+                android.graphics.Bitmap.createBitmap(
+                    16,
+                    16,
+                    android.graphics.Bitmap.Config.ARGB_8888,
                 )
+            bitmap.eraseColor(android.graphics.Color.rgb(245, 235, 212))
+            file.outputStream().use {
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+            }
+            bitmap.recycle()
+            val image = android.net.Uri.fromFile(file).toString()
+            kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                val database =
+                    org.koin.core.context.GlobalContext.get()
+                        .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
+                database
+                    .postDao()
+                    .insert(
+                        (0 until 80).map { offset ->
+                            com.mattzilla30.mbooru.data.model.common.Post(
+                                booruUid = site,
+                                id = 200000 + offset,
+                                index = offset,
+                                query = "",
+                                width = 100,
+                                height = 100,
+                                size = 1,
+                                score = 0,
+                                rating = "g",
+                                time = null,
+                                tags = emptyList(),
+                                preview = image,
+                                sample = image,
+                                medium = image,
+                                origin = image,
+                                source = null,
+                                uploader =
+                                    com.mattzilla30.mbooru.data.model.common.User(
+                                        name = "Native fixture"
+                                    ),
+                            )
+                        }
+                    )
+            }
+            compose.runOnIdle {
+                compose.activity.settings.autoRefresh = false
+                compose.activity.settings.activatedBooruUid = site
+            }
+            val first = compose.activity.getString(R.string.post_accessibility, 200000)
+            compose.waitUntil(10000) {
+                compose.onAllNodesWithContentDescription(first).fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithTag("post_grid").performScrollToIndex(50)
+            val target = compose.activity.getString(R.string.post_accessibility, 200050)
+            compose.waitUntil(10000) {
+                compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithContentDescription(target).assertIsDisplayed()
+            compose.onNodeWithTag("home-tab-2").performClick()
+            compose.onNodeWithTag("home-tab-0").performClick()
+            compose.waitUntil(10000) {
+                compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.activityRule.scenario.recreate()
+            compose.waitUntil(10000) {
+                compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithContentDescription(target).assertIsDisplayed()
+        } finally {
+            compose.runOnIdle {
+                compose.activity.settings.autoRefresh = originalAutoRefresh
+                compose.activity.settings.activatedBooruUid = originalSite
+            }
+            kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                database.booruDao().delete(site)
+            }
         }
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("post_grid").fetchSemanticsNodes().isNotEmpty()
-        }
-        compose.onNodeWithTag("post_grid").performScrollToIndex(50)
-        val target = compose.activity.getString(R.string.post_accessibility, 200050)
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
-        }
-        compose.onNodeWithContentDescription(target).assertIsDisplayed()
-        compose.onNodeWithTag("home-tab-2").performClick()
-        compose.onNodeWithTag("home-tab-0").performClick()
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
-        }
-        compose.activityRule.scenario.recreate()
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
-        }
-        compose.onNodeWithContentDescription(target).assertIsDisplayed()
     }
 
     private fun screenshot(name: String) {

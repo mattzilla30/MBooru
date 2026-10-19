@@ -63,6 +63,7 @@ class UnifiedSearchViewModel(
     private val currentSite = MutableStateFlow(site)
     private val refreshRevision = MutableStateFlow(0L)
     private var consumedRefresh = 0L
+    private var previousSession: Pair<ArtworkQuery, Booru>? = null
     private val committed =
         MutableStateFlow(
             ArtworkQuery(
@@ -97,6 +98,9 @@ class UnifiedSearchViewModel(
                 else {
                     val force = revision != consumedRefresh
                     consumedRefresh = revision
+                    val session = state to source
+                    val allowAutoRefresh = session != previousSession
+                    previousSession = session
                     var tags = state.normalizedTags
                     if (source.type == Values.BOORU_TYPE_RULE34) tags = state.serverTags()
                     val now = Calendar.getInstance()
@@ -109,7 +113,14 @@ class UnifiedSearchViewModel(
                             now.get(Calendar.MONTH) + 1,
                             now.get(Calendar.DAY_OF_MONTH),
                         )
-                    PostRepositoryImpl(database, apis, settings, force, saved["grid_index"] ?: 0)
+                    PostRepositoryImpl(
+                            database,
+                            apis,
+                            settings,
+                            force,
+                            saved["grid_index"] ?: 0,
+                            allowAutoRefresh = allowAutoRefresh,
+                        )
                         .getPosts(
                             ActionPost(
                                 source,

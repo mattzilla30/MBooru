@@ -29,6 +29,7 @@ class PostRemoteMediator(
     private val booruApis: BooruApis,
     private val settings: com.mattzilla30.mbooru.app.SettingsRepository,
     private val forceRefresh: Boolean = false,
+    private val allowAutoRefresh: Boolean = true,
 ) : RemoteMediator<Int, Post>() {
 
     private val isFavored = action.isFavoredQuery()
@@ -51,7 +52,7 @@ class PostRemoteMediator(
     override suspend fun initialize(): InitializeAction {
         return if (
             forceRefresh ||
-                settings.autoRefresh ||
+                (allowAutoRefresh && settings.autoRefresh) ||
                 postDao.getFirstPostRaw(action.booru.uid, action.query) == null
         )
             InitializeAction.LAUNCH_INITIAL_REFRESH
