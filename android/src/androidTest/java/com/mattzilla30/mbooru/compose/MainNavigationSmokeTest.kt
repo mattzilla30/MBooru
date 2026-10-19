@@ -204,12 +204,12 @@ class MainNavigationSmokeTest {
                 .getString("additionalTestOutputDir") ?: return
         val output =
             java.io.File(directory, "screenshots/$name.png").apply { parentFile!!.mkdirs() }
+        val bitmap =
+            if (android.os.Build.VERSION.SDK_INT >= 26)
+                compose.onRoot().captureToImage().asAndroidBitmap()
+            else requireNotNull(instrumentation.uiAutomation.takeScreenshot())
         output.outputStream().use {
-            compose
-                .onRoot()
-                .captureToImage()
-                .asAndroidBitmap()
-                .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
         }
     }
 
