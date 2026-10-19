@@ -30,7 +30,12 @@ jobs:
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - run: python3 scripts/check_release.py
       - name: Build, unit tests and lint
-        run: bash ./gradlew --no-daemon --max-workers=2 spotlessCheck detekt :core:model:test :android:assembleDebug :android:testDebugUnitTest :android:lintDebug :android:assembleRelease :android:assembleDebugAndroidTest :baselineprofile:assembleNonMinifiedRelease :android:assembleNonMinifiedRelease :android:verifyOfflineProfileManifest cyclonedxBom
+        # Lint reads generated sources; keep other variants' KSP generation in later invocations.
+        run: |
+          bash ./gradlew --no-daemon --max-workers=2 spotlessCheck detekt :core:model:test :android:assembleDebug :android:testDebugUnitTest :android:lintDebug :android:assembleDebugAndroidTest
+          bash ./gradlew --no-daemon --max-workers=2 :android:assembleRelease
+          bash ./gradlew --no-daemon --max-workers=2 :baselineprofile:assembleNonMinifiedRelease :android:assembleNonMinifiedRelease
+          bash ./gradlew --no-daemon --max-workers=2 :android:verifyOfflineProfileManifest cyclonedxBom
       - run: python3 scripts/check_licenses.py android/build/reports/cyclonedx-direct/bom.json --out build/reports/licenses.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
