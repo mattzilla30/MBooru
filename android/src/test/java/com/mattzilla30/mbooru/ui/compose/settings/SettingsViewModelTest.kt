@@ -69,7 +69,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `all legacy controls retain their keys defaults labels and choice arrays`() {
+    fun `remaining legacy controls retain keys defaults labels and choice arrays`() {
         store = SettingsStore(preferences)
         val context = ApplicationProvider.getApplicationContext<Context>()
         val stream = checkNotNull(javaClass.getResourceAsStream("/legacy_settings.xml"))
@@ -83,7 +83,8 @@ class SettingsViewModelTest {
             for (j in 0 until children.length) {
                 val element = children.item(j) as? Element ?: continue
                 val key = element.getAttribute("app:key")
-                if (key.startsWith("settings_muzei")) continue
+                if (key.startsWith("settings_muzei") || key == "settings_auto_hide_bottom_bar")
+                    continue
                 keys += key
                 val spec = checkNotNull(settingsByKey[key])
                 assertEquals(
@@ -120,6 +121,7 @@ class SettingsViewModelTest {
                 }
             }
         }
+        assertFalse(settingsByKey.containsKey("settings_auto_hide_bottom_bar"))
         assertEquals(keys, settingsByKey.keys)
     }
 
