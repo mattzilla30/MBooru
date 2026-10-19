@@ -76,7 +76,7 @@ fun SavedLibraryScreen(
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            FilterChip(filter.mode == -1L, { model.mode(-1) }, label = { Text("All saved") })
+            FilterChip(filter.mode == -1L, { model.mode(-1) }, label = { Text("All favorites") })
             FilterChip(
                 filter.mode == LOCAL_LIKES,
                 { model.mode(LOCAL_LIKES) },
@@ -152,12 +152,12 @@ fun SavedLibraryScreen(
             )
         if (state.posts.isEmpty()) {
             Text(
-                "No saved artwork in this view.",
+                "No favorites in this view.",
                 Modifier.padding(24.dp),
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
-                "Save or like a post, add it to a collection, or import an exported library. " +
+                "Favorite or like a post, add it to a collection, or import an exported library. " +
                     "Media may require a network connection after cache clearing.",
                 Modifier.padding(horizontal = 24.dp),
             )

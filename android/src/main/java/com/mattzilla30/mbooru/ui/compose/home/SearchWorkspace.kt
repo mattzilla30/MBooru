@@ -82,7 +82,7 @@ fun SearchWorkspace(
             Column(Modifier.heightIn(max = controlsMaximum).verticalScroll(rememberScrollState())) {
                 if (site.type == Values.BOORU_TYPE_RULE34 && site.user == null) {
                     Text(
-                        "Connect Rule34 with your user ID and API key to browse. Saved artwork stays " +
+                        "Connect Rule34 with your user ID and API key to browse. Favorites stay " +
                             "available without an account connection.",
                         Modifier.padding(16.dp),
                     )

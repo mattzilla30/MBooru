@@ -182,11 +182,8 @@ abstract class BrowseController(
                 onApplySearch(it)
                 browse.mode(0)
             },
-            onServers = { (host as? MainActivity)?.chooseServer() ?: host.finish() },
-            onNavigate = { (host as? MainActivity)?.openDrawer() ?: host.finish() },
+            onNavigate = { host.onBackPressedDispatcher.onBackPressed() },
             onMenu = ::onMenuAction,
-            bottomPadding = host is MainActivity,
-            autoHideBottomBar = settings.autoHideBottomBar,
             filters = { Filters() },
             content = { BrowseContent(it) },
         )

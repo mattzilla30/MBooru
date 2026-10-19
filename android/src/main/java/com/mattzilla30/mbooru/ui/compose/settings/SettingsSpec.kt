@@ -105,13 +105,6 @@ private val availableSettingsSections =
                     summaryOff = R.string.switch_no,
                 ),
                 SettingSpec.Toggle(
-                    "settings_auto_hide_bottom_bar",
-                    R.string.settings_auto_hide_bottom_bar,
-                    false,
-                    summaryOn = R.string.switch_yes,
-                    summaryOff = R.string.switch_no,
-                ),
-                SettingSpec.Toggle(
                     "settings_auto_refresh",
                     R.string.settings_auto_refresh,
                     false,
@@ -214,7 +207,6 @@ val settingsSections =
             "settings_grid_width",
             "settings_show_info_bar",
             "settings_show_all_tags",
-            "settings_auto_hide_bottom_bar",
         ),
         sphereSettings(R.string.sphere_content, "settings_safe_mode"),
         sphereSettings(

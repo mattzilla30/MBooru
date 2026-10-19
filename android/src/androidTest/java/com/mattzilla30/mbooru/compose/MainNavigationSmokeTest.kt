@@ -32,8 +32,8 @@ class MainNavigationSmokeTest {
     fun drawerSettingsAndActivityRecreationKeepWorking() {
         awaitDrawer()
         screenshot("sphere-home")
-        compose.onNodeWithTag("home-overflow").performClick()
-        compose.onNodeWithText("Tools").performClick()
+        compose.onNodeWithTag("home-settings").performClick()
+        compose.onNodeWithTag("settings-side-panel").performClick()
         screenshot("sphere-drawer")
         val settings =
             compose.onNode(
@@ -54,15 +54,15 @@ class MainNavigationSmokeTest {
         Espresso.pressBack()
         compose.activityRule.scenario.recreate()
         awaitDrawer()
-        compose.onNodeWithTag("home-overflow").assertIsDisplayed()
+        compose.onNodeWithTag("home-settings").assertIsDisplayed()
     }
 
     @Test
-    fun primaryTabsKeepSearchAndCollectionAcrossRecreation() {
+    fun favoritesKeepSearchAndCollectionAcrossRecreation() {
         awaitDrawer()
-        compose.onNodeWithTag("home-tab-1").performClick()
         compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
-        compose.onNodeWithTag("home-tab-2").performClick()
+        compose.onNodeWithTag("home-favorites").performClick()
+        compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.onNodeWithText("New collection").performClick()
         compose.onNode(hasSetTextAction()).performTextReplacement("Native test collection")
         compose.onNodeWithText("Save", useUnmergedTree = true).performClick()
@@ -71,7 +71,6 @@ class MainNavigationSmokeTest {
         }
         compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
         compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
-        compose.onNodeWithTag("home-overflow").performClick()
         compose.onNodeWithTag("home-settings").performClick()
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
@@ -85,17 +84,17 @@ class MainNavigationSmokeTest {
         Espresso.pressBack()
         compose.onNodeWithTag("settings_list").assertExists()
         Espresso.pressBack()
-        compose.onNodeWithTag("home-tab-0").assertIsSelected()
-        compose.onNodeWithTag("home-tab-1").performClick()
+        compose.onNodeWithTag("unified-query").assertExists()
         compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
         compose.activityRule.scenario.recreate()
         compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
-        compose.onNodeWithTag("home-tab-2").performClick()
+        compose.onNodeWithTag("home-favorites").performClick()
+        compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.onNodeWithText("Native test collection").assertExists()
     }
 
     @Test
-    fun cachedBrowseRestoresFarPositionAcrossTabsAndActivityRecreation() {
+    fun cachedBrowseRestoresFarPositionAcrossFavoritesAndActivityRecreation() {
         awaitDrawer()
         compose.waitUntil(10000) { compose.activity.settings.activatedBooruUid > 0 }
         val database =
@@ -177,8 +176,9 @@ class MainNavigationSmokeTest {
                 compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithContentDescription(target).assertIsDisplayed()
-            compose.onNodeWithTag("home-tab-2").performClick()
-            compose.onNodeWithTag("home-tab-0").performClick()
+            compose.onNodeWithTag("home-favorites").performClick()
+            compose.onNodeWithText("All favorites").assertIsDisplayed()
+            Espresso.pressBack()
             compose.waitUntil(10000) {
                 compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
             }
@@ -220,7 +220,7 @@ class MainNavigationSmokeTest {
     private fun awaitDrawer() {
         compose.waitUntil(20000) {
             compose
-                .onAllNodesWithTag("home-overflow")
+                .onAllNodesWithTag("home-settings")
                 .fetchSemanticsNodes(atLeastOneRootRequired = false)
                 .isNotEmpty()
         }

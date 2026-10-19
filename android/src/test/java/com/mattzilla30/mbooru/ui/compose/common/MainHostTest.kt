@@ -70,7 +70,7 @@ class MainHostTest {
             }
         }
         compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("home-tab-1").fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodesWithTag("home-settings").fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -88,6 +88,7 @@ class MainHostTest {
         list.performScrollToNode(hasText(target))
         drawerText(target).performClick()
         compose.waitForIdle()
+        compose.onNodeWithTag("sphere-bottom-search").assertDoesNotExist()
     }
 
     @After
@@ -137,8 +138,9 @@ class MainHostTest {
             fixture.requests.count {
                 it.encodedPath == "/post.json" && it.queryParameter("page") == "1"
             }
-        compose.onNodeWithTag("home-tab-2").performClick()
-        compose.onNodeWithTag("home-tab-0").performClick()
+        compose.onNodeWithTag("home-favorites").performClick()
+        compose.onNodeWithText("All favorites").assertIsDisplayed()
+        compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.waitUntil(10000) {
             org.robolectric.shadows.ShadowLooper.idleMainLooper()
             compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
@@ -160,7 +162,6 @@ class MainHostTest {
 
     @Test
     fun `all primary destinations work and site search survives recreation`() {
-        compose.onNodeWithTag("home-tab-1").performClick()
         compose.onNodeWithTag("home-toolbar").assertDoesNotExist()
         compose
             .onNodeWithContentDescription(
@@ -172,15 +173,21 @@ class MainHostTest {
             "Search starts at the top safe area",
             query.top < 32 * compose.density.density,
         )
-        val overflow = compose.onNodeWithTag("home-overflow").fetchSemanticsNode().boundsInRoot
-        org.junit.Assert.assertTrue("Menu is inside search bar", query.contains(overflow.center))
+        val settings = compose.onNodeWithTag("home-settings").fetchSemanticsNode().boundsInRoot
+        org.junit.Assert.assertTrue(
+            "Settings is inside search bar",
+            query.contains(settings.center),
+        )
+        compose.onNodeWithTag("home-overflow").assertDoesNotExist()
+        compose.onNodeWithTag("sphere-bottom-search").assertDoesNotExist()
+        (0..4).forEach { compose.onNodeWithTag("home-tab-$it").assertDoesNotExist() }
         compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
         compose.onNodeWithTag("unified-submit").performClick()
-        compose.onNodeWithTag("home-tab-2").performClick()
+        compose.onNodeWithTag("home-favorites").performClick()
+        compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.onNodeWithText("New collection").assertIsDisplayed()
         compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
         compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
-        compose.onNodeWithTag("home-overflow").performClick()
         compose.onNodeWithTag("home-settings").performClick()
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
@@ -193,8 +200,7 @@ class MainHostTest {
         compose.onNodeWithText("Add, remove, import or export sites").assertExists()
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         compose.onNodeWithTag("settings_list").assertExists()
-        compose.onNodeWithTag("home-tab-0").performClick()
-        compose.onNodeWithTag("home-tab-1").performClick()
+        compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
         compose.activityRule.scenario.recreate()
         compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
@@ -202,11 +208,11 @@ class MainHostTest {
 
     @Test
     fun `navigation view and drawer remain usable after recreation`() {
-        compose.onNodeWithTag("home-overflow").assertIsDisplayed()
+        compose.onNodeWithTag("home-settings").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
-        compose.onNodeWithTag("home-overflow").assertIsDisplayed().performClick()
+        compose.onNodeWithTag("home-settings").assertIsDisplayed().performClick()
         compose.onNodeWithText("Advanced browsing").assertDoesNotExist()
-        compose.onNodeWithText("Tools").performClick()
+        compose.onNodeWithTag("settings-side-panel").performClick()
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()
@@ -231,7 +237,7 @@ class MainHostTest {
     @Test
     fun `back from a secondary tab returns to posts`() {
         explore(R.string.title_tags)
-        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.waitForIdle()
         compose.onNodeWithTag("unified-query").assertIsDisplayed()
     }
@@ -299,8 +305,8 @@ class MainHostTest {
 
     @Test
     fun `free drawer has no purchase action and can switch beyond three sites`() {
-        compose.onNodeWithTag("home-overflow").performClick()
-        compose.onNodeWithText("Tools").performClick()
+        compose.onNodeWithTag("home-settings").performClick()
+        compose.onNodeWithTag("settings-side-panel").performClick()
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()

@@ -50,8 +50,8 @@ if (storePropertyFile.exists()) {
 }
 
 object Configs {
-    const val APP_VERSION_NAME = "9"
-    const val APP_VERSION_CODE = 1382
+    const val APP_VERSION_NAME = "10"
+    const val APP_VERSION_CODE = 1383
     const val APP_ID = "com.mattzilla30.mbooru"
     const val COMPILE_SDK_VERSION = 36
     const val TARGET_SDK_VERSION = 36

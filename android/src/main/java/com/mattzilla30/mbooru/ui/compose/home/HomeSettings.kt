@@ -28,7 +28,12 @@ import com.mattzilla30.mbooru.ui.compose.settings.SettingsViewModel
 
 @Composable
 @Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
-fun HomeSettings(host: PathActivity, model: SettingsViewModel, onSites: () -> Unit) {
+fun HomeSettings(
+    host: PathActivity,
+    model: SettingsViewModel,
+    onSites: () -> Unit,
+    onSidePanel: () -> Unit,
+) {
     val state by model.state.collectAsStateWithLifecycle()
     LaunchedEffect(model) {
         model.effects.collect { effect ->
@@ -56,6 +61,13 @@ fun HomeSettings(host: PathActivity, model: SettingsViewModel, onSites: () -> Un
                 headlineContent = { Text("Sites") },
                 supportingContent = { Text("Browse, add, edit or connect sites") },
                 modifier = Modifier.testTag("settings-sites").clickable(onClick = onSites),
+            )
+        }
+        item(key = "side-panel") {
+            ListItem(
+                headlineContent = { Text("Side panel") },
+                supportingContent = { Text("Switch sites and open browsing tools") },
+                modifier = Modifier.testTag("settings-side-panel").clickable(onClick = onSidePanel),
             )
         }
         item(key = "app-lock") {

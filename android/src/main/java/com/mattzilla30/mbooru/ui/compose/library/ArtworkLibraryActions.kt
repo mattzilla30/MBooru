@@ -37,7 +37,9 @@ fun ArtworkLibraryActions(post: Post, model: ArtworkLibraryViewModel) {
     var showing by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        TextButton(onClick = model::save) { Text(if (saved) "Unsave artwork" else "Save artwork") }
+        TextButton(onClick = model::save) {
+            Text(if (saved) "Remove from favorites" else "Add to favorites")
+        }
         TextButton(onClick = model::like) { Text(if (liked) "Unlike locally" else "Like locally") }
         TextButton(onClick = { showing = true }) { Text("Collections") }
     }

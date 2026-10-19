@@ -21,11 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,14 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.MyDatabase
 import com.mattzilla30.mbooru.data.model.common.Booru
@@ -80,7 +74,6 @@ fun MainHomeContent(
     onSection: (Int) -> Unit,
     secondary: Boolean,
     onDrawer: () -> Unit,
-    onSwitch: () -> Unit,
     onPopular: () -> Unit,
     legacy: @Composable () -> Unit,
 ) {
@@ -133,13 +126,17 @@ fun MainHomeContent(
         host.startActivity(Intent(host, AccountConfigActivity::class.java))
     }
     val menu: @Composable () -> Unit = {
-        HomeOverflowMenu(onSettings = { onSection(HOME_SETTINGS_SECTION) }, onSwitch, onDrawer)
+        HomeActions(
+            onFavorites = { onSection(2) },
+            onSettings = { onSection(HOME_SETTINGS_SECTION) },
+        )
     }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             Modifier.fillMaxSize()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
             if (section !in 0..1 || secondary || site == null) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { menu() }
@@ -230,26 +227,9 @@ fun MainHomeContent(
                                 host,
                                 settingsModel,
                                 onSites = { onSection(HOME_SITES_SECTION) },
+                                onSidePanel = onDrawer,
                             )
                     }
-                }
-            }
-            NavigationBar(Modifier.navigationBarsPadding()) {
-                val labels = listOf("Explore", "Search", "Saved")
-                val icons =
-                    listOf(
-                        R.drawable.ic_photo_outline_24dp,
-                        R.drawable.ic_search_24dp,
-                        R.drawable.ic_bookmark_border_24dp,
-                    )
-                labels.forEachIndexed { index, label ->
-                    NavigationBarItem(
-                        modifier = Modifier.testTag("home-tab-$index"),
-                        selected = section == index,
-                        onClick = { onSection(index) },
-                        icon = { Icon(painterResource(icons[index]), null) },
-                        label = { Text(label) },
-                    )
                 }
             }
         }
