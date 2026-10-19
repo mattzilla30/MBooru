@@ -28,4 +28,5 @@
     <string name="sphere_select_server">Select server</string>
     <string name="sphere_all_downloads">All</string>
     <string name="sphere_related">Find related posts</string>
+    <string name="settings_security">Security</string>
 </resources>

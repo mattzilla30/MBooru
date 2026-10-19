@@ -30,7 +30,7 @@ import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.ui.compose.theme.PreferenceSpacing
 
 /** State and callbacks only; persistence, networking and cache work stay outside composition. */
-// Existing preference renderer; the header adds items to its single scrolling list.
+// Host-specific controls share the category headings and the same scrolling list.
 @Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun SettingsScreen(
@@ -41,15 +41,19 @@ fun SettingsScreen(
     onPickDirectory: () -> Unit,
     onClearCache: () -> Unit,
     onRetrySave: () -> Unit = {},
-    header: androidx.compose.foundation.lazy.LazyListScope.() -> Unit = {},
+    categoryContent: Map<Int, @Composable () -> Unit> = emptyMap(),
 ) {
     var dialogKey by rememberSaveable { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
     val context = LocalContext.current
-    val rows = state.copy(expanded = true).rows(isSystemInDarkTheme())
+    val preferenceRows = state.copy(expanded = true).rows(isSystemInDarkTheme())
+    val categories =
+        preferenceRows.filterIsInstance<SettingsRow.Category>().map { it.title }.toSet()
+    val rows =
+        preferenceRows +
+            categoryContent.keys.filterNot { it in categories }.map { SettingsRow.Category(it) }
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = listState, modifier = Modifier.testTag("settings_list")) {
-            header()
             if (state.persistenceFailed)
                 item(key = "persistence-error") {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
@@ -75,20 +79,24 @@ fun SettingsScreen(
             ) { row ->
                 when (row) {
                     is SettingsRow.Category ->
-                        Text(
-                            text = stringResource(row.title),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier =
-                                Modifier.fillMaxWidth()
-                                    .semantics { heading() }
-                                    .padding(
-                                        start = 16.dp,
-                                        end = PreferenceSpacing.horizontal,
-                                        top = 12.dp,
-                                        bottom = 12.dp,
-                                    ),
-                        )
+                        Column {
+                            Text(
+                                text = stringResource(row.title),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .testTag("settings-category-${row.title}")
+                                        .semantics { heading() }
+                                        .padding(
+                                            start = 16.dp,
+                                            end = PreferenceSpacing.horizontal,
+                                            top = 12.dp,
+                                            bottom = 12.dp,
+                                        ),
+                            )
+                            categoryContent[row.title]?.invoke()
+                        }
                     is SettingsRow.Expand -> {
                         val titles = row.hiddenTitles.map { stringResource(it) }
                         val summary = titles.reduceOrNull { acc, title ->
