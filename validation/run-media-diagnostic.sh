@@ -18,7 +18,7 @@ from pathlib import Path
 import re
 output = Path('validation/results/instrumentation.txt').read_text()
 match = re.search(r'OK \((\d+) tests?\)', output)
-assert match and int(match[1]) >= 10 and 'FAILURES!!!' not in output, output[-3000:]
+assert match and int(match[1]) == 13 and 'FAILURES!!!' not in output, output[-3000:]
 print('Executed native tests:', match[1])
 PY
 adb pull /data/data/com.mattzilla30.mbooru/files/m34-results/. validation/results/screenshots/ || true
