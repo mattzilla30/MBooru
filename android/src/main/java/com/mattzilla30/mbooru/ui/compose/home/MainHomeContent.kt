@@ -71,7 +71,6 @@ fun MainHomeContent(
     section: Int,
     onSection: (Int) -> Unit,
     secondary: Boolean,
-    onPopular: () -> Unit,
     legacy: @Composable () -> Unit,
 ) {
     val settings = host.settings
@@ -173,13 +172,6 @@ fun MainHomeContent(
                                             )
                                         },
                                         actions = { selected = it },
-                                        popular =
-                                            onPopular.takeIf {
-                                                com.mattzilla30.mbooru.core.model.BooruEngine
-                                                    .fromLegacyId(site.type)
-                                                    .capabilities
-                                                    .popular
-                                            },
                                     )
                                 }
                         2 ->

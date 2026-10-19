@@ -116,6 +116,11 @@ class MainShellViewModel(private val saved: SavedStateHandle) : ViewModel() {
     val requestedBrowse = saved.getStateFlow<Int?>("requested_browse", null)
 
     fun requestBrowse(id: Int) {
+        if (id == R.id.nav_posts) {
+            section(0)
+            saved["requested_browse"] = null
+            return
+        }
         advanced()
         saved["requested_browse"] = id
     }
@@ -160,13 +165,10 @@ class MainShellViewModel(private val saved: SavedStateHandle) : ViewModel() {
 fun MainShell(
     boorus: List<Booru>,
     selectedUid: Long,
-    tabs: List<BrowseTab>,
-    currentTab: Int,
     navigationVisible: Boolean,
     drawerRequests: kotlinx.coroutines.flow.Flow<Unit>,
     onBooru: (Long) -> Unit,
     onAction: (DrawerDestination) -> Unit,
-    onTab: (Int) -> Unit,
     serverRequests: kotlinx.coroutines.flow.Flow<Unit> = kotlinx.coroutines.flow.emptyFlow(),
     onEditServer: (Booru) -> Unit = {},
     onRemoveServer: (Long) -> Unit = {},
@@ -303,37 +305,6 @@ fun MainShell(
                                 }
                             }
                         }
-                        item {
-                            SphereDrawerRow(
-                                R.string.sphere_add_server,
-                                R.drawable.ic_add_circle_outline_24dp,
-                            ) {
-                                action(DrawerDestination.Sites)
-                            }
-                        }
-                        // Engine-specific browsing remains reachable without a permanent tab bar.
-                        if (tabs.size > 1)
-                            item {
-                                var explore by remember { mutableStateOf(false) }
-                                SphereDrawerRow(
-                                    R.string.sphere_explore,
-                                    R.drawable.ic_photo_album_outline_24dp,
-                                ) {
-                                    explore = !explore
-                                }
-                                if (explore)
-                                    tabs.forEach { tab ->
-                                        NavigationDrawerItem(
-                                            label = { Text(stringResource(tab.title)) },
-                                            selected = currentTab == tab.id,
-                                            icon = { Icon(painterResource(tab.icon), null) },
-                                            onClick = {
-                                                onTab(tab.id)
-                                                scope.launch { drawer.close() }
-                                            },
-                                        )
-                                    }
-                            }
                     }
                     HorizontalDivider(
                         Modifier.padding(horizontal = 16.dp),

@@ -115,8 +115,6 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     MainShell(
                         sites,
                         selectedUid,
-                        tabs,
-                        selected,
                         visible,
                         shell.drawerRequests,
                         serverRequests = shell.serverRequests,
@@ -140,26 +138,37 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                         onRemoveServer = { id ->
                             lifecycleScope.launch { siteManager.deleteBooru(id) }
                         },
-                        onTab = { id ->
-                            if (secondary && selected == id) currentBrowse()?.toListTop()
-                            else shell.requestBrowse(id)
-                        },
                     ) {
-                        com.mattzilla30.mbooru.ui.compose.home.MainHomeContent(
-                            this,
-                            homeHolder,
-                            revision,
-                            homeDatabase,
-                            homeApis,
-                            preferences,
-                            site,
-                            sites,
-                            section,
-                            shell::section,
-                            showSecondaryTool(secondary, entry, requestedBrowse),
-                            onPopular = { shell.requestBrowse(R.id.nav_popular) },
+                        CompositionLocalProvider(
+                            com.mattzilla30.mbooru.ui.compose.navigation.LocalBrowseTools provides
+                                com.mattzilla30.mbooru.ui.compose.navigation.BrowseTools(
+                                    tabs,
+                                    { id ->
+                                        selectBrowseTool(
+                                            id,
+                                            selected,
+                                            secondary,
+                                            activeBrowse,
+                                            shell,
+                                        )
+                                    },
+                                )
                         ) {
-                            MainBrowseNavHost(navigation, tabs)
+                            com.mattzilla30.mbooru.ui.compose.home.MainHomeContent(
+                                this,
+                                homeHolder,
+                                revision,
+                                homeDatabase,
+                                homeApis,
+                                preferences,
+                                site,
+                                sites,
+                                section,
+                                shell::section,
+                                showSecondaryTool(secondary, entry, requestedBrowse),
+                            ) {
+                                MainBrowseNavHost(navigation, tabs)
+                            }
                         }
                     }
                 }
@@ -195,8 +204,6 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
         if (Build.VERSION.SDK_INT >= 33)
             notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
     }
-
-    private fun currentBrowse(): BrowseNavigation? = activeBrowse
 
     private fun openDestination(key: DrawerDestination) {
         when (key) {
@@ -299,4 +306,15 @@ private fun showSecondaryTool(
     val current = entry?.let { it.destination.browseTab() } ?: restoredTab
     SideEffect { if (entry != null) restoredTab = current }
     return secondary && (requested ?: current) != R.id.nav_posts
+}
+
+private fun selectBrowseTool(
+    id: Int,
+    selected: Int,
+    secondary: Boolean,
+    browse: BrowseNavigation?,
+    shell: MainShellViewModel,
+) {
+    if (id != R.id.nav_posts && secondary && selected == id) browse?.toListTop()
+    else shell.requestBrowse(id)
 }

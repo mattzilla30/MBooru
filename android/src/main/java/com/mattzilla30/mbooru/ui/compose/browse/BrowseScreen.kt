@@ -97,6 +97,7 @@ fun BrowseScreen(
                     Text(stringResource(R.string.sphere_filters))
                 }
                 TextButton(onClick = { ratings = true }) { Text(stringResource(R.string.rating)) }
+                com.mattzilla30.mbooru.ui.compose.navigation.BrowseToolButtons()
                 actions
                     .filter { it.visible && it.key != AppActionKey.ExpandOrClear }
                     .flatMap { it.children.ifEmpty { listOf(it) } }

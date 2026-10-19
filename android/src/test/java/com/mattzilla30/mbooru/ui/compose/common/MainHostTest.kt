@@ -11,7 +11,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -81,15 +80,11 @@ class MainHostTest {
         compose.onNode(hasText(text) and hasAnyAncestor(hasTestTag("sphere-drawer-content")))
 
     private fun explore(title: Int) {
-        compose.runOnUiThread { compose.activity.openDrawer() }
-        val list = compose.onNodeWithTag("main-drawer-list")
-        list.performScrollToNode(hasText(compose.activity.getString(R.string.sphere_explore)))
-        val target = compose.activity.getString(title)
-        if (compose.onAllNodesWithText(target).fetchSemanticsNodes().isEmpty()) {
-            drawerText(compose.activity.getString(R.string.sphere_explore)).performClick()
-        }
-        list.performScrollToNode(hasText(target))
-        drawerText(target).performClick()
+        val tab =
+            com.mattzilla30.mbooru.ui.compose.navigation
+                .browseTabs(com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE)
+                .first { it.title == title }
+        compose.onNodeWithTag("browse-tool-${tab.id}").performScrollTo().performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("sphere-bottom-search").assertDoesNotExist()
     }
@@ -247,6 +242,8 @@ class MainHostTest {
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()
+        drawerText(compose.activity.getString(R.string.sphere_add_server)).assertDoesNotExist()
+        drawerText(compose.activity.getString(R.string.sphere_explore)).assertDoesNotExist()
     }
 
     @Test
@@ -340,6 +337,8 @@ class MainHostTest {
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()
+        drawerText(compose.activity.getString(R.string.sphere_add_server)).assertDoesNotExist()
+        drawerText(compose.activity.getString(R.string.sphere_explore)).assertDoesNotExist()
         compose.onNodeWithText("Remove ads & feature unlock").assertDoesNotExist()
         compose.onNodeWithTag("main-drawer-list").performScrollToNode(hasText("Safebooru"))
         compose.onNodeWithText("Safebooru").performSemanticsAction(SemanticsActions.OnClick) {

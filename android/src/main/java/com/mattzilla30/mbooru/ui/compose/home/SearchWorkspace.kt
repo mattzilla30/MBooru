@@ -62,7 +62,6 @@ fun SearchWorkspace(
     open: (Post, Int, android.view.View, Boolean) -> Unit,
     actions: (Post) -> Unit,
     modifier: Modifier = Modifier,
-    popular: (() -> Unit)? = null,
 ) {
     val text by model.text.collectAsStateWithLifecycle()
     val query by model.query.collectAsStateWithLifecycle()
@@ -135,8 +134,7 @@ fun SearchWorkspace(
                         Text(if (filtersExpanded) "Hide filters" else "Filters")
                     }
                     TextButton(onClick = model::refresh) { Text("Refresh") }
-                    if (discover && popular != null)
-                        TextButton(onClick = popular) { Text("Popular") }
+                    com.mattzilla30.mbooru.ui.compose.navigation.BrowseToolButtons()
                 }
                 if (filtersExpanded) {
                     Row(Modifier.horizontalScroll(rememberScrollState())) {
