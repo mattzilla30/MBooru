@@ -38,7 +38,11 @@ class MainNavigationSmokeTest {
             )
             .performClick()
         screenshot("sphere-drawer")
-        val settings = compose.onNodeWithText(compose.activity.getString(R.string.title_settings))
+        val settings =
+            compose.onNode(
+                hasText(compose.activity.getString(R.string.title_settings)) and
+                    hasAnyAncestor(hasTestTag("sphere-drawer-content"))
+            )
         try {
             settings.assertIsDisplayed()
         } catch (_: AssertionError) {
@@ -58,6 +62,100 @@ class MainNavigationSmokeTest {
                 compose.activity.getString(R.string.navigation_drawer_open)
             )
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun primaryTabsKeepSearchAndCollectionAcrossRecreation() {
+        awaitDrawer()
+        compose.onNodeWithTag("home-tab-1").performClick()
+        compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
+        compose.onNodeWithTag("home-tab-2").performClick()
+        compose.onNodeWithText("New collection").performClick()
+        compose.onNode(hasSetTextAction()).performTextReplacement("Native test collection")
+        compose.onNodeWithText("Save", useUnmergedTree = true).performClick()
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithText("Native test collection").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("home-tab-3").performClick()
+        compose.onNodeWithText("Add, remove, import or export sites").assertExists()
+        compose.onNodeWithTag("home-tab-4").performClick()
+        compose.onNodeWithTag("settings_list").assertExists()
+        Espresso.pressBack()
+        compose.onNodeWithTag("home-tab-0").assertIsSelected()
+        compose.onNodeWithTag("home-tab-1").performClick()
+        compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
+        compose.activityRule.scenario.recreate()
+        compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
+        compose.onNodeWithTag("home-tab-2").performClick()
+        compose.onNodeWithText("Native test collection").assertExists()
+    }
+
+    @Test
+    fun cachedBrowseRestoresFarPositionAcrossTabsAndActivityRecreation() {
+        awaitDrawer()
+        compose.waitUntil(10000) { compose.activity.settings.activatedBooruUid > 0 }
+        val site = compose.activity.settings.activatedBooruUid
+        val file = java.io.File(compose.activity.cacheDir, "native-library-fixture.png")
+        val bitmap =
+            android.graphics.Bitmap.createBitmap(16, 16, android.graphics.Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(android.graphics.Color.rgb(245, 235, 212))
+        file.outputStream().use {
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+        }
+        bitmap.recycle()
+        val image = android.net.Uri.fromFile(file).toString()
+        kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+            val database =
+                org.koin.core.context.GlobalContext.get()
+                    .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
+            database
+                .postDao()
+                .insert(
+                    (0 until 80).map { offset ->
+                        com.mattzilla30.mbooru.data.model.common.Post(
+                            booruUid = site,
+                            id = 200000 + offset,
+                            index = offset,
+                            query = "",
+                            width = 100,
+                            height = 100,
+                            size = 1,
+                            score = 0,
+                            rating = "g",
+                            time = null,
+                            tags = emptyList(),
+                            preview = image,
+                            sample = image,
+                            medium = image,
+                            origin = image,
+                            source = null,
+                            uploader =
+                                com.mattzilla30.mbooru.data.model.common.User(
+                                    name = "Native fixture"
+                                ),
+                        )
+                    }
+                )
+        }
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithTag("post_grid").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("post_grid").performScrollToIndex(50)
+        val target = compose.activity.getString(R.string.post_accessibility, 200050)
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription(target).assertIsDisplayed()
+        compose.onNodeWithTag("home-tab-2").performClick()
+        compose.onNodeWithTag("home-tab-0").performClick()
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.activityRule.scenario.recreate()
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription(target).assertIsDisplayed()
     }
 
     private fun screenshot(name: String) {

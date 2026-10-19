@@ -99,6 +99,14 @@ fun AboutScreen() {
             item { AboutSection(R.string.about_copyright_and_licenses) }
             item {
                 AboutRow(
+                    R.string.m34_feature_credit,
+                    stringResource(R.string.m34_feature_credit_summary),
+                ) {
+                    context.launchUrl("https://github.com/mattzilla30/M34")
+                }
+            }
+            item {
+                AboutRow(
                     R.string.sphere_ui_credit,
                     stringResource(R.string.sphere_ui_credit_summary),
                 ) {

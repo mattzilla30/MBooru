@@ -49,6 +49,7 @@ val appModules = module {
     single { get<MyDatabase>().downloadDao() }
     single { get<MyDatabase>().postDao() }
     single { get<MyDatabase>().savedPostDao() }
+    single { get<MyDatabase>().libraryDao() }
     single { get<MyDatabase>().tagFilterDao() }
     single { get<MyDatabase>().historyDao() }
     single { get<MyDatabase>().nextDao() }

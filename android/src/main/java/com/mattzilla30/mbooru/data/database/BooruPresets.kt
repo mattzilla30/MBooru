@@ -14,6 +14,11 @@ object BooruPresets {
 
     private const val ADDITIONAL_INSTALLED_KEY = "featured_boorus_v2_installed"
 
+    private const val RULE34_INSTALLED_KEY = "featured_rule34_v1_installed"
+
+    private fun rule34() =
+        Booru(name = "Rule34", host = "api.rule34.xxx", type = Values.BOORU_TYPE_RULE34)
+
     private fun additional(): List<Booru> =
         listOf(
             Booru(name = "e926", host = "e926.net", type = Values.BOORU_TYPE_DAN),
@@ -26,7 +31,7 @@ object BooruPresets {
             Booru(name = "Yande.re", host = "yande.re", type = Values.BOORU_TYPE_MOE),
             Booru(name = "Konachan", host = "konachan.com", type = Values.BOORU_TYPE_MOE),
             Booru(name = "Safebooru", host = "safebooru.org", type = Values.BOORU_TYPE_GEL_LEGACY),
-        ) + additional()
+        ) + additional() + rule34()
 
     fun isRetiredHost(host: String): Boolean {
         val name = host.lowercase().removePrefix("www.")
@@ -52,7 +57,9 @@ object BooruPresets {
         // Run even after presets were installed by an earlier MBooru release.
         dao.removeLegacySample()
         if (!preferences.getBoolean(INSTALLED_KEY, false)) {
-            dao.insertMissing(featured())
+            dao.insertMissing(
+                featured().filterNot { it.type == Values.BOORU_TYPE_RULE34 && hasRule34(dao) }
+            )
             // Mark only after the database transaction succeeds. Repeating after a crash is
             // harmless.
             preferences
@@ -66,11 +73,32 @@ object BooruPresets {
             dao.insertMissing(additional())
             preferences.edit().putBoolean(ADDITIONAL_INSTALLED_KEY, true).apply()
         }
+        if (!preferences.getBoolean(RULE34_INSTALLED_KEY, false)) {
+            if (!hasRule34(dao)) dao.insertMissing(listOf(rule34()))
+            preferences.edit().putBoolean(RULE34_INSTALLED_KEY, true).apply()
+        }
     }
+
+    private suspend fun hasRule34(dao: BooruDao): Boolean =
+        dao.getAll().any {
+            it.scheme == "https" &&
+                it.host.lowercase().removePrefix("www.") in setOf("rule34.xxx", "api.rule34.xxx")
+        }
 
     /** Also restores individually deleted presets, leaving an existing configuration untouched. */
     suspend fun add(dao: BooruDao, preset: Booru): Long {
         require(!isRetiredHost(preset.host)) { "This site is not offered by MBooru" }
+        if (preset.type == Values.BOORU_TYPE_RULE34) {
+            dao.getAll()
+                .firstOrNull {
+                    it.scheme == "https" &&
+                        it.host.lowercase().removePrefix("www.") in
+                            setOf("rule34.xxx", "api.rule34.xxx")
+                }
+                ?.let {
+                    return it.uid
+                }
+        }
         dao.insertMissing(listOf(preset.copy(uid = 0)))
         return checkNotNull(dao[preset.scheme, preset.host]).uid
     }

@@ -32,13 +32,17 @@ import kotlinx.coroutines.asExecutor
             (Post::class),
             (TagFilter::class),
             (SavedPost::class),
+            (LocalLike::class),
+            (NamedCollection::class),
+            (CollectionMembership::class),
             (History::class),
             (Next::class),
             (DownloadRecord::class),
         ],
-    version = 11,
+    version = 12,
     autoMigrations =
         [
+            AutoMigration(from = 11, to = 12),
             AutoMigration(from = 9, to = 10),
             AutoMigration(from = 10, to = 11, spec = MyMigration.RetiredIntegrationsSpec::class),
             AutoMigration(
@@ -122,6 +126,8 @@ abstract class MyDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
 
     abstract fun tagFilterDao(): TagFilterDao
+
+    abstract fun libraryDao(): LibraryDao
 
     abstract fun savedPostDao(): SavedPostDao
 

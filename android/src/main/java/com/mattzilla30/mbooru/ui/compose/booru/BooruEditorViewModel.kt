@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.*
 
 val booruTypes =
     linkedMapOf(
+        "rule34" to Values.BOORU_TYPE_RULE34,
         "danbooru" to Values.BOORU_TYPE_DAN,
         "moebooru" to Values.BOORU_TYPE_MOE,
         "danbooru1" to Values.BOORU_TYPE_DAN1,
@@ -162,6 +163,10 @@ fun validateBooru(values: Map<String, String>, type: Int): Int? =
         values["host"].isNullOrEmpty() -> R.string.booru_config_host_cant_empty
         com.mattzilla30.mbooru.data.database.BooruPresets.isRetiredHost(values["host"].orEmpty()) ->
             R.string.sphere_retired_server
+        type == Values.BOORU_TYPE_RULE34 &&
+            (values["scheme"] != "https" ||
+                values["host"].orEmpty().lowercase().removePrefix("www.") !in
+                    setOf("rule34.xxx", "api.rule34.xxx")) -> R.string.booru_config_host_invalid
         !values.getValue("host").isHost() -> R.string.booru_config_host_invalid
         type == Values.BOORU_TYPE_DAN1 && values["hashSalt"].isNullOrEmpty() ->
             R.string.booru_config_hash_salt_cant_empty

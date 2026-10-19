@@ -24,6 +24,7 @@ import org.robolectric.annotation.LooperMode
 class FragmentHostTest {
     @org.junit.After
     fun closeDependencies() {
+        compose.activityRule.scenario.close()
         org.koin.core.context.stopKoin()
     }
 

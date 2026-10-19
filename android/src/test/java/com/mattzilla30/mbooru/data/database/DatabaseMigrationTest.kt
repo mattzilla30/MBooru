@@ -20,8 +20,8 @@ import org.robolectric.annotation.Config
 class DatabaseMigrationTest(private val from: Int) {
     companion object {
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "schema {0} to 11")
-        fun versions() = (1..10).map { arrayOf(it) }
+        @ParameterizedRobolectricTestRunner.Parameters(name = "schema {0} to 12")
+        fun versions() = (1..11).map { arrayOf(it) }
     }
 
     @Test
@@ -82,6 +82,10 @@ class DatabaseMigrationTest(private val from: Int) {
                 legacy.execSQL(
                     "INSERT INTO `next`(uid,booru_uid,query,`next`) VALUES(15,7,'saved','cursor')"
                 )
+            if ("saved_posts" in tableNames)
+                legacy.execSQL(
+                    """INSERT INTO saved_posts(saved_at,uid,booru_uid,`index`,query,id,width,height,size,score,rating,is_favored,time,tags,preview,sample,medium,origin,pixiv_id,source,uploader) VALUES(1234,0,7,0,'old query',123,640,480,12,9,'g',0,NULL,'[]','https://custom.invalid/preview.png','https://custom.invalid/sample.png','https://custom.invalid/sample.png','https://custom.invalid/original.png',NULL,'artist attribution','{"name":"uploader"}')"""
+                )
             legacy.version = from
         }
         val payloads = Collections.synchronizedMap(mutableMapOf<String, String>())
@@ -114,7 +118,16 @@ class DatabaseMigrationTest(private val from: Int) {
             database.openHelper.readableDatabase
                 .query("SELECT name FROM sqlite_master WHERE type='table' AND name='muzei'")
                 .use { assertFalse(it.moveToFirst()) }
-            assertTrue(database.savedPostDao().observe().first().isEmpty())
+            val saved = database.savedPostDao().observe().first()
+            if ("saved_posts" in tableNames) {
+                assertEquals(123, saved.single().id)
+                assertEquals("artist attribution", saved.single().source)
+                assertTrue(database.libraryDao().artwork(7, 123)!!.isSaved)
+                assertEquals(1234L, database.libraryDao().artwork(7, 123)!!.savedAt)
+            } else assertTrue(saved.isEmpty())
+            assertTrue(database.libraryDao().likes().isEmpty())
+            assertTrue(database.libraryDao().collections().isEmpty())
+            assertTrue(database.libraryDao().memberships().isEmpty())
             if ("next" in tableNames)
                 assertEquals("cursor", database.nextDao().getNext(7, "saved")!!.next)
             assertTrue(database.downloadDao().observeAll().first().isEmpty())

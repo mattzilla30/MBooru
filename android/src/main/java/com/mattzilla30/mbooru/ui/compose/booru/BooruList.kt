@@ -78,6 +78,7 @@ fun BooruList(
 
 fun booruTypeLabel(type: Int): Int =
     when (type) {
+        Values.BOORU_TYPE_RULE34 -> R.string.booru_type_rule34
         Values.BOORU_TYPE_DAN -> R.string.booru_type_danbooru
         Values.BOORU_TYPE_DAN1 -> R.string.booru_type_danbooru_one
         Values.BOORU_TYPE_MOE -> R.string.booru_type_moebooru

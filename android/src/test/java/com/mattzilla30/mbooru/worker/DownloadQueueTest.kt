@@ -89,5 +89,28 @@ class DownloadQueueTest {
             WorkInfo.State.CANCELLED,
             checkNotNull(manager.getWorkInfoById(jobs.single().id).get()).state,
         )
+        // UI staging allocates a new opaque document for each tap; those must still deduplicate.
+        val staged =
+            Data.Builder()
+                .putAll(request)
+                .putString("doc_id", "content://fixture.documents/document/stage-one")
+                .putString("final_name", "9 - image.png")
+                .build()
+        DownloadWorker.runWork(context, staged)
+        DownloadWorker.runWork(
+            context,
+            Data.Builder()
+                .putAll(staged)
+                .putString("doc_id", "content://fixture.documents/document/stage-two")
+                .build(),
+        )
+        val deduplicated = koin.get<DownloadDao>().observeAll().first()
+        assertEquals(2, deduplicated.size)
+        val queued = deduplicated.first { it.workId != records.single().workId }
+        val encoded = Data.fromByteArray(queued.request)
+        val identity = encoded.getString("enqueue_identity")!!
+        assertEquals(64, identity.length)
+        assertFalse(identity.contains("private-capability"))
+        assertEquals(1, manager.getWorkInfosForUniqueWork("download:$identity").get().size)
     }
 }

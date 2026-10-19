@@ -19,4 +19,9 @@ import androidx.room.ForeignKey
             )
         ],
 )
-data class SavedPost(@Embedded val post: Post, @ColumnInfo(name = "saved_at") val savedAt: Long)
+@kotlinx.serialization.Serializable
+data class SavedPost(
+    @Embedded val post: Post,
+    @ColumnInfo(name = "saved_at") val savedAt: Long,
+    @ColumnInfo(name = "is_saved", defaultValue = "1") val isSaved: Boolean = true,
+)

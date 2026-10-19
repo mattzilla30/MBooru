@@ -30,6 +30,11 @@ class RequestHeaderTest {
         )
     }
 
+    @Test
+    fun `Rule34 media uses the site root referer without duplicate player headers`() {
+        verify("https://wimg.rule34.xxx/image.jpg", Values.MOBILE_USER_AGENT, "https://rule34.xxx/")
+    }
+
     private fun verify(source: String, agent: String, referer: String) {
         server.enqueue(MockResponse().setBody("image bytes"))
         val client =
@@ -41,7 +46,13 @@ class RequestHeaderTest {
                 }
                 .build()
         client
-            .newCall(Request.Builder().url(source).header("User-Agent", "old").build())
+            .newCall(
+                Request.Builder()
+                    .url(source)
+                    .header("User-Agent", "old")
+                    .header("Referer", "https://old.invalid/")
+                    .build()
+            )
             .execute()
             .use {
                 assertEquals("image bytes", it.body!!.string())
@@ -49,5 +60,6 @@ class RequestHeaderTest {
         val received = server.takeRequest()
         assertEquals(agent, received.getHeader("User-Agent"))
         assertEquals(referer, received.getHeader("Referer"))
+        assertEquals(1, received.headers.values("Referer").size)
     }
 }

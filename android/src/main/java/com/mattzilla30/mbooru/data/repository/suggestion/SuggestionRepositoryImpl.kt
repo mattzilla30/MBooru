@@ -30,6 +30,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
 
     override suspend fun fetchSuggestions(action: ActionTag): List<Tag>? {
         return when (action.booru.type) {
+            com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34,
+            com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE -> emptyList()
             BOORU_TYPE_DAN -> getDanTags(action)
             BOORU_TYPE_DAN1 -> getDan1Tags(action)
             BOORU_TYPE_MOE -> getMoeTags(action)

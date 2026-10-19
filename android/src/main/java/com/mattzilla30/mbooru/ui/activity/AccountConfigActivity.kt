@@ -55,6 +55,15 @@ class AccountConfigActivity : BaseActivity(), org.koin.core.component.KoinCompon
             }
         }
 
+    private val rule34Model by
+        viewModels<Rule34ConnectionViewModel> {
+            viewModelFactory {
+                initializer {
+                    Rule34ConnectionViewModel(booruManager, apis.rule34, checkNotNull(booru))
+                }
+            }
+        }
+
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
             booru = booruManager.getBooruByUid(settings.activatedBooruUid)
@@ -65,6 +74,26 @@ class AccountConfigActivity : BaseActivity(), org.koin.core.component.KoinCompon
 
     private fun initializeContent() {
         val site = booru ?: return finish()
+        if (
+            site.type == Values.BOORU_TYPE_RULE34 ||
+                (site.scheme == "https" &&
+                    site.host.lowercase().removePrefix("www.") in
+                        setOf("rule34.xxx", "api.rule34.xxx"))
+        ) {
+            setComposeContent {
+                val state by rule34Model.state.collectAsStateWithLifecycle()
+                Rule34ConnectionScreen(
+                    state,
+                    rule34Model::userId,
+                    rule34Model::key,
+                    rule34Model::save,
+                    rule34Model::test,
+                    rule34Model::disconnect,
+                    { launchUrl("https://rule34.xxx/index.php?page=account&s=options") },
+                )
+            }
+            return
+        }
         setComposeContent {
             val state by model.state.collectAsStateWithLifecycle()
             AccountConfigScreen(

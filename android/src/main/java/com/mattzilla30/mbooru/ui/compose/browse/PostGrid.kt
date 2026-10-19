@@ -3,6 +3,7 @@ package com.mattzilla30.mbooru.ui.compose.browse
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.*
@@ -57,6 +58,7 @@ data class PostDisplayOptions(
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 fun PostGrid(
     posts: LazyPagingItems<Post>,
     scrollPositions: Flow<Int>,
@@ -65,6 +67,8 @@ fun PostGrid(
     onLongClick: (Post) -> Unit,
     modifier: Modifier = Modifier,
     onImage: (Int, View?) -> Unit = { _, _ -> },
+    safeOnly: Boolean = false,
+    onPosition: (Int) -> Unit = {},
 ) {
     val context = LocalContext.current
     val actionsLabel = stringResource(R.string.post_actions)
@@ -76,6 +80,10 @@ fun PostGrid(
     val large = options.large
     val width = options.itemWidthDp.coerceAtLeast(1f).dp
     val scope = rememberCoroutineScope()
+    val positionObserver by rememberUpdatedState(onPosition)
+    LaunchedEffect(grid) {
+        snapshotFlow { grid.firstVisibleItemIndex }.collect { positionObserver(it) }
+    }
     val refresh = posts.loadState.refresh is LoadState.Loading
     val pull = rememberPullRefreshState(refresh, posts::refresh)
     LaunchedEffect(scrollPositions) {
@@ -85,100 +93,118 @@ fun PostGrid(
     }
     BoxWithConstraints(modifier.pullRefresh(pull)) {
         val columns =
-            if (maxWidth < 600.dp) 2
-            else (maxWidth / width).roundToInt().coerceAtLeast(MIN_TABLET_COLUMNS)
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(columns),
-            state = grid,
-            modifier = Modifier.fillMaxSize().testTag("post_grid"),
-            contentPadding = PaddingValues(if (rounded) 4.dp else 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (rounded) 4.dp else 0.dp),
-            verticalItemSpacing = if (rounded) 4.dp else 0.dp,
-        ) {
-            items(
-                count = posts.itemCount,
-                key = posts.itemKey(::postKey),
-                contentType = { "post" },
-            ) { index ->
-                val post = posts[index]
-                if (post != null) {
-                    val image = remember(postKey(post)) { arrayOfNulls<AppCompatImageView>(1) }
-                    Column(
-                        Modifier.clip(RoundedCornerShape(if (rounded) 8.dp else 0.dp))
-                            .semantics(mergeDescendants = true) {
-                                contentDescription =
-                                    context.getString(R.string.post_accessibility, post.id)
-                            }
-                            .combinedClickable(
-                                onLongClickLabel = actionsLabel,
-                                onClick = { image[0]?.let { onClick(post, index, it) } },
-                                onLongClick = { onLongClick(post) },
-                            )
+            (maxWidth / width)
+                .roundToInt()
+                .coerceAtLeast(if (maxWidth < 600.dp) 1 else MIN_TABLET_COLUMNS)
+        // Do not measure an empty replacement page: it would clamp a restored scroll to zero.
+        if (posts.itemCount > 0)
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(columns),
+                state = grid,
+                modifier = Modifier.fillMaxSize().testTag("post_grid"),
+                contentPadding = PaddingValues(if (rounded) 4.dp else 0.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (rounded) 4.dp else 0.dp),
+                verticalItemSpacing = if (rounded) 4.dp else 0.dp,
+            ) {
+                items(
+                    count = posts.itemCount,
+                    key = posts.itemKey(::postKey),
+                    contentType = { "post" },
+                ) { index ->
+                    val post = posts[index]
+                    if (
+                        post != null &&
+                            (!safeOnly ||
+                                com.mattzilla30.mbooru.core.model.normalizedRating(post.rating) ==
+                                    com.mattzilla30.mbooru.core.model.ArtworkRating.SAFE)
                     ) {
-                        // Keep a platform image only for the existing activity shared-element
-                        // transition.
-                        // Paging, sizing, layout and interaction are owned by Compose.
-                        val url =
-                            if (large && post.sample.isStillImage()) post.sample else post.preview
-                        AndroidView(
-                            factory = { context ->
-                                AppCompatImageView(context).also { image[0] = it }
-                            },
-                            modifier =
-                                Modifier.fillMaxWidth().aspectRatio(postAspectRatio(post, ratio)),
-                            onReset = {
-                                it.dispose()
-                                it.tag = null
-                            },
-                            onRelease = {
-                                it.dispose()
-                                image[0] = null
-                                onImage(index, null)
-                            },
-                            update = { view ->
-                                image[0] = view
-                                onImage(index, view)
-                                view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                                view.transitionName = "post_${post.id}"
-                                view.scaleType =
-                                    if (ratio != null)
-                                        android.widget.ImageView.ScaleType.CENTER_CROP
-                                    else android.widget.ImageView.ScaleType.FIT_CENTER
-                                if (view.tag != url) {
-                                    view.tag = url
-                                    view.load(url) {
-                                        placeholder(
-                                            when (post.rating) {
-                                                "s" -> R.drawable.background_rating_s
-                                                "q" -> R.drawable.background_rating_q
-                                                "g" -> R.drawable.background_rating_g
-                                                else -> R.drawable.background_rating_e
-                                            }
-                                        )
-                                    }
+                        val image = remember(postKey(post)) { arrayOfNulls<AppCompatImageView>(1) }
+                        Column(
+                            Modifier.clip(RoundedCornerShape(if (rounded) 8.dp else 0.dp))
+                                .semantics(mergeDescendants = true) {
+                                    contentDescription =
+                                        context.getString(R.string.post_accessibility, post.id)
                                 }
-                            },
-                        )
-                        if (info)
-                            Column(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-                                Text("#${post.id}", style = MaterialTheme.typography.bodyMedium)
-                                Text(
-                                    "${post.width} x ${post.height}",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                .combinedClickable(
+                                    onLongClickLabel = actionsLabel,
+                                    onClick = { image[0]?.let { onClick(post, index, it) } },
+                                    onLongClick = { onLongClick(post) },
                                 )
-                            }
+                        ) {
+                            // Keep a platform image only for the existing activity shared-element
+                            // transition.
+                            // Paging, sizing, layout and interaction are owned by Compose.
+                            val url =
+                                if (large && post.sample.isStillImage()) post.sample
+                                else post.preview
+                            AndroidView(
+                                factory = { context ->
+                                    AppCompatImageView(context).also { image[0] = it }
+                                },
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .aspectRatio(postAspectRatio(post, ratio)),
+                                onReset = {
+                                    it.dispose()
+                                    it.tag = null
+                                },
+                                onRelease = {
+                                    it.dispose()
+                                    image[0] = null
+                                    onImage(index, null)
+                                },
+                                update = { view ->
+                                    image[0] = view
+                                    onImage(index, view)
+                                    view.importantForAccessibility =
+                                        View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                                    view.transitionName = "post_${post.id}"
+                                    view.scaleType =
+                                        if (ratio != null)
+                                            android.widget.ImageView.ScaleType.CENTER_CROP
+                                        else android.widget.ImageView.ScaleType.FIT_CENTER
+                                    if (view.tag != url) {
+                                        view.tag = url
+                                        view.load(url) {
+                                            placeholder(
+                                                when (post.rating) {
+                                                    "s" -> R.drawable.background_rating_s
+                                                    "q" -> R.drawable.background_rating_q
+                                                    "g" -> R.drawable.background_rating_g
+                                                    else -> R.drawable.background_rating_e
+                                                }
+                                            )
+                                        }
+                                    }
+                                },
+                            )
+                            if (info)
+                                Column(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                                    Text("#${post.id}", style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        "${post.width} x ${post.height}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                        }
+                    } else if (post == null) {
+                        // Paging placeholders must occupy space while Room restores a distant page.
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .aspectRatio(1f)
+                                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                        )
+                    }
+                }
+                if (posts.itemCount > 0 && !refresh) {
+                    item(key = "append", span = StaggeredGridItemSpan.FullLine) {
+                        PagingStatus(posts.loadState.append, posts::retry)
                     }
                 }
             }
-            if (posts.itemCount > 0 && !refresh) {
-                item(key = "append", span = StaggeredGridItemSpan.FullLine) {
-                    PagingStatus(posts.loadState.append, posts::retry)
-                }
-            }
-        }
         PostGridLoading(posts, refresh, pull)
         BrowseScrollTop(
-            grid.firstVisibleItemIndex > 0,
+            posts.itemCount > 0 && grid.firstVisibleItemIndex > 0,
             { scope.launch { grid.animateScrollToItem(0) } },
             Modifier.align(Alignment.BottomEnd),
         )

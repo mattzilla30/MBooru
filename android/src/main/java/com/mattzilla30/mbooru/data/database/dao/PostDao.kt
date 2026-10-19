@@ -22,15 +22,23 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
+    @Query(
+        "SELECT * FROM posts WHERE booru_uid=:site AND (:safeOnly = 0 OR " +
+            "LOWER(TRIM(rating)) IN ('s','safe','g','general')) ORDER BY uid DESC LIMIT " +
+            ":limit"
+    )
+    suspend fun recentMetadata(site: Long, safeOnly: Boolean, limit: Int): List<Post>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(posts: List<Post>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(post: Post)
 
     @Query(
-        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query ORDER BY `index` ASC"
+        "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND " +
+            "(:safeOnly = 0 OR LOWER(TRIM(rating)) IN ('s','safe','g','general')) ORDER " +
+            "BY `index` ASC"
     )
-    fun getPosts(booruUid: Long, query: String): PagingSource<Int, Post>
+    fun getPosts(booruUid: Long, query: String, safeOnly: Boolean = false): PagingSource<Int, Post>
 
     @Query(
         "SELECT * FROM `posts` WHERE `booru_uid` = :booruUid AND `query` = :query AND `index` = :index"

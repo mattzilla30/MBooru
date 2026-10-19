@@ -26,6 +26,8 @@ class PostRepositoryImpl(
     private val db: MyDatabase,
     private val booruApis: BooruApis,
     private val settings: com.mattzilla30.mbooru.app.SettingsRepository,
+    private val forceRefresh: Boolean = false,
+    private val initialIndex: Int = 0,
 ) : PostRepository {
 
     override fun getPosts(action: ActionPost): Flow<PagingData<Post>> {
@@ -34,12 +36,18 @@ class PostRepositoryImpl(
                     PagingConfig(
                         pageSize = action.limit,
                         initialLoadSize = action.limit,
+                        maxSize = action.limit * 6,
                         enablePlaceholders = true,
                     ),
-                remoteMediator = PostRemoteMediator(action, db, booruApis, settings),
-                initialKey = 0,
+                remoteMediator = PostRemoteMediator(action, db, booruApis, settings, forceRefresh),
+                initialKey = initialIndex.coerceAtLeast(0),
             ) {
-                db.postDao().getPosts(booruUid = action.booru.uid, query = action.query)
+                db.postDao()
+                    .getPosts(
+                        booruUid = action.booru.uid,
+                        query = action.query,
+                        safeOnly = action.isSafeMode,
+                    )
             }
             .flow
     }

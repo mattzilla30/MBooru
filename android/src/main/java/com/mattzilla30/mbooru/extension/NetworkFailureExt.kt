@@ -6,6 +6,7 @@ import retrofit2.HttpException
 
 /** Do not show exception messages: they can contain authenticated URLs or response bodies. */
 fun Throwable.safeNetworkMessage(): String {
+    if (this is com.mattzilla30.mbooru.data.api.rule34.Rule34Exception) return safeMessage
     val failure =
         when (this) {
             is com.mattzilla30.mbooru.okhttp.ApiResponseTooLargeException ->

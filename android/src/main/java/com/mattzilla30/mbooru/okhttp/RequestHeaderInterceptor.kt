@@ -12,6 +12,9 @@ class RequestHeaderInterceptor : Interceptor {
         val scheme = url.scheme
         val host = url.host
         var referer = "$scheme://$host/post"
+        if (host == "rule34.xxx" || host.endsWith(".rule34.xxx")) {
+            referer = "https://rule34.xxx/"
+        }
         val ua =
             if (host.contains("sankaku", ignoreCase = true)) {
                 referer = Values.SANKAKU_REFERER
@@ -21,7 +24,7 @@ class RequestHeaderInterceptor : Interceptor {
             chain.request().newBuilder().apply {
                 removeHeader(Keys.HEADER_USER_AGENT)
                 addHeader(Keys.HEADER_USER_AGENT, ua)
-                addHeader(Keys.HEADER_REFERER, referer)
+                header(Keys.HEADER_REFERER, referer)
             }
         return chain.proceed(builder.build())
     }

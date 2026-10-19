@@ -56,6 +56,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.koin.core.component.inject
 
+@Suppress("TooManyFunctions") // One existing WorkManager owner for post/pool transfer lifecycle.
 class DownloadWorker(
     context: Context,
     workerParameters: WorkerParameters,
@@ -88,6 +89,8 @@ class DownloadWorker(
         private const val PASSWORD_HASH_KEY = "password_hash"
 
         private const val FINAL_NAME_KEY = "final_name"
+        private const val IDENTITY_KEY = "enqueue_identity"
+        private const val STAGED_KEY = "staged_download"
         const val DOC_ID_KEY = "doc_id"
         const val INPUT_DATA_KEY = "input_data"
 
@@ -113,6 +116,7 @@ class DownloadWorker(
                         POST_ID_KEY to post.id,
                         TYPE_KEY to TYPE_POST,
                         FINAL_NAME_KEY to fileName,
+                        STAGED_KEY to true,
                         DOC_ID_KEY to docId,
                     )
                 runWork(activity, data)
@@ -132,6 +136,7 @@ class DownloadWorker(
                         POST_ID_KEY to postId,
                         TYPE_KEY to TYPE_POST,
                         FINAL_NAME_KEY to fileName,
+                        STAGED_KEY to true,
                         DOC_ID_KEY to docId,
                     )
                 runWork(activity, data)
@@ -166,23 +171,78 @@ class DownloadWorker(
                         TYPE_KEY to TYPE_POOL,
                         BOORU_UID_KEY to booru.uid,
                         FINAL_NAME_KEY to fileName,
+                        STAGED_KEY to true,
                         DOC_ID_KEY to docId,
                     )
                 runWork(activity, data)
             }
 
+        @Suppress(
+            "ReturnCount"
+        ) // Preserve queued and legacy identities before deriving a new transfer identity.
+        private fun enqueueIdentity(
+            data: Data,
+            vault: com.mattzilla30.mbooru.data.credentials.CredentialRepository,
+        ): String {
+            data.getString(IDENTITY_KEY)?.let {
+                return it
+            }
+            if (data.getString(TYPE_KEY) != TYPE_POST || data.getString(FINAL_NAME_KEY) == null)
+                return data.getString(DOC_ID_KEY).orEmpty()
+            val stored = data.getString(URL_KEY).orEmpty()
+            val source = if (vault.isReference(stored)) vault.read(stored).orEmpty() else stored
+            val settings =
+                org.koin.core.context.GlobalContext.get()
+                    .get<com.mattzilla30.mbooru.app.SettingsRepository>()
+            val identity =
+                listOf(
+                        source,
+                        data.getString(HOST_KEY).orEmpty(),
+                        data.getString(FINAL_NAME_KEY).orEmpty(),
+                        settings.downloadDirPath.orEmpty(),
+                    )
+                    .joinToString("\n")
+            return java.security.MessageDigest.getInstance("SHA-256")
+                .digest(identity.toByteArray())
+                .joinToString("") { "%02x".format(it) }
+        }
+
+        private suspend fun discardDuplicate(
+            manager: WorkManager,
+            unique: String,
+            dao: DownloadDao,
+            context: Context,
+            data: Data,
+        ): Boolean {
+            val active =
+                manager.getWorkInfosForUniqueWork(unique).get().filter { !it.state.isFinished }
+            if (active.isEmpty()) return false
+            val document = data.getString(DOC_ID_KEY)
+            val alreadyOwned = active.any { dao.get(it.id.toString())?.documentId == document }
+            if (data.getBoolean(STAGED_KEY, false) && !alreadyOwned && document != null) {
+                // Only newly staged destinations may be discarded, never the active transfer's
+                // file.
+                runCatching {
+                    android.provider.DocumentsContract.deleteDocument(
+                        context.contentResolver,
+                        Uri.parse(document),
+                    )
+                }
+            }
+            return true
+        }
+
         suspend fun runWork(context: Context, data: Data, previous: DownloadRecord? = null) =
             withContext(Dispatchers.IO) {
                 enqueueMutex.withLock {
                     val manager = WorkManager.getInstance(context)
-                    val unique = "download:${data.getString(DOC_ID_KEY)}"
-                    if (
-                        manager.getWorkInfosForUniqueWork(unique).get().any { !it.state.isFinished }
-                    )
-                        return@withLock
                     val vault =
                         org.koin.core.context.GlobalContext.get()
                             .get<com.mattzilla30.mbooru.data.credentials.CredentialRepository>()
+                    val dao = org.koin.core.context.GlobalContext.get().get<DownloadDao>()
+                    val identity = enqueueIdentity(data, vault)
+                    val unique = "download:$identity"
+                    if (discardDuplicate(manager, unique, dao, context, data)) return@withLock
                     val safe =
                         data.keyValueMap
                             .filterKeys { it != USERNAME_KEY && it != PASSWORD_HASH_KEY }
@@ -192,7 +252,8 @@ class DownloadWorker(
                     (safe[URL_KEY] as? String)?.let {
                         if (!vault.isReference(it)) safe[URL_KEY] = vault.store(it)
                     }
-                    val safeData = Data.Builder().putAll(safe).build()
+                    val safeData =
+                        Data.Builder().putAll(safe).putString(IDENTITY_KEY, identity).build()
                     val constraints =
                         Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
                     val work =
@@ -202,7 +263,6 @@ class DownloadWorker(
                             .addTag(DOWNLOAD_TAG)
                             .keepResultsForAtLeast(7, java.util.concurrent.TimeUnit.DAYS)
                             .build()
-                    val dao = org.koin.core.context.GlobalContext.get().get<DownloadDao>()
                     val record =
                         previous?.copy(
                             workId = work.id.toString(),
@@ -270,7 +330,7 @@ class DownloadWorker(
             queue.state(
                 key,
                 if (succeeded) "completed" else "failed",
-                if (succeeded) null else "transfer_failed",
+                if (succeeded) null else queue.get(key)?.error ?: "transfer_failed",
             )
             if (succeeded) Result.success() else Result.failure()
         } catch (cancelled: CancellationException) {
@@ -288,6 +348,9 @@ class DownloadWorker(
         }
     }
 
+    @Suppress(
+        "ReturnCount"
+    ) // Validation guards and failure outcomes preserve the existing transfer contract.
     private suspend fun downloadPost(): Boolean {
         val storedUrl = inputData.getString(URL_KEY)
         val url = storedUrl?.let { if (vault.isReference(it)) vault.read(it) else it }
@@ -312,21 +375,7 @@ class DownloadWorker(
             snapshot = applicationContext.imageLoader.diskCache?.openSnapshot(url)
             val file = snapshot?.data?.toFile()
             if (file != null && file.exists()) {
-                runInterruptible(Dispatchers.IO) {
-                    FileInputStream(file).use { input ->
-                        val output =
-                            applicationContext.contentResolver.openOutputStream(desUri, "wt")
-                                ?: throw IOException("Download destination is unavailable")
-                        output.use { copyDownload(input, it) }
-                    }
-                }
-                queue.progress(
-                    this@DownloadWorker.id.toString(),
-                    file.length(),
-                    file.length(),
-                    null,
-                    null,
-                )
+                copyCachedDownload(file, desUri)
             } else transfer(url, desUri)
             notifyDownload(
                 notificationManager,
@@ -336,6 +385,14 @@ class DownloadWorker(
             return true
         } catch (cancelled: CancellationException) {
             throw cancelled
+        } catch (_: DownloadSizeLimitException) {
+            queue.state(this@DownloadWorker.id.toString(), "failed", "size_limit")
+            notifyDownload(
+                notificationManager,
+                id + 1000000,
+                getDownloadErrorNotification(title, channelId),
+            )
+            return false
         } catch (_: IOException) {
             notifyDownload(
                 notificationManager,
@@ -347,6 +404,25 @@ class DownloadWorker(
             ProgressInterceptor.removeListener(url)
             runCatching { snapshot?.close() }
         }
+    }
+
+    private suspend fun copyCachedDownload(file: java.io.File, desUri: Uri) {
+        if (file.length() > settings.downloadMaxBytes) throw DownloadSizeLimitException()
+        runInterruptible(Dispatchers.IO) {
+            FileInputStream(file).use { input ->
+                val output =
+                    applicationContext.contentResolver.openOutputStream(desUri, "wt")
+                        ?: throw IOException("Download destination is unavailable")
+                output.use { copyDownload(input, it) }
+            }
+        }
+        queue.progress(
+            this@DownloadWorker.id.toString(),
+            file.length(),
+            file.length(),
+            null,
+            null,
+        )
     }
 
     private suspend fun downloadPool(): Boolean {
@@ -445,6 +521,7 @@ class DownloadWorker(
             url,
             destination,
             transport.mediaClient(),
+            maximumBytes = settings.downloadMaxBytes,
         )
 
     private fun notifyDownload(manager: NotificationManager, id: Int, notification: Notification) {

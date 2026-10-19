@@ -145,6 +145,7 @@ class PostScreenController(
             },
             onLongClick = ::handleLongClick,
             modifier = modifier,
+            safeOnly = settings.safeMode,
             onImage = { index, view ->
                 if (view == null) visibleImages.remove(index) else visibleImages[index] = view
             },

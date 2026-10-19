@@ -24,6 +24,7 @@ import android.provider.DocumentsContract
 import android.view.*
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.IntRange
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -32,11 +33,11 @@ import androidx.core.net.toUri
 import androidx.core.view.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.executeBlocking
 import coil3.imageLoader
 import coil3.request.*
-import coil3.request.ImageRequest
 import com.mattzilla30.mbooru.BuildConfig
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Keys.POST_POSITION
@@ -57,7 +58,6 @@ import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.extension.*
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.common.*
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
 import com.mattzilla30.mbooru.ui.compose.detail.DetailScreen
 import com.mattzilla30.mbooru.ui.compose.theme.MBooruTheme
 import com.mattzilla30.mbooru.ui.fragment.InfoDialog
@@ -87,11 +87,20 @@ class DetailActivity :
     companion object {
         const val ACTION_DETAIL_POST_POSITION = "detail_post_position"
 
-        fun start(activity: Activity, query: String?, position: Int, view: View, tranName: String) {
+        @Suppress("LongParameterList")
+        fun start(
+            activity: Activity,
+            query: String?,
+            position: Int,
+            view: View,
+            tranName: String,
+            safeOnly: Boolean = false,
+        ) {
             val intent =
                 Intent(activity, DetailActivity::class.java).apply {
                     putExtra(POST_QUERY, query)
                     putExtra(POST_POSITION, position)
+                    putExtra("safe_query", safeOnly)
                 }
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                 val options =
@@ -109,6 +118,10 @@ class DetailActivity :
     }
 
     private val postDao by inject<PostDao>()
+    private val favoriteApis by inject<com.mattzilla30.mbooru.data.api.BooruApis>()
+    private val remoteVotes by lazy {
+        com.mattzilla30.mbooru.data.repository.favorite.VoteRepositoryImpl(favoriteApis, postDao)
+    }
     private val localFavorites by inject<com.mattzilla30.mbooru.data.database.dao.SavedPostDao>()
     private lateinit var booru: Booru
     private lateinit var query: String
@@ -117,9 +130,24 @@ class DetailActivity :
     private var tmpFile: File? = null
     private var visiblePost: Post? = null
     private val currentPost: Post?
-        get() = visiblePost?.let {
-            it.copy(isFavored = detailViewModel.state.value.favorites[it.id] ?: it.isFavored)
+        get() = visiblePost
+
+    private val libraryDao by inject<com.mattzilla30.mbooru.data.database.dao.LibraryDao>()
+    private val libraryModel by
+        viewModels<com.mattzilla30.mbooru.ui.compose.library.ArtworkLibraryViewModel> {
+            androidx.lifecycle.viewmodel.viewModelFactory {
+                initializer {
+                    com.mattzilla30.mbooru.ui.compose.library.ArtworkLibraryViewModel(libraryDao)
+                }
+            }
         }
+
+    private var safeOnOpen = true
+
+    override fun onResume() {
+        super.onResume()
+        if (::detailViewModel.isInitialized && safeOnOpen != settings.safeMode) recreate()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,7 +157,10 @@ class DetailActivity :
 
     override fun onSettingsReady(savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            val site = booruManager.getBooruByUid(settings.activatedBooruUid)
+            val site =
+                booruManager.getBooruByUid(
+                    intent.getLongExtra("source_site_uid", settings.activatedBooruUid)
+                )
             if (isFinishing || isDestroyed) return@launch
             if (site == null) {
                 finish()
@@ -141,9 +172,16 @@ class DetailActivity :
 
     @Suppress("LongMethod")
     private fun initializeContent(site: Booru) {
+        safeOnOpen = settings.safeMode
         booru = site
         query = intent.getStringExtra(POST_QUERY).orEmpty()
-        detailViewModel = getDetailViewModel(postDao, booru.uid, query)
+        detailViewModel =
+            getDetailViewModel(
+                postDao,
+                booru.uid,
+                query,
+                settings.safeMode || intent.getBooleanExtra("safe_query", false),
+            )
         if (detailViewModel.currentPosition < 0)
             detailViewModel.currentPosition = intent.getIntExtra(POST_POSITION, 0)
         if (Build.VERSION.SDK_INT > 21) postponeEnterTransition()
@@ -163,6 +201,8 @@ class DetailActivity :
                     select = { post, position ->
                         visiblePost = post
                         lifecycleScope.launch {
+                            if (libraryDao.artwork(post.booruUid, post.id) != null)
+                                libraryDao.retain(post)
                             detailViewModel.favorite(
                                 post.id,
                                 localFavorites.contains(post.booruUid, post.id),
@@ -186,6 +226,21 @@ class DetailActivity :
                     info = ::createInfoDialog,
                     download = { currentPost?.let(::download) },
                     favorite = ::vote,
+                    libraryActions = { post ->
+                        val localSaved by libraryModel.saved.collectAsStateWithLifecycle()
+                        androidx.compose.runtime.LaunchedEffect(post.id, localSaved) {
+                            detailViewModel.favorite(post.id, localSaved)
+                        }
+                        com.mattzilla30.mbooru.ui.compose.library.ArtworkLibraryActions(
+                            post,
+                            libraryModel,
+                        )
+                        com.mattzilla30.mbooru.ui.compose.library.RemoteFavoriteAction(
+                            post,
+                            booru,
+                            remoteVotes,
+                        )
+                    },
                     related = { relatedQuery ->
                         settings.activatedBooruUid = booru.uid
                         SearchActivity.startSearch(this, relatedQuery)
@@ -222,7 +277,7 @@ class DetailActivity :
             return
         }
         currentPost?.let {
-            InfoDialog.create(it.id).show(supportFragmentManager, "info")
+            InfoDialog.create(it.id, booru.uid).show(supportFragmentManager, "info")
         }
     }
 
@@ -265,11 +320,24 @@ class DetailActivity :
     }
 
     private fun download(post: Post) {
-        if (post.origin.isVideo()) {
-            downloadByAdm(post.origin)
-        } else {
-            DownloadWorker.downloadPost(post, booru.host, this)
-        }
+        if (
+            settings.safeMode &&
+                com.mattzilla30.mbooru.core.model.normalizedRating(post.rating) !=
+                    com.mattzilla30.mbooru.core.model.ArtworkRating.SAFE
+        )
+            return
+        val choices =
+            listOf("Preview" to post.preview, "Sample" to post.sample, "Original" to post.origin)
+                .filter { it.second.isNotBlank() }
+                .distinctBy { it.second }
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Download quality")
+            .setItems(choices.map { it.first }.toTypedArray()) { _, index ->
+                val url = choices[index].second
+                DownloadWorker.download(url, post.id, booru.host, this)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun openBrowser(post: Post) {
@@ -281,6 +349,8 @@ class DetailActivity :
 
     private fun getLink(post: Post): String? {
         return when (booru.type) {
+            com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34 ->
+                "https://rule34.xxx/index.php?page=post&s=view&id=${post.id}"
             BOORU_TYPE_DAN -> String.format("%s://%s/posts/%d", booru.scheme, booru.host, post.id)
             BOORU_TYPE_DAN1 ->
                 String.format("%s://%s/post/show/%d", booru.scheme, booru.host, post.id)

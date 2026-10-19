@@ -63,6 +63,7 @@ enum class BooruEngine(val legacyId: Int, val capabilities: EngineCapabilities) 
         6,
         EngineCapabilities(tags = true, accounts = true, comments = true, tagFilters = true),
     ),
+    RULE34(RULE34_ENGINE_ID, EngineCapabilities(accounts = true, tagFilters = true)),
     UNKNOWN(-1, EngineCapabilities());
 
     companion object {
@@ -82,3 +83,5 @@ data class EngineCapabilities(
     val tagFilters: Boolean = false,
     val poolArchives: Boolean = false,
 )
+
+private const val RULE34_ENGINE_ID = 7

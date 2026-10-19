@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class DetailViewModel(postDao: PostDao, booruUid: Long, query: String) :
+class DetailViewModel(postDao: PostDao, booruUid: Long, query: String, safeOnly: Boolean = false) :
     androidx.lifecycle.ViewModel() {
 
     val posts =
@@ -32,10 +32,11 @@ class DetailViewModel(postDao: PostDao, booruUid: Long, query: String) :
                 config =
                     PagingConfig(
                         pageSize = 30,
+                        maxSize = 180,
                         enablePlaceholders = true,
                     )
             ) {
-                postDao.getPosts(booruUid, query)
+                postDao.getPosts(booruUid, query, safeOnly)
             }
             .flow
             .cachedIn(viewModelScope)

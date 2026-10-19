@@ -31,7 +31,7 @@ import com.mattzilla30.mbooru.widget.DismissFrameLayout
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-@Suppress("FunctionNaming", "LongMethod", "LongParameterList")
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 fun DetailScreen(
     posts: LazyPagingItems<Post>,
     state: DetailUiState,
@@ -51,6 +51,7 @@ fun DetailScreen(
     related: (String) -> Unit,
     openLink: () -> Unit,
     longAction: (Int) -> Unit,
+    libraryActions: @Composable (Post) -> Unit = {},
 ) {
     var current by remember { mutableStateOf<Post?>(null) }
     val zoomed = remember { mutableStateMapOf<Int, Boolean>() }
@@ -123,7 +124,8 @@ fun DetailScreen(
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 RowMenu(
-                    if (booru.type == Values.BOORU_TYPE_SHIMMIE) AppMenu.DetailShimmie
+                    if (booru.type in setOf(Values.BOORU_TYPE_SHIMMIE, Values.BOORU_TYPE_RULE34))
+                        AppMenu.DetailShimmie
                     else AppMenu.Detail,
                     iconTint = Color.White,
                 ) {
@@ -144,6 +146,7 @@ fun DetailScreen(
                     )
                     .navigationBarsPadding()
             ) {
+                current?.let { libraryActions(it) }
                 Row(
                     Modifier.fillMaxWidth().heightIn(min = 78.dp).padding(end = 8.dp, top = 22.dp),
                     horizontalArrangement = Arrangement.End,
@@ -155,12 +158,12 @@ fun DetailScreen(
                             tint = Color.White,
                         )
                     }
-                    val favored = current?.let { state.favorites[it.id] ?: it.isFavored } == true
+                    val favored = current?.let { state.favorites[it.id] ?: false } == true
                     IconToggleButton(checked = favored, onCheckedChange = { favorite() }) {
                         Icon(
                             painterResource(
-                                if (favored) R.drawable.ic_favorite_24dp
-                                else R.drawable.ic_favorite_outline_24dp
+                                if (favored) R.drawable.ic_bookmark_24dp
+                                else R.drawable.ic_bookmark_border_24dp
                             ),
                             stringResource(R.string.sphere_favorites),
                             tint =

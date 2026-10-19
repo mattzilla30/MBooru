@@ -45,3 +45,7 @@ See the [full modernization roadmap](docs/future-modernization-plan.md) for plat
 Releases use plain integer names/tags, starting with `1`. Android version codes remain separate monotonic integers (`1374` for release `1`) so existing installations can upgrade. Source provenance is recorded by the release tag; embedded VCS metadata is disabled for release APKs to avoid recording a base commit from a working-tree build.
 
 UI design credit: [Boorusphere](https://github.com/azrim/boorusphere), copyright 2021 Chaldeaprjkt (BSD-3-Clause). See [adaptation details and bundled license](docs/boorusphere-ui.md).
+
+## M34 integration
+
+The integrated Rule34 connection, five-tab navigation, local likes, named collections and versioned library transfer are documented in [the M34 integration guide](docs/integration/m34.md). Android API 21 compatibility and the existing MBooru package/signing identity are preserved.

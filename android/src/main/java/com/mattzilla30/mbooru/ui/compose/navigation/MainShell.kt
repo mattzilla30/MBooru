@@ -113,6 +113,30 @@ class MainShellViewModel(private val saved: SavedStateHandle) : ViewModel() {
         servers.trySend(Unit)
     }
 
+    val requestedBrowse = saved.getStateFlow<Int?>("requested_browse", null)
+
+    fun requestBrowse(id: Int) {
+        advanced()
+        saved["requested_browse"] = id
+    }
+
+    fun browseHandled() {
+        saved["requested_browse"] = null
+    }
+
+    val homeSection = saved.getStateFlow("home_section", 0)
+    val secondary = saved.getStateFlow("secondary", false)
+
+    fun section(value: Int) {
+        saved["home_section"] = value
+        saved["secondary"] = false
+    }
+
+    fun advanced() {
+        saved["home_section"] = 0
+        saved["secondary"] = true
+    }
+
     val navVisible = saved.getStateFlow("navigationVisible", true)
     private val revision = MutableStateFlow(0)
     val preferencesRevision = revision.asStateFlow()
@@ -132,7 +156,7 @@ class MainShellViewModel(private val saved: SavedStateHandle) : ViewModel() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("FunctionNaming", "LongMethod", "LongParameterList")
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 fun MainShell(
     boorus: List<Booru>,
     selectedUid: Long,
@@ -146,6 +170,7 @@ fun MainShell(
     serverRequests: kotlinx.coroutines.flow.Flow<Unit> = kotlinx.coroutines.flow.emptyFlow(),
     onEditServer: (Booru) -> Unit = {},
     onRemoveServer: (Long) -> Unit = {},
+    homeBack: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     val drawer = rememberDrawerState(DrawerValue.Closed)
@@ -158,6 +183,7 @@ fun MainShell(
     var selectingServer by remember { mutableStateOf(false) }
     LaunchedEffect(serverRequests) { serverRequests.collect { selectingServer = true } }
     LaunchedEffect(drawerRequests) { drawerRequests.collect { drawer.open() } }
+    BackHandler(!drawer.isOpen && homeBack != null) { homeBack?.invoke() }
     BackHandler(drawer.isOpen) { scope.launch { drawer.close() } }
     fun action(destination: DrawerDestination) {
         onAction(destination)

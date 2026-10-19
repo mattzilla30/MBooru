@@ -63,6 +63,37 @@ open class App : Application(), SingletonImageLoader.Factory {
                     .build()
             )
         }
+        registerActivityLifecycleCallbacks(
+            object : ActivityLifecycleCallbacks {
+                private var started = 0
+
+                override fun onActivityStarted(activity: android.app.Activity) {
+                    started++
+                }
+
+                override fun onActivityStopped(activity: android.app.Activity) {
+                    started = (started - 1).coerceAtLeast(0)
+                    if (started == 0 && !activity.isChangingConfigurations)
+                        com.mattzilla30.mbooru.ui.security.AppLockSession.lock()
+                }
+
+                override fun onActivityCreated(
+                    activity: android.app.Activity,
+                    state: android.os.Bundle?,
+                ) = Unit
+
+                override fun onActivityResumed(activity: android.app.Activity) = Unit
+
+                override fun onActivityPaused(activity: android.app.Activity) = Unit
+
+                override fun onActivitySaveInstanceState(
+                    activity: android.app.Activity,
+                    state: android.os.Bundle,
+                ) = Unit
+
+                override fun onActivityDestroyed(activity: android.app.Activity) = Unit
+            }
+        )
         initial()
     }
 

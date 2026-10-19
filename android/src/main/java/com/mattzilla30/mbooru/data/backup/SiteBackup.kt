@@ -69,6 +69,14 @@ object SiteBackups {
             ) {
                 "Invalid site address"
             }
+            if (it.type == BooruEngine.RULE34.legacyId)
+                require(
+                    it.scheme == "https" &&
+                        it.host.lowercase().removePrefix("www.") in
+                            setOf("rule34.xxx", "api.rule34.xxx")
+                ) {
+                    "Invalid Rule34 endpoint"
+                }
             require(BooruEngine.fromLegacyId(it.type) != BooruEngine.UNKNOWN) {
                 "Unsupported engine"
             }

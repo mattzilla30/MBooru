@@ -72,6 +72,35 @@ class DownloadStorageTest {
     }
 
     @Test
+    fun `known and chunked responses stop before exceeding the chosen size limit`() = runBlocking {
+        for (chunked in listOf(false, true)) {
+            val id = provider.createDocument("root", "application/octet-stream", "bounded.part")
+            val uri = DocumentsContract.buildDocumentUri("fixture.documents", id)
+            database
+                .downloadDao()
+                .insert(DownloadRecord(key, uri.toString(), "bounded", byteArrayOf(), 0))
+            server.enqueue(
+                if (chunked) MockResponse().setChunkedBody("0123456789", 2)
+                else MockResponse().setBody("0123456789")
+            )
+            try {
+                transferDownload(
+                    context,
+                    database.downloadDao(),
+                    key,
+                    server.url("/bounded").toString(),
+                    uri,
+                    OkHttpClient(),
+                    maximumBytes = 5,
+                )
+                fail("Oversized transfer must fail")
+            } catch (_: DownloadSizeLimitException) {
+                assertTrue(provider.files.getValue(id).length() <= 5)
+            }
+        }
+    }
+
+    @Test
     fun `opaque destinations survive transfers and publication preserves existing downloads`() =
         runBlocking {
             val oldId = provider.createDocument("root", "image/png", "image.png")

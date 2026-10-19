@@ -119,12 +119,13 @@ fun ViewModelStoreOwner.getDetailViewModel(
     postDao: PostDao,
     booruUid: Long,
     query: String,
+    safeOnly: Boolean = false,
 ): DetailViewModel =
     getViewModel(
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return DetailViewModel(postDao, booruUid, query) as T
+                return DetailViewModel(postDao, booruUid, query, safeOnly) as T
             }
         }
     )

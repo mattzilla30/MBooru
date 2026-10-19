@@ -57,6 +57,8 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private val booruDao by inject<BooruDao>()
     private val boorus by lazy { getBooruViewModel(booruDao, siteManager) }
     private val shell by viewModels<MainShellViewModel>()
+    private val homeDatabase by inject<com.mattzilla30.mbooru.data.database.MyDatabase>()
+    private val homeApis by inject<com.mattzilla30.mbooru.data.api.BooruApis>()
     private val updater by inject<com.mattzilla30.mbooru.data.api.AppUpdaterRepository>()
     internal var activeBrowse: BrowseNavigation? = null
     private val notificationPermission =
@@ -84,9 +86,13 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
         boorus.loadBooru(settings.activatedBooruUid)
         setContent {
             MBooruTheme {
+                val homeHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
                 val sites by boorus.boorusState.collectAsStateWithLifecycle()
                 val site by boorus.booruState.collectAsStateWithLifecycle()
                 val visible by shell.navVisible.collectAsStateWithLifecycle()
+                val section by shell.homeSection.collectAsStateWithLifecycle()
+                val secondary by shell.secondary.collectAsStateWithLifecycle()
+                val requestedBrowse by shell.requestedBrowse.collectAsStateWithLifecycle()
                 val revision by shell.preferencesRevision.collectAsStateWithLifecycle()
                 val selectedUid = remember(revision) { settings.activatedBooruUid }
                 val type = site?.type ?: Values.BOORU_TYPE_UNKNOWN
@@ -96,6 +102,13 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     val navigation = rememberNavController()
                     val entry by navigation.currentBackStackEntryAsState()
                     val selected = entry?.destination.browseTab()
+                    androidx.compose.runtime.LaunchedEffect(entry, secondary, requestedBrowse) {
+                        val requested = requestedBrowse
+                        if (secondary && entry != null && requested != null) {
+                            navigation.openBrowseTab(requested)
+                            shell.browseHandled()
+                        }
+                    }
                     MainShell(
                         sites,
                         selectedUid,
@@ -106,6 +119,7 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                         serverRequests = shell.serverRequests,
                         onBooru = { settings.activatedBooruUid = it },
                         onAction = ::openDestination,
+                        homeBack = if (section != 0 || secondary) ({ shell.section(0) }) else null,
                         onEditServer = { server ->
                             startActivity(
                                 Intent(this, BooruConfigActivity::class.java)
@@ -116,11 +130,31 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                             lifecycleScope.launch { siteManager.deleteBooru(id) }
                         },
                         onTab = { id ->
-                            if (selected == id) currentBrowse()?.toListTop()
-                            else navigation.openBrowseTab(id)
+                            if (secondary && selected == id) currentBrowse()?.toListTop()
+                            else shell.requestBrowse(id)
                         },
                     ) {
-                        MainBrowseNavHost(navigation, tabs)
+                        com.mattzilla30.mbooru.ui.compose.home.MainHomeContent(
+                            this,
+                            homeHolder,
+                            revision,
+                            homeDatabase,
+                            homeApis,
+                            preferences,
+                            site,
+                            sites,
+                            section,
+                            shell::section,
+                            secondary,
+                            shell::openDrawer,
+                            shell::chooseServer,
+                            onPopular = { shell.requestBrowse(R.id.nav_popular) },
+                            onAdvanced = {
+                                shell.requestBrowse(com.mattzilla30.mbooru.R.id.nav_posts)
+                            },
+                        ) {
+                            MainBrowseNavHost(navigation, tabs)
+                        }
                     }
                 }
                 if (settings.latestVersionCode > BuildConfig.VERSION_CODE) {
@@ -159,6 +193,21 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private fun currentBrowse(): BrowseNavigation? = activeBrowse
 
     private fun openDestination(key: DrawerDestination) {
+        when (key) {
+            DrawerDestination.Sites -> {
+                shell.section(SITES_SECTION)
+                return
+            }
+            DrawerDestination.Settings -> {
+                shell.section(SETTINGS_SECTION)
+                return
+            }
+            DrawerDestination.Favorites -> {
+                shell.section(2)
+                return
+            }
+            else -> Unit
+        }
         val booru = boorus.currentBooru
         val capabilities =
             com.mattzilla30.mbooru.core.model.BooruEngine.fromLegacyId(booru?.type ?: -1)
@@ -228,3 +277,6 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
         super.onDestroy()
     }
 }
+
+private const val SITES_SECTION = 3
+private const val SETTINGS_SECTION = 4

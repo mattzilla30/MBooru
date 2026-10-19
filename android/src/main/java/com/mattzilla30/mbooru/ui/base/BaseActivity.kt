@@ -28,8 +28,6 @@ import com.mattzilla30.mbooru.data.settings.DataStorePreferences
 import com.mattzilla30.mbooru.extension.applySafeDrawingInsets
 import com.mattzilla30.mbooru.ui.activity.*
 import com.mattzilla30.mbooru.ui.compose.common.*
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.helper.isNightEnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -38,6 +36,9 @@ import org.koin.android.ext.android.inject
 abstract class BaseActivity : AppCompatActivity() {
     val settings by inject<com.mattzilla30.mbooru.app.SettingsRepository>()
     private val durablePreferences by inject<DataStorePreferences>()
+
+    private val appLockGate = com.mattzilla30.mbooru.ui.security.AppLockGate(this)
+    private var preferencesReady = false
 
     protected open fun onSettingsReady(savedInstanceState: Bundle?) = Unit
 
@@ -129,7 +130,8 @@ abstract class BaseActivity : AppCompatActivity() {
                     androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(settings.nightMode)
                     // Cold DataStore initialization must also restore the saved black/dark palette.
                     applyStoredTheme()
-                    onSettingsReady(savedInstanceState)
+                    preferencesReady = true
+                    appLockGate.open { onSettingsReady(savedInstanceState) }
                 }
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
@@ -147,6 +149,11 @@ abstract class BaseActivity : AppCompatActivity() {
                         .show()
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (preferencesReady) appLockGate.resume()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

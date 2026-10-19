@@ -70,6 +70,31 @@ class SettingsRepository(private val sp: SharedPreferences) {
                 )
                 .apply()
 
+    var downloadMaxBytes: Long
+        get() =
+            sp.getLong(
+                "download_max_bytes",
+                com.mattzilla30.mbooru.core.model.DownloadLimits.DEFAULT_BYTES,
+            )
+        set(value) {
+            require(
+                value in
+                    com.mattzilla30.mbooru.core.model.DownloadLimits.MIN_BYTES..com.mattzilla30
+                            .mbooru
+                            .core
+                            .model
+                            .DownloadLimits
+                            .MAX_BYTES
+            )
+            sp.edit().putLong("download_max_bytes", value).apply()
+        }
+
+    var appLock: Boolean
+        get() = sp.getBoolean("app_lock", false)
+        set(value) {
+            sp.edit().putBoolean("app_lock", value).apply()
+        }
+
     var safeMode: Boolean
         get() = sp.getBoolean(SAFE_MODE_KEY, true)
         set(value) =

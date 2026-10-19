@@ -164,6 +164,7 @@ class SearchResultsTest {
 
 class SearchFixtureApp : App() {
     val requests = CopyOnWriteArrayList<HttpUrl>()
+    @Volatile var catalogSize = 1
     @Volatile var postStatus = 200
     @Volatile var emptyResults = false
     @Volatile var delayPosts = false
@@ -192,7 +193,21 @@ class SearchFixtureApp : App() {
                                 val body =
                                     if (request.url.encodedPath == "/post.json") {
                                         if (emptyResults) """{"posts":[],"tags":{},"votes":{}}"""
-                                        else SEARCH_POST
+                                        else if (catalogSize == 1) SEARCH_POST
+                                        else {
+                                            val template = org.json.JSONObject(SEARCH_POST)
+                                            val original =
+                                                template.getJSONArray("posts").getJSONObject(0)
+                                            val posts = org.json.JSONArray()
+                                            repeat(catalogSize) { offset ->
+                                                posts.put(
+                                                    org.json
+                                                        .JSONObject(original.toString())
+                                                        .put("id", 2468 + offset)
+                                                )
+                                            }
+                                            template.put("posts", posts).toString()
+                                        }
                                     } else "{}"
                                 Response.Builder()
                                     .request(request)

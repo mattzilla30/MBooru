@@ -16,6 +16,19 @@
 package com.mattzilla30.mbooru.data.api
 
 class BooruApis(private val transport: HttpTransport) {
+    val rule34 by lazy {
+        com.mattzilla30.mbooru.data.api.rule34.Rule34Adapter(
+            createApi<com.mattzilla30.mbooru.data.api.rule34.Rule34Api>(
+                transport
+                    .apiClient(false)
+                    .newBuilder()
+                    .followRedirects(false)
+                    .followSslRedirects(false)
+                    .build()
+            )
+        )
+    }
+
     val cookies
         get() = transport.cookies
 

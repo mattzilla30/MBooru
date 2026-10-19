@@ -82,14 +82,17 @@ fun PostMetadata(
         }
         item {
             val rating =
-                when (post.rating) {
-                    "s" ->
-                        if (booru.type == Values.BOORU_TYPE_DAN)
-                            R.string.browse_info_rating_sensitive
+                when (com.mattzilla30.mbooru.core.model.normalizedRating(post.rating)) {
+                    com.mattzilla30.mbooru.core.model.ArtworkRating.SAFE ->
+                        if (post.rating.trim().lowercase() in setOf("g", "general"))
+                            R.string.browse_info_rating_general
                         else R.string.browse_info_rating_safe
-                    "q" -> R.string.browse_info_rating_questionable
-                    "g" -> R.string.browse_info_rating_general
-                    else -> R.string.browse_info_rating_explicit
+                    com.mattzilla30.mbooru.core.model.ArtworkRating.QUESTIONABLE ->
+                        R.string.browse_info_rating_questionable
+                    com.mattzilla30.mbooru.core.model.ArtworkRating.EXPLICIT ->
+                        R.string.browse_info_rating_explicit
+                    com.mattzilla30.mbooru.core.model.ArtworkRating.UNKNOWN ->
+                        R.string.tag_type_unknown
                 }
             Text(
                 "${stringResource(R.string.browse_info_rating)}: ${stringResource(rating)}",

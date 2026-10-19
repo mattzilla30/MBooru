@@ -30,6 +30,7 @@ import androidx.room.*
             ))
         ],
 )
+@kotlinx.serialization.Serializable
 data class Post(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "uid") var uid: Long = 0L,
     @ColumnInfo(name = "booru_uid") var booruUid: Long = -1L,

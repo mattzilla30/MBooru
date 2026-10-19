@@ -130,6 +130,12 @@ class DownloadsActivity : BaseActivity() {
                                     }
                                 }
                                 Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
+                                    if (item.error == "size_limit")
+                                        Text(
+                                            "Download exceeds the configured size limit. " +
+                                                "Raise it in Settings before retrying.",
+                                            color = MaterialTheme.colorScheme.error,
+                                        )
                                     Text(
                                         item.title,
                                         style = MaterialTheme.typography.bodyMedium,

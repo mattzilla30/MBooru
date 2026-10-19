@@ -45,9 +45,6 @@ import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.account.AccountViewModel
 import com.mattzilla30.mbooru.ui.compose.common.*
-import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
-import com.mattzilla30.mbooru.ui.compose.common.AppMenu
-import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
 import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 
@@ -91,6 +88,16 @@ class AccountActivity : PathActivity(), org.koin.core.component.KoinComponent {
 
     private fun initializeContent() {
         val site = booru ?: return finish()
+        if (
+            site.type == Values.BOORU_TYPE_RULE34 ||
+                (site.scheme == "https" &&
+                    site.host.lowercase().removePrefix("www.") in
+                        setOf("rule34.xxx", "api.rule34.xxx"))
+        ) {
+            startActivity(android.content.Intent(this, AccountConfigActivity::class.java))
+            finish()
+            return
+        }
         screenTitle = getString(R.string.title_account_and_booru, site.name)
         setComposeContent {
             val user by model.user.collectAsStateWithLifecycle()

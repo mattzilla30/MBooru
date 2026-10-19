@@ -2,8 +2,6 @@ package com.mattzilla30.mbooru.data.database.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
@@ -14,19 +12,21 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class SavedPostDao {
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM saved_posts ORDER BY saved_at DESC")
+    @Query("SELECT * FROM saved_posts WHERE is_saved = 1 ORDER BY saved_at DESC")
     abstract fun paging(): PagingSource<Int, Post>
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM saved_posts ORDER BY saved_at DESC")
+    @Query("SELECT * FROM saved_posts WHERE is_saved = 1 ORDER BY saved_at DESC")
     abstract fun observe(): Flow<List<Post>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM saved_posts WHERE booru_uid = :site AND id = :id)")
+    @Query(
+        "SELECT EXISTS(SELECT 1 FROM saved_posts WHERE booru_uid = :site AND id = :id AND is_saved = 1)"
+    )
     abstract suspend fun contains(site: Long, id: Int): Boolean
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) abstract suspend fun insert(entry: SavedPost)
+    @androidx.room.Upsert abstract suspend fun insert(entry: SavedPost)
 
-    @Query("DELETE FROM saved_posts WHERE booru_uid = :site AND id = :id")
+    @Query("UPDATE saved_posts SET is_saved = 0 WHERE booru_uid = :site AND id = :id")
     abstract suspend fun delete(site: Long, id: Int)
 
     @Transaction

@@ -28,10 +28,12 @@ class PostRemoteMediator(
     private val db: MyDatabase,
     private val booruApis: BooruApis,
     private val settings: com.mattzilla30.mbooru.app.SettingsRepository,
+    private val forceRefresh: Boolean = false,
 ) : RemoteMediator<Int, Post>() {
 
     private val isFavored = action.isFavoredQuery()
     private var lastResponseSize = action.limit
+    private var pendingRule34Next: Next? = null
     private val postDao = db.postDao()
 
     private suspend fun nextIndex(): Int = db.postDao().getNextIndex(action.booru.uid, action.query)
@@ -48,13 +50,16 @@ class PostRemoteMediator(
 
     override suspend fun initialize(): InitializeAction {
         return if (
-            settings.autoRefresh || postDao.getFirstPostRaw(action.booru.uid, action.query) == null
+            forceRefresh ||
+                settings.autoRefresh ||
+                postDao.getFirstPostRaw(action.booru.uid, action.query) == null
         )
             InitializeAction.LAUNCH_INITIAL_REFRESH
         else InitializeAction.SKIP_INITIAL_REFRESH
     }
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Post>): MediatorResult {
+        pendingRule34Next = null
         val posts =
             when (loadType) {
                 LoadType.REFRESH -> {
@@ -87,6 +92,7 @@ class PostRemoteMediator(
                     postDao.deletePosts(action.booru.uid, action.query)
                 }
                 postDao.insert(posts)
+                pendingRule34Next?.let { db.nextDao().insert(it) }
             }
         } catch (failure: Exception) {
             if (failure is kotlinx.coroutines.CancellationException) throw failure
@@ -97,6 +103,7 @@ class PostRemoteMediator(
 
     private suspend fun hasMore(): Boolean {
         return when {
+            action.booru.type == Values.BOORU_TYPE_RULE34 -> !nextSankakuKey().isNullOrEmpty()
             action.booru.type == BOORU_TYPE_SANKAKU -> !nextSankakuKey().isNullOrEmpty()
             action.pageType == PAGE_TYPE_POPULAR -> false
             else -> lastResponseSize == action.limit
@@ -105,6 +112,7 @@ class PostRemoteMediator(
 
     private suspend fun fetchPosts(nextIndex: Int, next: String?): List<Post> {
         return when (action.booru.type) {
+            Values.BOORU_TYPE_RULE34 -> fetchPostsRule34(next?.toIntOrNull() ?: 0, nextIndex)
             BOORU_TYPE_DAN -> {
                 if (action.booru.host in DanbooruApi.E621_HOSTS) {
                     fetchPostsDanE621(nextPage(nextIndex), nextIndex)
@@ -119,6 +127,29 @@ class PostRemoteMediator(
             BOORU_TYPE_GEL_LEGACY -> fetchPostsGelLegacy(nextPage(nextIndex), nextIndex)
             else -> fetchPostsShimmie(nextPage(nextIndex), nextIndex)
         }
+    }
+
+    private suspend fun fetchPostsRule34(page: Int, index: Int): List<Post> {
+        val query =
+            com.mattzilla30.mbooru.data.api.rule34.ArtworkQuery(
+                action.booru.uid,
+                action.query + " " + action.booru.getBlacklistsString(),
+                action.isSafeMode,
+            )
+        val response = booruApis.rule34.fetch(action.booru, query, page, action.limit, index)
+        if (response.received > 0 && response.posts.isEmpty()) {
+            throw com.mattzilla30.mbooru.data.api.rule34.Rule34Exception(
+                response.summary() + " Change the tags or rating filter and retry."
+            )
+        }
+        lastResponseSize = response.received
+        pendingRule34Next =
+            Next(
+                booruUid = action.booru.uid,
+                query = action.query,
+                next = if (response.received >= action.limit) (page + 1).toString() else null,
+            )
+        return response.posts.map { it.copy(query = action.query) }
     }
 
     private suspend fun fetchPostsDan(page: Int, indexInNext: Int): List<Post> {

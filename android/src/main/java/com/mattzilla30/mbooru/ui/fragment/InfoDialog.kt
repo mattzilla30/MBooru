@@ -60,9 +60,20 @@ class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponen
     private val booruManager by inject<com.mattzilla30.mbooru.data.database.BooruManager>()
 
     companion object {
-        fun create(postId: Int) =
-            InfoDialog().apply { arguments = Bundle().apply { putInt(Keys.POST_ID, postId) } }
+        fun create(postId: Int, sourceSite: Long = -1) =
+            InfoDialog().apply {
+                arguments =
+                    Bundle().apply {
+                        putInt(Keys.POST_ID, postId)
+                        putLong("source_site_uid", sourceSite)
+                    }
+            }
     }
+
+    private val sourceSite
+        get() =
+            arguments?.getLong("source_site_uid", -1)?.takeIf { it > 0 }
+                ?: settings.activatedBooruUid
 
     private val dao by inject<PostDao>()
 
@@ -74,7 +85,7 @@ class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponen
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
                     PostInfoViewModel(
                         dao,
-                        settings.activatedBooruUid,
+                        sourceSite,
                         requireArguments().getInt(Keys.POST_ID),
                     )
                         as T
@@ -90,7 +101,7 @@ class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponen
     ): View = composeView {
         val loadedSite by
             produceState<com.mattzilla30.mbooru.data.model.common.Booru?>(null) {
-                value = booruManager.getBooruByUid(settings.activatedBooruUid)
+                value = booruManager.getBooruByUid(sourceSite)
             }
         val site = loadedSite
         val post by model.post.collectAsStateWithLifecycle()
@@ -127,6 +138,7 @@ class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponen
                                                 Values.BOORU_TYPE_GEL,
                                                 Values.BOORU_TYPE_GEL_LEGACY,
                                                 Values.BOORU_TYPE_SHIMMIE,
+                                                Values.BOORU_TYPE_RULE34,
                                             )
                                     )
                                         startActivity(
@@ -151,18 +163,19 @@ class InfoDialog : BaseBottomSheetDialog(), org.koin.core.component.KoinComponen
                                 onCopy = { requireContext().copyText(it) },
                                 onOpen = { requireContext().downloadByAdm(it) },
                                 onDownload = { url ->
-                                    if (url.isVideo()) requireContext().downloadByAdm(url)
-                                    else
-                                        (activity as? PathActivity)?.let {
-                                            DownloadWorker.download(url, item.id, site.host, it)
-                                        }
+                                    (activity as? PathActivity)?.let {
+                                        DownloadWorker.download(url, item.id, site.host, it)
+                                    }
                                 },
                             )
                         else
                             PostTags(
                                 item,
                                 site,
-                                search = { SearchActivity.startSearch(requireContext(), it) },
+                                search = {
+                                    settings.activatedBooruUid = site.uid
+                                    SearchActivity.startSearch(requireContext(), it)
+                                },
                                 copy = { requireContext().copyText(it) },
                                 include = { tag, include ->
                                     scope.launch {

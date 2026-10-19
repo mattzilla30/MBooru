@@ -58,6 +58,40 @@ class ComposeMigrationSmokeTest {
         }
 
     @Test
+    fun safeOnlyChangeRemovesExplicitAndUnknownCardsBeforeImageRendering() {
+        val safe = mutableStateOf(false)
+        val data =
+            MutableStateFlow(
+                PagingData.from(
+                    listOf(
+                        sample(1, "").copy(rating = "e"),
+                        sample(2, "").copy(rating = "general"),
+                        sample(3, "").copy(rating = "unknown"),
+                    )
+                )
+            )
+        compose.setContent {
+            MBooruTheme {
+                val posts = data.collectAsLazyPagingItems()
+                PostGrid(
+                    posts,
+                    emptyFlow(),
+                    PostDisplayOptions(true, "1:1", true, false, 90f),
+                    { _, _, _ -> },
+                    {},
+                    modifier = Modifier.fillMaxSize(),
+                    safeOnly = safe.value,
+                )
+            }
+        }
+        compose.onNodeWithText("#1").assertExists()
+        compose.runOnIdle { safe.value = true }
+        compose.onNodeWithText("#1").assertDoesNotExist()
+        compose.onNodeWithText("#3").assertDoesNotExist()
+        compose.onNodeWithText("#2").assertExists()
+    }
+
+    @Test
     fun gridScrollRestoresAndUsesStablePostKeys() {
         val data = MutableStateFlow(PagingData.from((1..80).map { sample(it, "") }))
         val restoration = StateRestorationTester(compose)

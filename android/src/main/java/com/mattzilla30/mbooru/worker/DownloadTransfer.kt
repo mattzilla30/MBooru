@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.Request
 
 /** Range writes are allowed only after validating both the server and the destination. */
+@Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 internal suspend fun transferDownload(
     context: Context,
     queue: DownloadDao,
@@ -24,6 +25,7 @@ internal suspend fun transferDownload(
     url: String,
     destination: Uri,
     client: okhttp3.OkHttpClient,
+    maximumBytes: Long = com.mattzilla30.mbooru.core.model.DownloadLimits.DEFAULT_BYTES,
 ) =
     withContext(Dispatchers.IO) {
         val record = queue.get(workId)
@@ -122,6 +124,8 @@ internal suspend fun transferDownload(
                 val body = it.body ?: throw IOException("Empty download response")
                 val expected = body.contentLength()
                 val total = if (expected < 0) -1L else offset + expected
+                if (offset > maximumBytes || total > maximumBytes)
+                    throw DownloadSizeLimitException()
                 val etag = if (seekable) it.header("ETag") else null
                 val modified = if (seekable) it.header("Last-Modified") else null
                 val channel = seekableOutput?.channel
@@ -146,6 +150,8 @@ internal suspend fun transferDownload(
                             coroutineContext.ensureActive()
                             val count = input.read(buffer)
                             if (count < 0) break
+                            if (count.toLong() > maximumBytes - written)
+                                throw DownloadSizeLimitException()
                             target.write(buffer, 0, count)
                             written += count
                             val now = android.os.SystemClock.elapsedRealtime()
@@ -170,3 +176,6 @@ internal suspend fun transferDownload(
             seekableOutput?.close()
         }
     }
+
+internal class DownloadSizeLimitException :
+    IOException("Download exceeds the configured size limit")
