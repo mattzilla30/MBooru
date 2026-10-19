@@ -27,6 +27,50 @@ def adb(*values, check=True):
         print("Executing fixture ADB:", " ".join(map(str, values)), flush=True)
     return subprocess.run(["adb", *map(str, values)], check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=120 if values[0] == "install" else 60).stdout
 
+def varint(value):
+    result = bytearray()
+    while value > 127:
+        result.append((value & 127) | 128); value >>= 7
+    result.append(value)
+    return bytes(result)
+
+def wire_fields(data):
+    def number(position):
+        value, shift = 0, 0
+        while True:
+            byte = data[position]; position += 1
+            value |= (byte & 127) << shift
+            if byte < 128:return value, position
+            shift += 7
+    position = 0
+    while position < len(data):
+        start = position
+        tag, position = number(position)
+        kind = tag & 7
+        if kind == 2:
+            length, position = number(position)
+            payload = data[position:position+length]; position += length
+        elif kind == 0:
+            value, position = number(position); payload = varint(value)
+        elif kind in (1, 5):
+            length = 8 if kind == 1 else 4
+            payload = data[position:position+length]; position += length
+        else:raise AssertionError("Unsupported fixture protobuf wire field")
+        yield tag >> 3, payload, data[start:position]
+
+def seed_durable_preferences(path):
+    replacements = {"booru_uid_activated": b"\x20" + varint(777),
+                    "settings_grid_mode": b"\x2a\x05fixed"}
+    retained = []
+    for field, payload, raw in wire_fields(path.read_bytes()):
+        key = next((value.decode() for number, value, _ in wire_fields(payload) if number == 1), None) if field == 1 else None
+        if key not in replacements:retained.append(raw)
+    for key, value in replacements.items():
+        name = key.encode()
+        entry = b"\x0a" + varint(len(name)) + name + b"\x12" + varint(len(value)) + value
+        retained.append(b"\x0a" + varint(len(entry)) + entry)
+    path.write_bytes(b"".join(retained))
+
 def snapshot(destination):
     destination.mkdir(parents=True, exist_ok=True)
     adb("shell", "am", "force-stop", PACKAGE)
@@ -51,7 +95,8 @@ def launch():
     raise AssertionError("Application database did not initialize")
 
 assert adb("shell", "getprop", "ro.kernel.qemu").strip() == "1", "This fixture is restricted to an emulator"
-assert hashlib.sha256(args.previous.read_bytes()).hexdigest() == BASELINE_SHA256, "Unexpected release-1 baseline"
+baseline_sha = hashlib.sha256(args.previous.read_bytes()).hexdigest()
+assert baseline_sha in {BASELINE_SHA256, "024c0e44f4e886fc5420a0ef650d1fd34ce939b4f54599aadecc80cee7f11e97"}, "Unexpected signed baseline"
 adb("root"); adb("wait-for-device")
 assert re.search(r"uid=0(?:\(|\s|$)", adb("shell", "id")), "A rooted google_apis emulator is required"
 # Upgrade/data retention does not require live sites; all account strings are artificial.
@@ -77,7 +122,11 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         for sql in ["INSERT INTO history(uid,booru_uid,query) VALUES(777,777,'retained search')",
                     "INSERT INTO tags_filter(uid,booru_uid,name,type) VALUES(777,777,'retained filter',0)",
                     "INSERT INTO muzei(uid,booru_uid,query) VALUES(777,777,'retained wallpaper')"]:
-            db.execute(sql)
+            if "INTO muzei" not in sql or db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='muzei'").fetchone():
+                db.execute(sql)
+        has_saved = bool(db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='saved_posts'").fetchone())
+        if has_saved:
+            db.execute("""INSERT INTO saved_posts(saved_at,uid,booru_uid,`index`,query,id,width,height,size,score,rating,is_favored,time,tags,preview,sample,medium,origin,pixiv_id,source,uploader) VALUES(1234,0,777,0,'retained query',123,640,480,12,9,'g',0,NULL,'[]','https://upgrade-fixture.invalid/preview.png','https://upgrade-fixture.invalid/sample.png','https://upgrade-fixture.invalid/sample.png','https://upgrade-fixture.invalid/original.png',NULL,'retained attribution','{"name":"fixture"}')""")
         db.commit(); db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
     preferences = root / "before/shared_prefs" / (PACKAGE + "_preferences.xml")
     preferences.parent.mkdir(parents=True, exist_ok=True)
@@ -90,6 +139,9 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         if tag == "string":node.text = value
         else:node.set("value", value)
     document.write(preferences, encoding="utf-8", xml_declaration=True)
+    durable = root / "before-datastore.preferences_pb"
+    adb("pull", f"/data/user/0/{PACKAGE}/files/datastore/mbooru.preferences_pb", durable, check=False)
+    if durable.exists():seed_durable_preferences(durable)
     owner_match = re.search(r"(?:userId|appId)=(\d+)", adb("shell", "dumpsys", "package", PACKAGE))
     assert owner_match is not None, "Installed fixture package UID was not reported"
     owner = owner_match.group(1)
@@ -97,6 +149,9 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     for suffix in ["-wal", "-shm"]:adb("shell", "rm", "-f", f"/data/user/0/{PACKAGE}/databases/mbooru.db{suffix}")
     for local, remote in [(database, f"/data/user/0/{PACKAGE}/databases/mbooru.db"), (preferences, f"/data/user/0/{PACKAGE}/shared_prefs/{preferences.name}")]:
         adb("push", local, remote); adb("shell", "chown", f"{owner}:{owner}", remote); adb("shell", "chmod", "600", remote); adb("shell", "restorecon", remote)
+    if durable.exists():
+        remote = f"/data/user/0/{PACKAGE}/files/datastore/mbooru.preferences_pb"
+        adb("push", durable, remote); adb("shell", "chown", f"{owner}:{owner}", remote); adb("shell", "chmod", "600", remote); adb("shell", "restorecon", remote)
     adb("install", "-r", args.candidate)  # Deliberately no uninstall or data clear.
     launch()
     # Existing DB presence is not a readiness signal: async Room/DataStore initialization
@@ -133,7 +188,12 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
         for table, column, expected in [("history", "query", "retained search"), ("tags_filter", "name", "retained filter")]:
             assert db.execute(f"SELECT {column} FROM {table} WHERE uid=777 AND booru_uid=777").fetchone()[0] == expected
         assert not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='muzei'").fetchone()
-        assert db.execute("SELECT count(*) FROM saved_posts").fetchone()[0] == 0
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 12
+        assert db.execute("SELECT count(*) FROM saved_posts").fetchone()[0] == int(has_saved)
+        if has_saved:
+            assert db.execute("SELECT is_saved,saved_at,source FROM saved_posts WHERE booru_uid=777 AND id=123").fetchone() == (1,1234,"retained attribution")
+        for table in ("local_likes", "named_collections", "collection_memberships"):
+            assert db.execute(f"SELECT count(*) FROM {table}").fetchone()[0] == 0
         assert not db.execute("PRAGMA foreign_key_check").fetchall()
     data_store = root / "mbooru.preferences_pb"
     adb("pull", f"/data/user/0/{PACKAGE}/files/datastore/mbooru.preferences_pb", data_store)
@@ -142,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix="mbooru-upgrade-") as directory:
     assert b"settings_grid_mode" in payload and b"fixed" in payload
     # Restart once more to exercise durable settings rather than the in-memory migration snapshot.
     launch()
-    report = {"checkedAt": datetime.now(timezone.utc).isoformat(), "baselineSha256": BASELINE_SHA256,
+    report = {"checkedAt": datetime.now(timezone.utc).isoformat(), "baselineSha256": baseline_sha,
               "candidateSha256": hashlib.sha256(args.candidate.read_bytes()).hexdigest(), "signerUnchanged": True,
               "installedWithReplace": True, "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs", "networkDisabledForFixture": True, "customSiteRetained": True, "historyFiltersRetained": True, "retiredMuzeiTableRemoved": True, "localFavoritesCreated": True,
               "roomCredentialsMigratedToReferences": True, "settingsMigratedAndRestarted": True,

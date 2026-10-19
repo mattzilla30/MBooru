@@ -1,4 +1,4 @@
-name: Signed MBooru 3 upgrade validation
+name: MBooru 7 integration validation
 on:
   workflow_dispatch:
 permissions:
@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [28, 36]
+        api: [21, 28, 36]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
@@ -26,7 +26,7 @@ jobs:
         with:
           api-level: ${{ matrix.api }}
           disk-size: 4096M
-          ram-size: 4096M
+          ram-size: ${{ matrix.api == 21 && '2048M' || '4096M' }}
           heap-size: 512M
           arch: x86_64
           target: google_apis
