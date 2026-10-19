@@ -1,6 +1,9 @@
-name: Build signed Android APK
+name: Publish signed Android release
 on:
   workflow_dispatch:
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -8,7 +11,8 @@ jobs:
     uses: ./.github/workflows/android-ci.yml
   build:
     needs: checks
-    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -60,6 +64,19 @@ jobs:
             android/build/outputs/apk/release/SHA256SUMS
             build/reports/cyclonedx/
           if-no-files-found: error
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(python3 -c 'import json; from pathlib import Path; print(json.loads(Path("android/build/outputs/apk/release/output-metadata.json").read_text())["elements"][0]["versionName"])')
+          cp android/build/outputs/apk/release/android-release.apk "MBooru-${VERSION}.apk"
+          sha256sum "MBooru-${VERSION}.apk" > SHA256SUMS
+          gh release create "$VERSION" "MBooru-${VERSION}.apk" SHA256SUMS \
+            android/build/outputs/apk/release/provenance.json \
+            --target "$GITHUB_SHA" --title "$VERSION" --notes-file "docs/releases/${VERSION}.md"
       - name: Remove signing files
         if: always()
         run: rm -f .gradle/mbooru-release.jks .gradle/keystore.properties

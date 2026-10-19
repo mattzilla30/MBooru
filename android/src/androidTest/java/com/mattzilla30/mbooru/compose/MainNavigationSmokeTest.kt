@@ -30,13 +30,17 @@ class MainNavigationSmokeTest {
 
     private fun destination(title: Int) {
         compose.runOnIdle { compose.activity.openDrawer() }
-        compose
-            .onNode(
+        val item =
+            compose.onNode(
                 hasText(compose.activity.getString(title)) and
                     hasAnyAncestor(hasTestTag("sphere-drawer-content"))
             )
-            .performScrollTo()
-            .performClick()
+        try {
+            item.assertIsDisplayed()
+        } catch (_: AssertionError) {
+            item.performScrollTo()
+        }
+        item.performClick()
         compose.waitForIdle()
     }
 
