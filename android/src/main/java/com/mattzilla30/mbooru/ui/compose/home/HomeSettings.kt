@@ -33,7 +33,6 @@ fun HomeSettings(
     host: PathActivity,
     model: SettingsViewModel,
     onSites: () -> Unit,
-    onSidePanel: () -> Unit,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
     LaunchedEffect(model) {
@@ -53,13 +52,6 @@ fun HomeSettings(
             headlineContent = { Text("Sites") },
             supportingContent = { Text("Browse, add, edit or connect sites") },
             modifier = Modifier.testTag("settings-sites").clickable(onClick = onSites),
-        )
-    }
-    val sidePanel: @Composable () -> Unit = {
-        ListItem(
-            headlineContent = { Text("Side panel") },
-            supportingContent = { Text("Switch sites and open browsing tools") },
-            modifier = Modifier.testTag("settings-side-panel").clickable(onClick = onSidePanel),
         )
     }
     val appLock: @Composable () -> Unit = {
@@ -141,7 +133,6 @@ fun HomeSettings(
         categoryContent =
             mapOf(
                 R.string.title_downloads to downloadLimit,
-                R.string.sphere_interface to sidePanel,
                 R.string.sphere_servers to sites,
                 R.string.settings_security to appLock,
             ),

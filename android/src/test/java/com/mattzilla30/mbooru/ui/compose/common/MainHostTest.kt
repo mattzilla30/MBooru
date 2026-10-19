@@ -216,7 +216,10 @@ class MainHostTest {
         settingsList.performScrollToNode(hasTestTag("settings-download-limit"))
         compose.onNodeWithTag("settings-download-limit").assertIsDisplayed()
         compose.onNodeWithTag("settings-category-${R.string.title_downloads}").assertIsDisplayed()
-        settingsList.performScrollToNode(hasTestTag("settings-side-panel"))
+        settingsList.performScrollToNode(
+            hasTestTag("settings-category-${R.string.sphere_interface}")
+        )
+        compose.onNodeWithTag("settings-side-panel").assertDoesNotExist()
         compose.onNodeWithTag("settings-category-${R.string.sphere_interface}").assertIsDisplayed()
         settingsList.performScrollToNode(hasTestTag("settings-app-lock"))
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
@@ -333,11 +336,7 @@ class MainHostTest {
 
     @Test
     fun `free drawer has no purchase action and can switch beyond three sites`() {
-        destination(R.string.title_settings)
-        compose
-            .onNodeWithTag("settings_list")
-            .performScrollToNode(hasTestTag("settings-side-panel"))
-        compose.onNodeWithTag("settings-side-panel").performClick()
+        compose.runOnIdle { compose.activity.openDrawer() }
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()

@@ -71,7 +71,6 @@ fun MainHomeContent(
     section: Int,
     onSection: (Int) -> Unit,
     secondary: Boolean,
-    onDrawer: () -> Unit,
     onPopular: () -> Unit,
     legacy: @Composable () -> Unit,
 ) {
@@ -215,7 +214,6 @@ fun MainHomeContent(
                                 host,
                                 settingsModel,
                                 onSites = { onSection(HOME_SITES_SECTION) },
-                                onSidePanel = onDrawer,
                             )
                     }
                 }

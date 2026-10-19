@@ -157,7 +157,6 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                             section,
                             shell::section,
                             showSecondaryTool(secondary, entry, requestedBrowse),
-                            shell::openDrawer,
                             onPopular = { shell.requestBrowse(R.id.nav_popular) },
                         ) {
                             MainBrowseNavHost(navigation, tabs)

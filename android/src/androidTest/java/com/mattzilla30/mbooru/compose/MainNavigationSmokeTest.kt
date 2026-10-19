@@ -44,11 +44,7 @@ class MainNavigationSmokeTest {
     fun drawerSettingsAndActivityRecreationKeepWorking() {
         awaitDrawer()
         screenshot("sphere-home")
-        destination(R.string.title_settings)
-        compose
-            .onNodeWithTag("settings_list")
-            .performScrollToNode(hasTestTag("settings-side-panel"))
-        compose.onNodeWithTag("settings-side-panel").performClick()
+        compose.onRoot().performTouchInput { swipeRight(startX = 1f, endX = width * .8f) }
         screenshot("sphere-drawer")
         val settings =
             compose.onNode(
@@ -92,7 +88,10 @@ class MainNavigationSmokeTest {
         settingsList.performScrollToNode(hasTestTag("settings-download-limit"))
         compose.onNodeWithTag("settings-download-limit").assertIsDisplayed()
         compose.onNodeWithTag("settings-category-${R.string.title_downloads}").assertIsDisplayed()
-        settingsList.performScrollToNode(hasTestTag("settings-side-panel"))
+        settingsList.performScrollToNode(
+            hasTestTag("settings-category-${R.string.sphere_interface}")
+        )
+        compose.onNodeWithTag("settings-side-panel").assertDoesNotExist()
         compose.onNodeWithTag("settings-category-${R.string.sphere_interface}").assertIsDisplayed()
         settingsList.performScrollToNode(hasTestTag("settings-app-lock"))
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
