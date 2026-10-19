@@ -91,6 +91,7 @@ class PostRemoteMediator(
                 }
                 postDao.insert(posts)
                 pendingRule34Next?.let { db.nextDao().insert(it) }
+                storePageBoundary()
             }
         } catch (failure: Exception) {
             if (failure is kotlinx.coroutines.CancellationException) throw failure
@@ -99,12 +100,26 @@ class PostRemoteMediator(
         return MediatorResult.Success(endOfPaginationReached = !hasMore())
     }
 
+    /** Keep terminal pages terminal when a cached pager is recreated after leaving the screen. */
+    private suspend fun storePageBoundary() {
+        if (action.pageType != Values.PAGE_TYPE_POSTS) return
+        if (action.booru.type in setOf(Values.BOORU_TYPE_RULE34, BOORU_TYPE_SANKAKU)) return
+        db.nextDao()
+            .insert(
+                Next(
+                    booruUid = action.booru.uid,
+                    query = action.query,
+                    next = if (lastResponseSize == action.limit) null else CACHED_PAGE_END,
+                )
+            )
+    }
+
     private suspend fun hasMore(): Boolean {
         return when {
             action.booru.type == Values.BOORU_TYPE_RULE34 -> !nextSankakuKey().isNullOrEmpty()
             action.booru.type == BOORU_TYPE_SANKAKU -> !nextSankakuKey().isNullOrEmpty()
             action.pageType == PAGE_TYPE_POPULAR -> false
-            else -> lastResponseSize == action.limit
+            else -> lastResponseSize == action.limit && nextSankakuKey() != CACHED_PAGE_END
         }
     }
 
@@ -371,6 +386,8 @@ class PostRemoteMediator(
         }
     }
 }
+
+private const val CACHED_PAGE_END = "mbooru:paging:end"
 
 /** Failed requests must remain retryable instead of being cached as empty search results. */
 private fun <T> Response<T>.checkedBody(): T? {

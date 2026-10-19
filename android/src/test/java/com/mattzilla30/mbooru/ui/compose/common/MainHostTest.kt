@@ -121,17 +121,13 @@ class MainHostTest {
             androidx.test.core.app.ApplicationProvider.getApplicationContext<SearchFixtureApp>()
         fixture.catalogSize = 80
         compose.onNodeWithText("Refresh").performClick()
+        val first = compose.activity.getString(R.string.post_accessibility, 10000)
         compose.waitUntil(10000) {
-            kotlinx.coroutines.runBlocking {
-                org.koin.core.context.GlobalContext.get()
-                    .get<com.mattzilla30.mbooru.data.database.MyDatabase>()
-                    .postDao()
-                    .getPostsRaw(compose.activity.settings.activatedBooruUid, "", 100)
-                    .size == 80
-            }
+            compose.onAllNodesWithContentDescription(first).fetchSemanticsNodes().isNotEmpty() &&
+                compose.onAllNodesWithTag("post_grid").fetchSemanticsNodes().size == 1
         }
         compose.onNodeWithTag("post_grid").performScrollToIndex(50)
-        val target = compose.activity.getString(R.string.post_accessibility, 2518)
+        val target = compose.activity.getString(R.string.post_accessibility, 10050)
         compose.onNodeWithContentDescription(target).assertIsDisplayed()
         compose.runOnIdle { compose.activity.settings.autoRefresh = true }
         // End-of-cache append requests remain valid; returning to cached data must not refresh page

@@ -203,7 +203,7 @@ class SearchFixtureApp : App() {
                                                 posts.put(
                                                     org.json
                                                         .JSONObject(original.toString())
-                                                        .put("id", 2468 + offset)
+                                                        .put("id", 10000 + offset)
                                                 )
                                             }
                                             template.put("posts", posts).toString()

@@ -66,10 +66,11 @@ class Rule34PagingTest {
                 AndroidCookieJar(context),
                 listOf(
                     Interceptor { chain ->
-                        val page = chain.request().url.queryParameter("pid")!!.toInt()
+                        val page = chain.request().url.queryParameter("pid")?.toInt() ?: -1
                         synchronized(requests) { requests += page }
                         val body =
                             when (page) {
+                                -1 -> MOE_POST_SNAPSHOT
                                 0 -> "[${post(1, "g")},${post(2, "e")}]"
                                 1 -> "[${post(3, "s")},${post(4, "s")}]"
                                 else -> "[]"
@@ -105,6 +106,35 @@ class Rule34PagingTest {
     fun close() {
         transport.close()
         database.close()
+    }
+
+    @Test
+    fun cachedPartialMoePageDoesNotReloadOnARecreatedPager() = runBlocking {
+        val site = action.booru.copy(host = "moe.invalid", type = 1, user = null)
+        database.booruDao().update(site)
+        val query = action.copy(booru = site)
+        val apis = BooruApis(transport)
+        settings.autoRefresh = true
+        val first = PostRemoteMediator(query, database, apis, settings)
+        val loaded = first.load(LoadType.REFRESH, state)
+        assertTrue(loaded is RemoteMediator.MediatorResult.Success && loaded.endOfPaginationReached)
+        val restored = PostRemoteMediator(query, database, apis, settings, allowAutoRefresh = false)
+        assertEquals(RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH, restored.initialize())
+        val append = restored.load(LoadType.APPEND, state)
+        assertTrue(append is RemoteMediator.MediatorResult.Success && append.endOfPaginationReached)
+        assertEquals(listOf(-1), requests)
+        val refreshed =
+            PostRemoteMediator(
+                query,
+                database,
+                apis,
+                settings,
+                forceRefresh = true,
+                allowAutoRefresh = false,
+            )
+        assertEquals(RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH, refreshed.initialize())
+        refreshed.load(LoadType.REFRESH, state)
+        assertEquals(listOf(-1, -1), requests)
     }
 
     @Test
@@ -151,3 +181,6 @@ class Rule34PagingTest {
     private fun post(id: Int, rating: String) =
         """{"id":$id,"rating":"$rating","width":100,"height":100,"tags":"landscape","file_url":"https://images.rule34.xxx/$id.jpg"}"""
 }
+
+private const val MOE_POST_SNAPSHOT =
+    """{"posts":[{"id":2468,"tags":"landscape","created_at":1700000000,"author":"fixture","source":null,"score":1,"file_size":1,"preview_url":"https://search.invalid/image.png","preview_width":100,"preview_height":100,"sample_width":100,"sample_height":100,"sample_file_size":1,"jpeg_width":100,"jpeg_height":100,"jpeg_file_size":1,"rating":"s","has_children":false,"parent_id":null,"status":"active","width":100,"height":100}],"tags":{"landscape":"general"},"votes":{}}"""
