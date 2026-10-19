@@ -13,6 +13,8 @@ import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.ui.activity.AboutActivity
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,6 +22,24 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LicensesSmokeTest {
     @get:Rule val compose = createAndroidComposeRule<AboutActivity>()
+
+    private var previousHardwareKeyboardSetting: String? = null
+
+    @Before
+    fun enableSoftKeyboard() {
+        previousHardwareKeyboardSetting =
+            shell("settings get secure show_ime_with_hard_keyboard").trim().takeIf {
+                it == "0" || it == "1"
+            }
+        shell("settings put secure show_ime_with_hard_keyboard 1")
+    }
+
+    @After
+    fun restoreKeyboardSetting() {
+        val previous = previousHardwareKeyboardSetting
+        if (previous == null) shell("settings delete secure show_ime_with_hard_keyboard")
+        else shell("settings put secure show_ime_with_hard_keyboard $previous")
+    }
 
     @Test
     fun aboutOpensSearchableLicensesAndBackReturnsToList() {
@@ -33,31 +53,36 @@ class LicensesSmokeTest {
             compose.onAllNodesWithTag("license-search").fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithTag("license-search").performClick()
+        compose.waitUntil(10000) { keyboardVisible() }
         compose.onNodeWithTag("license-search").performTextReplacement("PhotoView (Apache")
         compose.onNodeWithText("PhotoView (Apache 2.0)").performClick()
         compose.onNodeWithTag("license-text").assertIsDisplayed()
         compose.onNode(hasText("TERMS AND CONDITIONS", substring = true)).assertExists()
-        compose.waitUntil(10000) { keyboardHidden() }
+        compose.waitUntil(10000) { !keyboardVisible() }
         Espresso.pressBack()
         compose.onNodeWithTag("license-list").assertIsDisplayed()
         compose.onNodeWithText("PhotoView (Apache 2.0)").assertExists()
     }
 
-    private fun keyboardHidden(): Boolean {
-        var hidden = false
-        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            val activity =
-                androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
-                    .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)
-                    .filterIsInstance<com.mattzilla30.mbooru.ui.activity.LicensesActivity>()
-                    .singleOrNull()
-            if (activity != null) {
-                val insets =
-                    androidx.core.view.ViewCompat.getRootWindowInsets(activity.window.decorView)
-                hidden = insets?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
-                if (hidden) android.util.Log.d("LicensesSmoke", "Search IME hidden before Back")
-            }
-        }
-        return hidden
+    // Insets describe the requested end state before Android 16's IME animation completes.
+    // The IME service's window visibility tracks the real keyboard window instead.
+    private fun keyboardVisible(): Boolean {
+        val visibility =
+            Regex("mImeWindowVis=(?:0x)?([0-9a-fA-F]+)")
+                .findAll(shell("dumpsys input_method"))
+                .map { it.groupValues[1].toInt(16) }
+                .toList()
+        check(visibility.isNotEmpty()) { "IME window visibility was unavailable" }
+        return visibility.any { it and 2 != 0 } // InputMethodService.IME_VISIBLE
+    }
+
+    private fun shell(command: String): String {
+        val automation =
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
+        return android.os.ParcelFileDescriptor.AutoCloseInputStream(
+                automation.executeShellCommand(command)
+            )
+            .bufferedReader()
+            .use { it.readText() }
     }
 }
