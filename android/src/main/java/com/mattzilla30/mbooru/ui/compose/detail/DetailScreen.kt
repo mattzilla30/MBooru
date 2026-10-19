@@ -148,7 +148,7 @@ fun DetailScreen(
             ) {
                 current?.let { libraryActions(it) }
                 Row(
-                    Modifier.fillMaxWidth().heightIn(min = 78.dp).padding(end = 8.dp, top = 22.dp),
+                    Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(end = 8.dp, top = 4.dp),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     IconButton(onClick = info) {

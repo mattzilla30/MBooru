@@ -231,10 +231,9 @@ class DetailActivity :
                         androidx.compose.runtime.LaunchedEffect(post.id, localSaved) {
                             detailViewModel.favorite(post.id, localSaved)
                         }
-                        com.mattzilla30.mbooru.ui.compose.library.ArtworkLibraryActions(
-                            post,
-                            libraryModel,
-                        )
+                        androidx.compose.runtime.LaunchedEffect(post.booruUid, post.id) {
+                            libraryModel.select(post)
+                        }
                         com.mattzilla30.mbooru.ui.compose.library.RemoteFavoriteAction(
                             post,
                             booru,

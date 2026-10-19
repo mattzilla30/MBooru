@@ -28,11 +28,23 @@ class MainNavigationSmokeTest {
     val rules: org.junit.rules.TestRule =
         org.junit.rules.RuleChain.outerRule(notificationPermission).around(compose)
 
+    private fun destination(title: Int) {
+        compose.runOnIdle { compose.activity.openDrawer() }
+        compose
+            .onNode(
+                hasText(compose.activity.getString(title)) and
+                    hasAnyAncestor(hasTestTag("sphere-drawer-content"))
+            )
+            .performScrollTo()
+            .performClick()
+        compose.waitForIdle()
+    }
+
     @Test
     fun drawerSettingsAndActivityRecreationKeepWorking() {
         awaitDrawer()
         screenshot("sphere-home")
-        compose.onNodeWithTag("home-settings").performClick()
+        destination(R.string.title_settings)
         compose.onNodeWithTag("settings-side-panel").performClick()
         screenshot("sphere-drawer")
         val settings =
@@ -54,14 +66,14 @@ class MainNavigationSmokeTest {
         Espresso.pressBack()
         compose.activityRule.scenario.recreate()
         awaitDrawer()
-        compose.onNodeWithTag("home-settings").assertIsDisplayed()
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
     }
 
     @Test
     fun favoritesKeepSearchAndCollectionAcrossRecreation() {
         awaitDrawer()
         compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
-        compose.onNodeWithTag("home-favorites").performClick()
+        destination(R.string.sphere_favorites)
         compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.onNodeWithText("New collection").performClick()
         compose.onNode(hasSetTextAction()).performTextReplacement("Native test collection")
@@ -71,7 +83,7 @@ class MainNavigationSmokeTest {
         }
         compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
         compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
-        compose.onNodeWithTag("home-settings").performClick()
+        destination(R.string.title_settings)
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
         compose.onNodeWithTag("settings-download-limit").assertIsDisplayed()
@@ -88,7 +100,7 @@ class MainNavigationSmokeTest {
         compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
         compose.activityRule.scenario.recreate()
         compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
-        compose.onNodeWithTag("home-favorites").performClick()
+        destination(R.string.sphere_favorites)
         compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.onNodeWithText("Native test collection").assertExists()
     }
@@ -176,7 +188,7 @@ class MainNavigationSmokeTest {
                 compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithContentDescription(target).assertIsDisplayed()
-            compose.onNodeWithTag("home-favorites").performClick()
+            destination(R.string.sphere_favorites)
             compose.onNodeWithText("All favorites").assertIsDisplayed()
             Espresso.pressBack()
             compose.waitUntil(10000) {
@@ -220,7 +232,7 @@ class MainNavigationSmokeTest {
     private fun awaitDrawer() {
         compose.waitUntil(20000) {
             compose
-                .onAllNodesWithTag("home-settings")
+                .onAllNodesWithTag("unified-query")
                 .fetchSemanticsNodes(atLeastOneRootRequired = false)
                 .isNotEmpty()
         }

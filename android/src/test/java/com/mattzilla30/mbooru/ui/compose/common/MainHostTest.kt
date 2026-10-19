@@ -15,12 +15,15 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
 import androidx.lifecycle.viewModelScope
 import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.ui.activity.MainActivity
@@ -70,7 +73,7 @@ class MainHostTest {
             }
         }
         compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("home-settings").fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodesWithTag("unified-query").fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -103,11 +106,24 @@ class MainHostTest {
         stopKoin()
     }
 
+    private fun destination(title: Int) {
+        compose.runOnIdle { compose.activity.openDrawer() }
+        compose
+            .onNode(
+                hasText(compose.activity.getString(title)) and
+                    hasAnyAncestor(hasTestTag("sphere-drawer-content"))
+            )
+            .performScrollTo()
+            .performClick()
+        compose.waitForIdle()
+    }
+
     @Test
     fun `refresh resumes a cancelled cached query and makes a new request`() {
         val fixture =
             androidx.test.core.app.ApplicationProvider.getApplicationContext<SearchFixtureApp>()
         compose.waitUntil(10000) { fixture.requests.any { it.encodedPath == "/post.json" } }
+        compose.onNodeWithTag("search-filters-toggle").performClick()
         compose.onNodeWithText("Cancel").performClick()
         val before = fixture.requests.count { it.encodedPath == "/post.json" }
         compose.onNodeWithText("Refresh").performClick()
@@ -138,7 +154,7 @@ class MainHostTest {
             fixture.requests.count {
                 it.encodedPath == "/post.json" && it.queryParameter("page") == "1"
             }
-        compose.onNodeWithTag("home-favorites").performClick()
+        destination(R.string.sphere_favorites)
         compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.waitUntil(10000) {
@@ -173,22 +189,28 @@ class MainHostTest {
             "Search starts at the top safe area",
             query.top < 32 * compose.density.density,
         )
-        val settings = compose.onNodeWithTag("home-settings").fetchSemanticsNode().boundsInRoot
+        compose.onNodeWithTag("home-settings").assertDoesNotExist()
+        compose.onNodeWithTag("home-favorites").assertDoesNotExist()
+        val grid = compose.onNodeWithTag("post_grid").fetchSemanticsNode().boundsInRoot
         org.junit.Assert.assertTrue(
-            "Settings is inside search bar",
-            query.contains(settings.center),
+            "Compact controls leave room for media",
+            grid.top - query.bottom <= 64 * compose.density.density,
         )
+        compose.onNodeWithTag("search-filters-toggle").performClick()
+        compose.onNodeWithText("Latest").assertIsDisplayed()
+        compose.onNodeWithTag("search-filters-toggle").performClick()
+        compose.onNodeWithText("Latest").assertDoesNotExist()
         compose.onNodeWithTag("home-overflow").assertDoesNotExist()
         compose.onNodeWithTag("sphere-bottom-search").assertDoesNotExist()
         (0..4).forEach { compose.onNodeWithTag("home-tab-$it").assertDoesNotExist() }
         compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
         compose.onNodeWithTag("unified-submit").performClick()
-        compose.onNodeWithTag("home-favorites").performClick()
+        destination(R.string.sphere_favorites)
         compose.onNodeWithText("All favorites").assertIsDisplayed()
         compose.onNodeWithText("New collection").assertIsDisplayed()
         compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
         compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
-        compose.onNodeWithTag("home-settings").performClick()
+        destination(R.string.title_settings)
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
         compose.onNodeWithTag("settings-download-limit").assertIsDisplayed()
@@ -207,12 +229,10 @@ class MainHostTest {
     }
 
     @Test
-    fun `navigation view and drawer remain usable after recreation`() {
-        compose.onNodeWithTag("home-settings").assertIsDisplayed()
+    fun `side panel swipe remains usable after recreation without top icons`() {
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
-        compose.onNodeWithTag("home-settings").assertIsDisplayed().performClick()
-        compose.onNodeWithText("Advanced browsing").assertDoesNotExist()
-        compose.onNodeWithTag("settings-side-panel").performClick()
+        compose.onRoot().performTouchInput { swipeRight(startX = 1f, endX = width * .8f) }
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()
@@ -305,7 +325,7 @@ class MainHostTest {
 
     @Test
     fun `free drawer has no purchase action and can switch beyond three sites`() {
-        compose.onNodeWithTag("home-settings").performClick()
+        destination(R.string.title_settings)
         compose.onNodeWithTag("settings-side-panel").performClick()
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()

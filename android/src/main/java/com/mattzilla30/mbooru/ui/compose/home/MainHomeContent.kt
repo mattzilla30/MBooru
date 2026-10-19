@@ -2,14 +2,12 @@
 package com.mattzilla30.mbooru.ui.compose.home
 
 import android.content.Intent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -125,12 +123,6 @@ fun MainHomeContent(
         settings.activatedBooruUid = source.uid
         host.startActivity(Intent(host, AccountConfigActivity::class.java))
     }
-    val menu: @Composable () -> Unit = {
-        HomeActions(
-            onFavorites = { onSection(2) },
-            onSettings = { onSection(HOME_SETTINGS_SECTION) },
-        )
-    }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             Modifier.fillMaxSize()
@@ -138,9 +130,6 @@ fun MainHomeContent(
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
-            if (section !in 0..1 || secondary || site == null) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { menu() }
-            }
             Box(Modifier.weight(1f)) {
                 holder.SaveableStateProvider("$section:${if (section in 0..1) site?.uid else 0}") {
                     when (section) {
@@ -173,7 +162,6 @@ fun MainHomeContent(
                                         settings,
                                         section == 0,
                                         preferencesRevision = preferencesRevision,
-                                        menu = menu,
                                         connect = { connect(site) },
                                         open = { post, position, image, safe ->
                                             DetailActivity.start(
