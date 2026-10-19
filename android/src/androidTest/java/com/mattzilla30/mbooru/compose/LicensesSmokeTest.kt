@@ -32,6 +32,7 @@ class LicensesSmokeTest {
         compose.waitUntil(20000) {
             compose.onAllNodesWithTag("license-search").fetchSemanticsNodes().isNotEmpty()
         }
+        compose.onNodeWithTag("license-search").performClick()
         compose.onNodeWithTag("license-search").performTextReplacement("PhotoView (Apache")
         compose.onNodeWithText("PhotoView (Apache 2.0)").performClick()
         compose.onNodeWithTag("license-text").assertIsDisplayed()

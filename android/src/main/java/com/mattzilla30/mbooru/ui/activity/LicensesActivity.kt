@@ -32,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,6 +56,8 @@ class LicensesActivity : BaseActivity() {
         setComposeContent {
             var query by rememberSaveable { mutableStateOf("") }
             val listState = rememberLazyListState()
+            val focus = LocalFocusManager.current
+            val keyboard = LocalSoftwareKeyboardController.current
             var attempt by remember { mutableIntStateOf(0) }
             val catalog by
                 produceState<List<OpenSourceLicense>?>(null, attempt) {
@@ -87,7 +91,11 @@ class LicensesActivity : BaseActivity() {
                     }
                 entry != null -> LicenseText(entry)
                 else ->
-                    LicenseList(catalog!!, query, { query = it }, listState) { selected = it.name }
+                    LicenseList(catalog!!, query, { query = it }, listState) {
+                        focus.clearFocus(force = true)
+                        keyboard?.hide()
+                        selected = it.name
+                    }
             }
         }
     }
