@@ -72,11 +72,6 @@ fun SavedLibraryScreen(
             it?.let(model::preview)
         }
     Column(modifier.fillMaxSize()) {
-        Text(
-            "Saved",
-            Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.headlineMedium,
-        )
         Row(
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),

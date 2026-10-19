@@ -3,6 +3,7 @@ package com.mattzilla30.mbooru.ui.compose.common
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
@@ -160,13 +161,30 @@ class MainHostTest {
     @Test
     fun `all primary destinations work and site search survives recreation`() {
         compose.onNodeWithTag("home-tab-1").performClick()
+        val toolbar = compose.onNodeWithTag("home-toolbar").fetchSemanticsNode().boundsInRoot
+        val query = compose.onNodeWithTag("unified-query").fetchSemanticsNode().boundsInRoot
+        org.junit.Assert.assertTrue(
+            "No blank band below toolbar",
+            query.top - toolbar.bottom < toolbar.height / 3,
+        )
         compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
         compose.onNodeWithTag("unified-submit").performClick()
         compose.onNodeWithTag("home-tab-2").performClick()
         compose.onNodeWithText("New collection").assertIsDisplayed()
-        compose.onNodeWithTag("home-tab-3").performClick()
+        compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
+        compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
+        compose.onNodeWithText("More").performClick()
+        compose.onNodeWithTag("home-settings").performClick()
+        compose.onNodeWithTag("settings_list").assertExists()
+        compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
+        compose.onNodeWithTag("settings-download-limit").assertIsDisplayed()
+        compose.onNodeWithTag("settings_list").performScrollToIndex(12)
+        compose.onNodeWithTag("settings-app-lock").assertIsNotDisplayed()
+        compose.onNodeWithTag("settings-download-limit").assertIsNotDisplayed()
+        compose.onNodeWithTag("settings_list").performScrollToIndex(0)
+        compose.onNodeWithTag("settings-sites").performClick()
         compose.onNodeWithText("Add, remove, import or export sites").assertExists()
-        compose.onNodeWithTag("home-tab-4").performClick()
+        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("home-tab-0").performClick()
         compose.onNodeWithTag("home-tab-1").performClick()

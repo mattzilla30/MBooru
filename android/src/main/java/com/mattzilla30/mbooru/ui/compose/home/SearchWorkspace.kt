@@ -17,7 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.InputChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
@@ -80,11 +79,6 @@ fun SearchWorkspace(
         val controlsMaximum = maxHeight * CONTROLS_HEIGHT_FRACTION
         Column(Modifier.fillMaxSize()) {
             Column(Modifier.heightIn(max = controlsMaximum).verticalScroll(rememberScrollState())) {
-                Text(
-                    if (discover) "Explore" else "Search",
-                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.headlineMedium,
-                )
                 if (site.type == Values.BOORU_TYPE_RULE34 && site.user == null) {
                     Text(
                         "Connect Rule34 with your user ID and API key to browse. Saved artwork stays " +

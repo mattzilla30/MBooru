@@ -30,6 +30,8 @@ import com.mattzilla30.mbooru.app.Settings
 import com.mattzilla30.mbooru.ui.compose.theme.PreferenceSpacing
 
 /** State and callbacks only; persistence, networking and cache work stay outside composition. */
+// Existing preference renderer; the header adds items to its single scrolling list.
+@Suppress("FunctionNaming", "LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
@@ -39,6 +41,7 @@ fun SettingsScreen(
     onPickDirectory: () -> Unit,
     onClearCache: () -> Unit,
     onRetrySave: () -> Unit = {},
+    header: androidx.compose.foundation.lazy.LazyListScope.() -> Unit = {},
 ) {
     var dialogKey by rememberSaveable { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
@@ -46,6 +49,7 @@ fun SettingsScreen(
     val rows = state.copy(expanded = true).rows(isSystemInDarkTheme())
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = listState, modifier = Modifier.testTag("settings_list")) {
+            header()
             if (state.persistenceFailed)
                 item(key = "persistence-error") {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {

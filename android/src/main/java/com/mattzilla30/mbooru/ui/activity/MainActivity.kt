@@ -44,6 +44,8 @@ import com.mattzilla30.mbooru.data.database.dao.BooruDao
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.base.PathActivity
 import com.mattzilla30.mbooru.ui.compose.browse.BrowseNavigation
+import com.mattzilla30.mbooru.ui.compose.home.HOME_SETTINGS_SECTION
+import com.mattzilla30.mbooru.ui.compose.home.HOME_SITES_SECTION
 import com.mattzilla30.mbooru.ui.compose.navigation.*
 import com.mattzilla30.mbooru.ui.compose.theme.MBooruTheme
 import com.mattzilla30.mbooru.ui.helper.isNightEnable
@@ -119,7 +121,15 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                         serverRequests = shell.serverRequests,
                         onBooru = { settings.activatedBooruUid = it },
                         onAction = ::openDestination,
-                        homeBack = if (section != 0 || secondary) ({ shell.section(0) }) else null,
+                        homeBack =
+                            if (section != 0 || secondary)
+                                ({
+                                    shell.section(
+                                        if (section == HOME_SITES_SECTION) HOME_SETTINGS_SECTION
+                                        else 0
+                                    )
+                                })
+                            else null,
                         onEditServer = { server ->
                             startActivity(
                                 Intent(this, BooruConfigActivity::class.java)

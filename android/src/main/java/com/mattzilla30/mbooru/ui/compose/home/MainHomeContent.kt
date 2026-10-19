@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +30,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -134,128 +137,157 @@ fun MainHomeContent(
         settings.activatedBooruUid = source.uid
         host.startActivity(Intent(host, AccountConfigActivity::class.java))
     }
-    Column(
-        Modifier.fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-            .statusBarsPadding()
-    ) {
-        Row(
-            Modifier.fillMaxWidth().heightIn(min = 48.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+    var more by remember { mutableStateOf(false) }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(
+            Modifier.fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .statusBarsPadding()
         ) {
-            IconButton(onClick = onDrawer) {
-                Icon(
-                    painterResource(R.drawable.ic_menu_24dp),
-                    androidx.compose.ui.res.stringResource(R.string.navigation_drawer_open),
-                )
-            }
-            TextButton(onClick = onSwitch) { Text(site?.name ?: "Select a site") }
-            TextButton(onClick = onAdvanced) {
-                Text(if (secondary) "Advanced browsing" else "More")
-            }
-        }
-        Box(Modifier.weight(1f)) {
-            holder.SaveableStateProvider("$section:${if (section in 0..1) site?.uid else 0}") {
-                when (section) {
-                    0,
-                    1 ->
-                        if (site == null)
-                            Text("Add or select a site to begin.", Modifier.padding(24.dp))
-                        else if (section == 0 && secondary) legacy()
-                        else
-                            key(site.uid, section) {
-                                val search: UnifiedSearchViewModel =
-                                    viewModel(
-                                        key = "workspace:${site.uid}:$section",
-                                        factory =
-                                            viewModelFactory {
-                                                initializer {
-                                                    UnifiedSearchViewModel(
-                                                        database,
-                                                        apis,
-                                                        settings,
-                                                        site,
-                                                        createSavedStateHandle(),
-                                                    )
-                                                }
-                                            },
-                                    )
-                                SearchWorkspace(
-                                    search,
-                                    site,
-                                    settings,
-                                    section == 0,
-                                    preferencesRevision = preferencesRevision,
-                                    connect = { connect(site) },
-                                    open = { post, position, image, safe ->
-                                        DetailActivity.start(
-                                            host,
-                                            post.query,
-                                            position,
-                                            image,
-                                            image.transitionName,
-                                            safeOnly = safe,
-                                        )
-                                    },
-                                    actions = { selected = it },
-                                    popular =
-                                        onPopular.takeIf {
-                                            com.mattzilla30.mbooru.core.model.BooruEngine
-                                                .fromLegacyId(site.type)
-                                                .capabilities
-                                                .popular
-                                        },
-                                )
-                            }
-                    2 ->
-                        SavedLibraryScreen(
-                            savedModel,
-                            libraryActions,
-                            sites,
-                            safeMode,
-                            { openLibraryArtwork(host, database, it) },
-                            options = displayOptions,
-                        )
-                    SITES_SECTION ->
-                        SitesContent(
-                            sites,
-                            onSelect = {
-                                settings.activatedBooruUid = it
-                                onSection(0)
-                            },
-                            onEdit = {
-                                host.startActivity(
-                                    Intent(host, BooruConfigActivity::class.java)
-                                        .putExtra(BooruConfigActivity.EXTRA_BOORU_UID, it)
-                                )
-                            },
-                            onConnect = { connect(it) },
-                            onManage = {
-                                host.startActivity(Intent(host, BooruActivity::class.java))
+            Row(
+                Modifier.fillMaxWidth().height(48.dp).testTag("home-toolbar"),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                IconButton(onClick = onDrawer) {
+                    Icon(
+                        painterResource(R.drawable.ic_menu_24dp),
+                        androidx.compose.ui.res.stringResource(R.string.navigation_drawer_open),
+                    )
+                }
+                Box {
+                    TextButton(onClick = { more = true }) { Text("More") }
+                    DropdownMenu(more, onDismissRequest = { more = false }) {
+                        DropdownMenuItem(
+                            text = { Text("Settings") },
+                            modifier = Modifier.testTag("home-settings"),
+                            onClick = {
+                                more = false
+                                onSection(HOME_SETTINGS_SECTION)
                             },
                         )
-                    else -> HomeSettings(host, settingsModel)
+                        DropdownMenuItem(
+                            text = { Text("Switch site") },
+                            onClick = {
+                                more = false
+                                onSwitch()
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Advanced browsing") },
+                            onClick = {
+                                more = false
+                                onAdvanced()
+                            },
+                        )
+                    }
                 }
             }
-        }
-        NavigationBar(Modifier.navigationBarsPadding()) {
-            val labels = listOf("Explore", "Search", "Saved", "Sites", "Settings")
-            val icons =
-                listOf(
-                    R.drawable.ic_photo_outline_24dp,
-                    R.drawable.ic_search_24dp,
-                    R.drawable.ic_bookmark_border_24dp,
-                    R.drawable.ic_add_circle_outline_24dp,
-                    R.drawable.ic_settings_outline_24dp,
-                )
-            labels.forEachIndexed { index, label ->
-                NavigationBarItem(
-                    modifier = Modifier.testTag("home-tab-$index"),
-                    selected = section == index,
-                    onClick = { onSection(index) },
-                    icon = { Icon(painterResource(icons[index]), null) },
-                    label = { Text(label) },
-                )
+            Box(Modifier.weight(1f)) {
+                holder.SaveableStateProvider("$section:${if (section in 0..1) site?.uid else 0}") {
+                    when (section) {
+                        0,
+                        1 ->
+                            if (site == null)
+                                Text("Add or select a site to begin.", Modifier.padding(24.dp))
+                            else if (section == 0 && secondary) legacy()
+                            else
+                                key(site.uid, section) {
+                                    val search: UnifiedSearchViewModel =
+                                        viewModel(
+                                            key = "workspace:${site.uid}:$section",
+                                            factory =
+                                                viewModelFactory {
+                                                    initializer {
+                                                        UnifiedSearchViewModel(
+                                                            database,
+                                                            apis,
+                                                            settings,
+                                                            site,
+                                                            createSavedStateHandle(),
+                                                        )
+                                                    }
+                                                },
+                                        )
+                                    SearchWorkspace(
+                                        search,
+                                        site,
+                                        settings,
+                                        section == 0,
+                                        preferencesRevision = preferencesRevision,
+                                        connect = { connect(site) },
+                                        open = { post, position, image, safe ->
+                                            DetailActivity.start(
+                                                host,
+                                                post.query,
+                                                position,
+                                                image,
+                                                image.transitionName,
+                                                safeOnly = safe,
+                                            )
+                                        },
+                                        actions = { selected = it },
+                                        popular =
+                                            onPopular.takeIf {
+                                                com.mattzilla30.mbooru.core.model.BooruEngine
+                                                    .fromLegacyId(site.type)
+                                                    .capabilities
+                                                    .popular
+                                            },
+                                    )
+                                }
+                        2 ->
+                            SavedLibraryScreen(
+                                savedModel,
+                                libraryActions,
+                                sites,
+                                safeMode,
+                                { openLibraryArtwork(host, database, it) },
+                                options = displayOptions,
+                            )
+                        HOME_SITES_SECTION ->
+                            SitesContent(
+                                sites,
+                                onSelect = {
+                                    settings.activatedBooruUid = it
+                                    onSection(0)
+                                },
+                                onEdit = {
+                                    host.startActivity(
+                                        Intent(host, BooruConfigActivity::class.java)
+                                            .putExtra(BooruConfigActivity.EXTRA_BOORU_UID, it)
+                                    )
+                                },
+                                onConnect = { connect(it) },
+                                onManage = {
+                                    host.startActivity(Intent(host, BooruActivity::class.java))
+                                },
+                            )
+                        else ->
+                            HomeSettings(
+                                host,
+                                settingsModel,
+                                onSites = { onSection(HOME_SITES_SECTION) },
+                            )
+                    }
+                }
+            }
+            NavigationBar(Modifier.navigationBarsPadding()) {
+                val labels = listOf("Explore", "Search", "Saved")
+                val icons =
+                    listOf(
+                        R.drawable.ic_photo_outline_24dp,
+                        R.drawable.ic_search_24dp,
+                        R.drawable.ic_bookmark_border_24dp,
+                    )
+                labels.forEachIndexed { index, label ->
+                    NavigationBarItem(
+                        modifier = Modifier.testTag("home-tab-$index"),
+                        selected = section == index,
+                        onClick = { onSection(index) },
+                        icon = { Icon(painterResource(icons[index]), null) },
+                        label = { Text(label) },
+                    )
+                }
             }
         }
     }
@@ -309,4 +341,5 @@ fun SitesContent(
     }
 }
 
-private const val SITES_SECTION = 3
+const val HOME_SITES_SECTION = 3
+const val HOME_SETTINGS_SECTION = 4
