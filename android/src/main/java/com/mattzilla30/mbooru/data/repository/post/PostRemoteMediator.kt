@@ -50,11 +50,8 @@ class PostRemoteMediator(
         db.nextDao().getNext(action.booru.uid, action.query)?.next
 
     override suspend fun initialize(): InitializeAction {
-        return if (
-            forceRefresh ||
-                (allowAutoRefresh && settings.autoRefresh) ||
-                postDao.getFirstPostRaw(action.booru.uid, action.query) == null
-        )
+        val refreshOnOpen = forceRefresh || (allowAutoRefresh && settings.autoRefresh)
+        return if (refreshOnOpen || postDao.getFirstPostRaw(action.booru.uid, action.query) == null)
             InitializeAction.LAUNCH_INITIAL_REFRESH
         else InitializeAction.SKIP_INITIAL_REFRESH
     }
