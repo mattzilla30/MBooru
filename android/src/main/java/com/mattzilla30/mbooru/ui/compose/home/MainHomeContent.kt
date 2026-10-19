@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -21,11 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -85,7 +81,6 @@ fun MainHomeContent(
     secondary: Boolean,
     onDrawer: () -> Unit,
     onSwitch: () -> Unit,
-    onAdvanced: () -> Unit,
     onPopular: () -> Unit,
     legacy: @Composable () -> Unit,
 ) {
@@ -137,50 +132,17 @@ fun MainHomeContent(
         settings.activatedBooruUid = source.uid
         host.startActivity(Intent(host, AccountConfigActivity::class.java))
     }
-    var more by remember { mutableStateOf(false) }
+    val menu: @Composable () -> Unit = {
+        HomeOverflowMenu(onSettings = { onSection(HOME_SETTINGS_SECTION) }, onSwitch, onDrawer)
+    }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             Modifier.fillMaxSize()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .statusBarsPadding()
         ) {
-            Row(
-                Modifier.fillMaxWidth().height(48.dp).testTag("home-toolbar"),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                IconButton(onClick = onDrawer) {
-                    Icon(
-                        painterResource(R.drawable.ic_menu_24dp),
-                        androidx.compose.ui.res.stringResource(R.string.navigation_drawer_open),
-                    )
-                }
-                Box {
-                    TextButton(onClick = { more = true }) { Text("More") }
-                    DropdownMenu(more, onDismissRequest = { more = false }) {
-                        DropdownMenuItem(
-                            text = { Text("Settings") },
-                            modifier = Modifier.testTag("home-settings"),
-                            onClick = {
-                                more = false
-                                onSection(HOME_SETTINGS_SECTION)
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Switch site") },
-                            onClick = {
-                                more = false
-                                onSwitch()
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Advanced browsing") },
-                            onClick = {
-                                more = false
-                                onAdvanced()
-                            },
-                        )
-                    }
-                }
+            if (section !in 0..1 || secondary || site == null) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { menu() }
             }
             Box(Modifier.weight(1f)) {
                 holder.SaveableStateProvider("$section:${if (section in 0..1) site?.uid else 0}") {
@@ -214,6 +176,7 @@ fun MainHomeContent(
                                         settings,
                                         section == 0,
                                         preferencesRevision = preferencesRevision,
+                                        menu = menu,
                                         connect = { connect(site) },
                                         open = { post, position, image, safe ->
                                             DetailActivity.start(

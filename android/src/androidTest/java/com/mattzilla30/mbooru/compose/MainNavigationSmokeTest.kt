@@ -32,11 +32,8 @@ class MainNavigationSmokeTest {
     fun drawerSettingsAndActivityRecreationKeepWorking() {
         awaitDrawer()
         screenshot("sphere-home")
-        compose
-            .onNodeWithContentDescription(
-                compose.activity.getString(R.string.navigation_drawer_open)
-            )
-            .performClick()
+        compose.onNodeWithTag("home-overflow").performClick()
+        compose.onNodeWithText("Tools").performClick()
         screenshot("sphere-drawer")
         val settings =
             compose.onNode(
@@ -57,11 +54,7 @@ class MainNavigationSmokeTest {
         Espresso.pressBack()
         compose.activityRule.scenario.recreate()
         awaitDrawer()
-        compose
-            .onNodeWithContentDescription(
-                compose.activity.getString(R.string.navigation_drawer_open)
-            )
-            .assertIsDisplayed()
+        compose.onNodeWithTag("home-overflow").assertIsDisplayed()
     }
 
     @Test
@@ -78,7 +71,7 @@ class MainNavigationSmokeTest {
         }
         compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
         compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
-        compose.onNodeWithText("More").performClick()
+        compose.onNodeWithTag("home-overflow").performClick()
         compose.onNodeWithTag("home-settings").performClick()
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
@@ -225,10 +218,9 @@ class MainNavigationSmokeTest {
     }
 
     private fun awaitDrawer() {
-        val description = compose.activity.getString(R.string.navigation_drawer_open)
         compose.waitUntil(20000) {
             compose
-                .onAllNodesWithContentDescription(description)
+                .onAllNodesWithTag("home-overflow")
                 .fetchSemanticsNodes(atLeastOneRootRequired = false)
                 .isNotEmpty()
         }

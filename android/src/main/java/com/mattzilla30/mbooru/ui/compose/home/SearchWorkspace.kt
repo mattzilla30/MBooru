@@ -57,6 +57,7 @@ fun SearchWorkspace(
     actions: (Post) -> Unit,
     modifier: Modifier = Modifier,
     popular: (() -> Unit)? = null,
+    menu: @Composable () -> Unit = {},
 ) {
     val text by model.text.collectAsStateWithLifecycle()
     val query by model.query.collectAsStateWithLifecycle()
@@ -99,13 +100,16 @@ fun SearchWorkspace(
                     label = { Text("Tags on ${site.name}") },
                     singleLine = true,
                     trailingIcon = {
-                        TextButton(
-                            onClick = {
-                                model.edit("")
-                                model.submit("")
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            TextButton(
+                                onClick = {
+                                    model.edit("")
+                                    model.submit("")
+                                }
+                            ) {
+                                Text("Clear")
                             }
-                        ) {
-                            Text("Clear")
+                            menu()
                         }
                     },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),

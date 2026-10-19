@@ -161,19 +161,26 @@ class MainHostTest {
     @Test
     fun `all primary destinations work and site search survives recreation`() {
         compose.onNodeWithTag("home-tab-1").performClick()
-        val toolbar = compose.onNodeWithTag("home-toolbar").fetchSemanticsNode().boundsInRoot
+        compose.onNodeWithTag("home-toolbar").assertDoesNotExist()
+        compose
+            .onNodeWithContentDescription(
+                compose.activity.getString(R.string.navigation_drawer_open)
+            )
+            .assertDoesNotExist()
         val query = compose.onNodeWithTag("unified-query").fetchSemanticsNode().boundsInRoot
         org.junit.Assert.assertTrue(
-            "No blank band below toolbar",
-            query.top - toolbar.bottom < toolbar.height / 3,
+            "Search starts at the top safe area",
+            query.top < 32 * compose.density.density,
         )
+        val overflow = compose.onNodeWithTag("home-overflow").fetchSemanticsNode().boundsInRoot
+        org.junit.Assert.assertTrue("Menu is inside search bar", query.contains(overflow.center))
         compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
         compose.onNodeWithTag("unified-submit").performClick()
         compose.onNodeWithTag("home-tab-2").performClick()
         compose.onNodeWithText("New collection").assertIsDisplayed()
         compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
         compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
-        compose.onNodeWithText("More").performClick()
+        compose.onNodeWithTag("home-overflow").performClick()
         compose.onNodeWithTag("home-settings").performClick()
         compose.onNodeWithTag("settings_list").assertExists()
         compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
@@ -195,10 +202,11 @@ class MainHostTest {
 
     @Test
     fun `navigation view and drawer remain usable after recreation`() {
-        val description = compose.activity.getString(R.string.navigation_drawer_open)
-        compose.onNodeWithContentDescription(description).assertIsDisplayed()
+        compose.onNodeWithTag("home-overflow").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
-        compose.onNodeWithContentDescription(description).assertIsDisplayed().performClick()
+        compose.onNodeWithTag("home-overflow").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Advanced browsing").assertDoesNotExist()
+        compose.onNodeWithText("Tools").performClick()
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()
@@ -225,10 +233,7 @@ class MainHostTest {
         explore(R.string.title_tags)
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.waitForIdle()
-        org.junit.Assert.assertTrue(
-            compose.activity.activeBrowse
-                is com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
-        )
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
     }
 
     @Test
@@ -252,22 +257,14 @@ class MainHostTest {
             }
         }
         compose.waitUntil(10000) {
-            compose.activity.activeBrowse is
-                com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
+            compose.onAllNodesWithTag("unified-query").fetchSemanticsNodes().isNotEmpty()
         }
-        org.junit.Assert.assertTrue(
-            compose.activity.activeBrowse
-                is com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
-        )
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
         compose.waitUntil(10000) {
-            compose.activity.activeBrowse is
-                com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
+            compose.onAllNodesWithTag("unified-query").fetchSemanticsNodes().isNotEmpty()
         }
-        org.junit.Assert.assertTrue(
-            compose.activity.activeBrowse
-                is com.mattzilla30.mbooru.ui.compose.browse.PostScreenController
-        )
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
     }
 
     @Test
@@ -302,11 +299,8 @@ class MainHostTest {
 
     @Test
     fun `free drawer has no purchase action and can switch beyond three sites`() {
-        compose
-            .onNodeWithContentDescription(
-                compose.activity.getString(R.string.navigation_drawer_open)
-            )
-            .performClick()
+        compose.onNodeWithTag("home-overflow").performClick()
+        compose.onNodeWithText("Tools").performClick()
         drawerText(compose.activity.getString(R.string.title_settings))
             .performScrollTo()
             .assertIsDisplayed()

@@ -27,6 +27,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
@@ -155,13 +156,10 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
                             sites,
                             section,
                             shell::section,
-                            secondary,
+                            showSecondaryTool(secondary, entry, requestedBrowse),
                             shell::openDrawer,
                             shell::chooseServer,
                             onPopular = { shell.requestBrowse(R.id.nav_popular) },
-                            onAdvanced = {
-                                shell.requestBrowse(com.mattzilla30.mbooru.R.id.nav_posts)
-                            },
                         ) {
                             MainBrowseNavHost(navigation, tabs)
                         }
@@ -290,3 +288,17 @@ class MainActivity : PathActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
 private const val SITES_SECTION = 3
 private const val SETTINGS_SECTION = 4
+
+// The navigation graph is created only while a secondary tool is visible. Remember its last
+// destination so an activity recreation can restore that graph without reopening the old Posts UI.
+@Composable
+private fun showSecondaryTool(
+    secondary: Boolean,
+    entry: androidx.navigation.NavBackStackEntry?,
+    requested: Int?,
+): Boolean {
+    var restoredTab by rememberSaveable { mutableIntStateOf(R.id.nav_posts) }
+    val current = entry?.let { it.destination.browseTab() } ?: restoredTab
+    SideEffect { if (entry != null) restoredTab = current }
+    return secondary && (requested ?: current) != R.id.nav_posts
+}
