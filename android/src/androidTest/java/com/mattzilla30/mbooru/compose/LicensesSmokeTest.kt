@@ -37,8 +37,27 @@ class LicensesSmokeTest {
         compose.onNodeWithText("PhotoView (Apache 2.0)").performClick()
         compose.onNodeWithTag("license-text").assertIsDisplayed()
         compose.onNode(hasText("TERMS AND CONDITIONS", substring = true)).assertExists()
+        compose.waitUntil(10000) { keyboardHidden() }
         Espresso.pressBack()
         compose.onNodeWithTag("license-list").assertIsDisplayed()
         compose.onNodeWithText("PhotoView (Apache 2.0)").assertExists()
+    }
+
+    private fun keyboardHidden(): Boolean {
+        var hidden = false
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val activity =
+                androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)
+                    .filterIsInstance<com.mattzilla30.mbooru.ui.activity.LicensesActivity>()
+                    .singleOrNull()
+            if (activity != null) {
+                val insets =
+                    androidx.core.view.ViewCompat.getRootWindowInsets(activity.window.decorView)
+                hidden = insets?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
+                if (hidden) android.util.Log.d("LicensesSmoke", "Search IME hidden before Back")
+            }
+        }
+        return hidden
     }
 }
