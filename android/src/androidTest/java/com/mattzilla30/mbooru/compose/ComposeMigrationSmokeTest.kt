@@ -230,7 +230,7 @@ class ComposeMigrationSmokeTest {
 
     @Test
     fun localVideoStopsOffscreenAndResumesWithoutRetainingAPlayer() {
-        val file = File(compose.activity.cacheDir, "viewer-fixture.mp4")
+        val file = fixtureFile("viewer-fixture.mp4")
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
             .context
             .assets
@@ -317,13 +317,13 @@ class ComposeMigrationSmokeTest {
                 "webp" to Bitmap.CompressFormat.WEBP,
             )) {
             files +=
-                File(compose.activity.cacheDir, "format-fixture.$extension").also { file ->
+                fixtureFile("format-fixture.$extension").also { file ->
                     file.outputStream().use { bitmap.compress(format, 90, it) }
                 }
         }
         bitmap.recycle()
         files +=
-            File(compose.activity.cacheDir, "format-fixture.gif").also { file ->
+            fixtureFile("format-fixture.gif").also { file ->
                 androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
                     .context
                     .assets
@@ -394,8 +394,15 @@ class ComposeMigrationSmokeTest {
         }
     }
 
+    // App/cache maintenance may remove cacheDir while an asynchronous decoder opens a fixture.
+    private fun fixtureFile(name: String): File {
+        val directory = File(compose.activity.filesDir, "compose-media-fixtures")
+        check(directory.isDirectory || directory.mkdirs())
+        return File(directory, name)
+    }
+
     private fun imageFile(name: String, width: Int, height: Int): File {
-        val file = File(compose.activity.cacheDir, name)
+        val file = fixtureFile(name)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         Canvas(bitmap).drawColor(Color.rgb(60, 120, 170))
         file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
