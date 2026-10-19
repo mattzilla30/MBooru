@@ -34,6 +34,7 @@ class Rule34PagingTest {
     private lateinit var action: ActionPost
     private lateinit var settings: SettingsRepository
     private val requests = mutableListOf<Int>()
+    private val queries = mutableListOf<String>()
     private val state = PagingState<Int, Post>(emptyList(), null, PagingConfig(2), 0)
 
     @Before
@@ -67,12 +68,19 @@ class Rule34PagingTest {
                 listOf(
                     Interceptor { chain ->
                         val page = chain.request().url.queryParameter("pid")?.toInt() ?: -1
-                        synchronized(requests) { requests += page }
+                        synchronized(requests) {
+                            requests += page
+                            queries += chain.request().url.queryParameter("tags").orEmpty()
+                        }
                         val body =
-                            when (page) {
-                                -1 -> MOE_POST_SNAPSHOT
-                                0 -> "[${post(1, "g")},${post(2, "e")}]"
-                                1 -> "[${post(3, "s")},${post(4, "s")}]"
+                            when {
+                                chain.request().url.queryParameter("s") == "tag" ->
+                                    if (page == 0)
+                                        """[{"id":1,"name":"landscape","count":42,"type":0},{"id":2,"name":"sky","count":10,"type":0}]"""
+                                    else "[]"
+                                page == -1 -> MOE_POST_SNAPSHOT
+                                page == 0 -> "[${post(1, "g")},${post(2, "e")}]"
+                                page == 1 -> "[${post(3, "s")},${post(4, "s")}]"
                                 else -> "[]"
                             }
                         Response.Builder()
@@ -176,6 +184,47 @@ class Rule34PagingTest {
             77,
             database.postDao().getPostsRaw(action.booru.uid, action.query, 10).single().id,
         )
+    }
+
+    @Test
+    fun topRatedUsesScoreSortAndKeepsItsOwnPagedCache() = runBlocking {
+        val topRated =
+            action.copy(
+                pageType = com.mattzilla30.mbooru.app.Values.PAGE_TYPE_POPULAR,
+                query = "order:popular",
+            )
+        val mediator = PostRemoteMediator(topRated, database, BooruApis(transport), settings)
+        assertTrue(mediator.load(LoadType.REFRESH, state) is RemoteMediator.MediatorResult.Success)
+        mediator.load(LoadType.APPEND, state)
+        assertTrue(queries.all { it.contains("sort:score:desc") && !it.contains("order:popular") })
+        assertEquals(listOf(0, 1), requests)
+        assertTrue(database.postDao().getPostsRaw(action.booru.uid, action.query, 10).isEmpty())
+        assertEquals(
+            listOf(1, 3, 4),
+            database.postDao().getPostsRaw(action.booru.uid, "order:popular", 10).map { it.id },
+        )
+    }
+
+    @Test
+    fun tagPagingUsesRule34AdapterAndStopsAtEmptyPage() = runBlocking {
+        val tagAction =
+            com.mattzilla30.mbooru.data.action.ActionTag(action.booru, order = "count", limit = 2)
+        val source =
+            com.mattzilla30.mbooru.data.repository.tag.TagPagingSource(
+                tagAction,
+                BooruApis(transport),
+            )
+        val first =
+            source.load(PagingSource.LoadParams.Refresh(0, 2, false))
+                as PagingSource.LoadResult.Page
+        assertEquals(listOf("landscape", "sky"), first.data.map { it.name })
+        assertNull(first.prevKey)
+        assertEquals(1, first.nextKey)
+        val last =
+            source.load(PagingSource.LoadParams.Append(1, 2, false)) as PagingSource.LoadResult.Page
+        assertTrue(last.data.isEmpty())
+        assertNull(last.nextKey)
+        assertEquals(listOf(0, 1), requests)
     }
 
     private fun post(id: Int, rating: String) =

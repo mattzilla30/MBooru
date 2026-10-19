@@ -258,4 +258,7 @@
     <string name="comment_hint">Wpisz komentarz</string>
     <string name="tab_start_date">Data rozpoczęcia</string>
     <string name="tab_end_date">Data zakończenia</string>
+    <string name="title_top_rated">Najwyżej oceniane</string>
+    <string name="title_pools_website">Pule (strona internetowa)</string>
+    <string name="title_artists_website">Artyści (strona internetowa)</string>
 </resources>

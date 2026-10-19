@@ -80,11 +80,11 @@ fun MainBrowseNavHost(navigation: NavHostController, tabs: List<BrowseTab>) {
         composable<PostsRoute> { BrowseDestination(R.id.nav_posts, it) }
         if (tabs.any { it.id == R.id.nav_popular })
             composable<PopularRoute> { BrowseDestination(R.id.nav_popular, it) }
-        if (tabs.any { it.id == R.id.nav_pools })
+        if (tabs.any { it.id == R.id.nav_pools && it.website == null })
             composable<PoolsRoute> { BrowseDestination(R.id.nav_pools, it) }
         if (tabs.any { it.id == R.id.nav_tags })
             composable<TagsRoute> { BrowseDestination(R.id.nav_tags, it) }
-        if (tabs.any { it.id == R.id.nav_artists })
+        if (tabs.any { it.id == R.id.nav_artists && it.website == null })
             composable<ArtistsRoute> { BrowseDestination(R.id.nav_artists, it) }
     }
 }

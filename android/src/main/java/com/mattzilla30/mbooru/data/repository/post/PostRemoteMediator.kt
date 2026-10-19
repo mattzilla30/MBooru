@@ -146,8 +146,13 @@ class PostRemoteMediator(
         val query =
             com.mattzilla30.mbooru.data.api.rule34.ArtworkQuery(
                 action.booru.uid,
-                action.query + " " + action.booru.getBlacklistsString(),
+                (if (action.pageType == PAGE_TYPE_POPULAR) "" else action.query) +
+                    " " +
+                    action.booru.getBlacklistsString(),
                 action.isSafeMode,
+                if (action.pageType == PAGE_TYPE_POPULAR)
+                    com.mattzilla30.mbooru.data.api.rule34.DiscoverySort.SCORE
+                else com.mattzilla30.mbooru.data.api.rule34.DiscoverySort.LATEST,
             )
         val response = booruApis.rule34.fetch(action.booru, query, page, action.limit, index)
         if (response.received > 0 && response.posts.isEmpty()) {

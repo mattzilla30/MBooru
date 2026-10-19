@@ -258,4 +258,7 @@
     <string name="comment_hint">Écrire un commentaire</string>
     <string name="tab_start_date">Date de début</string>
     <string name="tab_end_date">Date de fin</string>
+    <string name="title_top_rated">Les mieux notés</string>
+    <string name="title_pools_website">Groupes (site web)</string>
+    <string name="title_artists_website">Artistes (site web)</string>
 </resources>

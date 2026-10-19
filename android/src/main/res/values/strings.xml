@@ -295,4 +295,7 @@
     <string name="booru_type_rule34" translatable="false">Rule34</string>
     <string name="m34_feature_credit" translatable="false">M34</string>
     <string name="m34_feature_credit_summary" translatable="false">github.com/mattzilla30/M34</string>
+    <string name="title_top_rated">Top rated</string>
+    <string name="title_pools_website">Pools (website)</string>
+    <string name="title_artists_website">Artists (website)</string>
 </resources>

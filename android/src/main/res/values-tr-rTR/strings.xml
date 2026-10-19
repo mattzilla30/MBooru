@@ -258,4 +258,7 @@
     <string name="comment_hint">Yorum girdisi</string>
     <string name="tab_start_date">Başlangıç tarihi</string>
     <string name="tab_end_date">Bitiş tarihi</string>
+    <string name="title_top_rated">En yüksek puanlı</string>
+    <string name="title_pools_website">Havuz (web sitesi)</string>
+    <string name="title_artists_website">Sanatçılar (web sitesi)</string>
 </resources>

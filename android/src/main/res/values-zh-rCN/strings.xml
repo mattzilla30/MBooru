@@ -258,4 +258,7 @@
     <string name="comment_hint">输入评论</string>
     <string name="tab_start_date">起始日期</string>
     <string name="tab_end_date">结束日期</string>
+    <string name="title_top_rated">最高评分</string>
+    <string name="title_pools_website">图集 (网站)</string>
+    <string name="title_artists_website">绘师 (网站)</string>
 </resources>

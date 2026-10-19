@@ -6,6 +6,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 
@@ -17,9 +18,10 @@ val LocalBrowseTools = staticCompositionLocalOf { BrowseTools(emptyList(), {}) }
 @Suppress("FunctionNaming")
 fun BrowseToolButtons() {
     val tools = LocalBrowseTools.current
+    val uriHandler = LocalUriHandler.current
     tools.tabs.forEach { tab ->
         TextButton(
-            onClick = { tools.select(tab.id) },
+            onClick = { tab.website?.let(uriHandler::openUri) ?: tools.select(tab.id) },
             modifier = Modifier.testTag("browse-tool-${tab.id}"),
         ) {
             Text(stringResource(tab.title))

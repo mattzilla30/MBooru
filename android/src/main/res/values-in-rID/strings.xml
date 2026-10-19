@@ -258,4 +258,7 @@
     <string name="comment_hint">Masukkan komentar</string>
     <string name="tab_start_date">Tanggal mulai</string>
     <string name="tab_end_date">Tanggal akhir</string>
+    <string name="title_top_rated">Nilai tertinggi</string>
+    <string name="title_pools_website">Pools (situs web)</string>
+    <string name="title_artists_website">Artis (situs web)</string>
 </resources>

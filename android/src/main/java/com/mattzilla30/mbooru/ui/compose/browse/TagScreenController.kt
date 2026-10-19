@@ -107,6 +107,7 @@ class TagScreenController(
                 )
             setSearchBarMenu(
                 when (booru.type) {
+                    com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34 -> AppMenu.TagGel
                     BOORU_TYPE_DAN1 -> AppMenu.TagDanOne
                     BOORU_TYPE_DAN -> AppMenu.TagDan
                     BOORU_TYPE_MOE -> AppMenu.TagMoe

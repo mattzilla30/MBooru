@@ -51,7 +51,13 @@ enum class DrawerDestination {
 
 data class DrawerAction(val title: Int, val icon: Int, val action: DrawerDestination)
 
-data class BrowseTab(val id: Int, val title: Int, val icon: Int, val selectedIcon: Int)
+data class BrowseTab(
+    val id: Int,
+    val title: Int,
+    val icon: Int,
+    val selectedIcon: Int,
+    val website: String? = null,
+)
 
 fun browseTabs(type: Int): List<BrowseTab> {
     val posts =
@@ -68,7 +74,9 @@ fun browseTabs(type: Int): List<BrowseTab> {
             add(
                 BrowseTab(
                     R.id.nav_popular,
-                    R.string.title_popular,
+                    if (type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34)
+                        R.string.title_top_rated
+                    else R.string.title_popular,
                     R.drawable.ic_whatshot_outline_24dp,
                     R.drawable.ic_whatshot_24dp,
                 )
@@ -91,6 +99,7 @@ fun browseTabs(type: Int): List<BrowseTab> {
                     R.drawable.ic_bookmark_24dp,
                 )
             )
+        if (type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34) addAll(rule34WebTools())
         if (capabilities.artists)
             add(
                 BrowseTab(
@@ -453,4 +462,25 @@ private fun ThemeButton(onClick: () -> Unit) {
             stringResource(R.string.sphere_theme),
         )
     }
+}
+
+private fun rule34WebTools(): List<BrowseTab> = buildList {
+    add(
+        BrowseTab(
+            R.id.nav_pools,
+            R.string.title_pools_website,
+            R.drawable.ic_photo_album_outline_24dp,
+            R.drawable.ic_photo_album_24dp,
+            "https://rule34.xxx/index.php?page=pool&s=list",
+        )
+    )
+    add(
+        BrowseTab(
+            R.id.nav_artists,
+            R.string.title_artists_website,
+            R.drawable.ic_people_outline_24dp,
+            R.drawable.ic_people_24dp,
+            "https://rule34.xxx/index.php?page=artist&s=list",
+        )
+    )
 }

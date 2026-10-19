@@ -259,4 +259,7 @@
     <string name="comment_hint">Comentario de entrada</string>
     <string name="tab_start_date">Fecha de inicio</string>
     <string name="tab_end_date">Fecha de finalización</string>
+    <string name="title_top_rated">Mejor valorados</string>
+    <string name="title_pools_website">Grupos (sitio web)</string>
+    <string name="title_artists_website">Artistas (sitio web)</string>
 </resources>

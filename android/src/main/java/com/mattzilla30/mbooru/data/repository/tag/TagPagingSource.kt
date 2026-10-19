@@ -21,6 +21,7 @@ class TagPagingSource(
                     nextKey = null,
                 )
         return when (action.booru.type) {
+            Values.BOORU_TYPE_RULE34 -> getRule34Tags(action, page)
             Values.BOORU_TYPE_DAN -> getDanTags(action, page)
             Values.BOORU_TYPE_DAN1 -> getDan1Tags(action, page)
             Values.BOORU_TYPE_MOE -> getMoeTags(action, page)
@@ -30,8 +31,23 @@ class TagPagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Tag>): Int {
-        return if (action.booru.type == Values.BOORU_TYPE_GEL) 0 else 1
+        return if (action.booru.type in setOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_RULE34)) 0
+        else 1
     }
+
+    private suspend fun getRule34Tags(action: ActionTag, page: Int): LoadResult<Int, Tag> =
+        try {
+            val tags = booruApis.rule34.fetchTags(action, page)
+            LoadResult.Page(
+                tags,
+                if (page > 0) page - 1 else null,
+                if (tags.size == action.limit) page + 1 else null,
+            )
+        } catch (failure: java.io.IOException) {
+            LoadResult.Error(failure)
+        } catch (failure: retrofit2.HttpException) {
+            LoadResult.Error(failure)
+        }
 
     private suspend fun getDanTags(action: ActionTag, page: Int): LoadResult<Int, Tag> {
         return try {

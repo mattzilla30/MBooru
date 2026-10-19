@@ -31,7 +31,10 @@ class TagRepositoryImpl(private val booruApis: BooruApis) : TagRepository {
                         pageSize = action.limit,
                         enablePlaceholders = true,
                     ),
-                initialKey = if (action.booru.type == Values.BOORU_TYPE_GEL) 0 else 1,
+                initialKey =
+                    if (action.booru.type in setOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_RULE34))
+                        0
+                    else 1,
             ) {
                 TagPagingSource(action, booruApis)
             }

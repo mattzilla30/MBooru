@@ -60,6 +60,13 @@ class Rule34Adapter(private val api: Rule34Api) {
         }
     }
 
+    suspend fun fetchTags(action: com.mattzilla30.mbooru.data.action.ActionTag, page: Int) =
+        withContext(Dispatchers.IO) {
+            val response = api.posts(Rule34Tags.requestUrl(action, page))
+            if (!response.isSuccessful) throw HttpException(response)
+            Rule34Tags.parse(response.body()?.use { it.string() })
+        }
+
     companion object {
         fun requestUrl(
             credentials: Rule34Credentials,

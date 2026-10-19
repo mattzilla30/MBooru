@@ -212,6 +212,9 @@ class PostScreenController(
             action = null
             return
         }
+        if (isPopularPage() && booru.type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34) {
+            setSearchBarTitle(getString(R.string.title_top_rated))
+        }
         filters.bind(booru.uid)
         action =
             (action
@@ -229,7 +232,11 @@ class PostScreenController(
         postViewModel.show(action!!)
         setSearchBarMenu(
             if (isPopularPage()) {
-                if (booru.type == BOORU_TYPE_SANKAKU) AppMenu.PopularSankaku else AppMenu.PopularDan
+                when (booru.type) {
+                    com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34 -> AppMenu.None
+                    BOORU_TYPE_SANKAKU -> AppMenu.PopularSankaku
+                    else -> AppMenu.PopularDan
+                }
             } else AppMenu.Post
         )
     }

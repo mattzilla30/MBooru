@@ -259,4 +259,7 @@
     <string name="comment_hint">Kommentar eingeben</string>
     <string name="tab_start_date">Beginn</string>
     <string name="tab_end_date">Ende</string>
+    <string name="title_top_rated">Bestbewertet</string>
+    <string name="title_pools_website">Pools (Webseite)</string>
+    <string name="title_artists_website">Künstler (Webseite)</string>
 </resources>

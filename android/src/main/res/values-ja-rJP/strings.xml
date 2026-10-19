@@ -258,4 +258,7 @@
     <string name="comment_hint">コメントを入力</string>
     <string name="tab_start_date">開始日</string>
     <string name="tab_end_date">終了日</string>
+    <string name="title_top_rated">高評価</string>
+    <string name="title_pools_website">プール (ウェブサイト)</string>
+    <string name="title_artists_website">アーティスト (ウェブサイト)</string>
 </resources>

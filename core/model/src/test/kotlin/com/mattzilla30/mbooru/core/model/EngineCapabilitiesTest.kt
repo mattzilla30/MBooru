@@ -20,4 +20,14 @@ class EngineCapabilitiesTest {
         assertFalse(BooruEngine.GELBOORU.capabilities.artists)
         assertFalse(BooruEngine.SANKAKU.capabilities.artists)
     }
+
+    @Test
+    fun `Rule34 has native tags and score discovery but no fictional pool or artist API`() {
+        val capabilities = BooruEngine.RULE34.capabilities
+        assertTrue(capabilities.tags)
+        assertTrue(capabilities.popular)
+        assertFalse(capabilities.pools)
+        assertFalse(capabilities.artists)
+        assertFalse(capabilities.favoriteWrites)
+    }
 }
