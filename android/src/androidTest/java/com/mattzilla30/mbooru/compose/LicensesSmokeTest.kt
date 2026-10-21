@@ -67,9 +67,17 @@ class LicensesSmokeTest {
     // Insets describe the requested end state before Android 16's IME animation completes.
     // The IME service's window visibility tracks the real keyboard window instead.
     private fun keyboardVisible(): Boolean {
+        val diagnostic = shell("dumpsys input_method")
+        // Older releases expose the actual window on the IME service, and API 28's
+        // manager prints symbolic flags rather than the numeric Android 16 field.
+        if (android.os.Build.VERSION.SDK_INT < 29) {
+            val windows = Regex("mWindowVisible=(true|false)").findAll(diagnostic).toList()
+            check(windows.isNotEmpty()) { "IME service window visibility was unavailable" }
+            return windows.any { it.groupValues[1] == "true" }
+        }
         val visibility =
             Regex("mImeWindowVis=(?:0x)?([0-9a-fA-F]+)")
-                .findAll(shell("dumpsys input_method"))
+                .findAll(diagnostic)
                 .map { it.groupValues[1].toInt(16) }
                 .toList()
         check(visibility.isNotEmpty()) { "IME window visibility was unavailable" }
