@@ -16,28 +16,48 @@
 package com.mattzilla30.mbooru.data.repository.post
 
 import androidx.paging.*
-import kotlinx.coroutines.flow.Flow
-import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.action.ActionPost
+import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.MyDatabase
 import com.mattzilla30.mbooru.data.model.common.Post
+import kotlinx.coroutines.flow.Flow
 
 class PostRepositoryImpl(
     private val db: MyDatabase,
-    private val booruApis: BooruApis
+    private val booruApis: BooruApis,
+    private val settings: com.mattzilla30.mbooru.app.SettingsRepository,
+    private val forceRefresh: Boolean = false,
+    private val initialIndex: Int = 0,
+    private val allowAutoRefresh: Boolean = true,
 ) : PostRepository {
 
     override fun getPosts(action: ActionPost): Flow<PagingData<Post>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = action.limit,
-                initialLoadSize = action.limit,
-                enablePlaceholders = true
-            ),
-            remoteMediator = PostRemoteMediator(action, db, booruApis),
-            initialKey = 0
-        ) {
-            db.postDao().getPosts(booruUid = action.booru.uid, query = action.query)
-        }.flow
+                config =
+                    PagingConfig(
+                        pageSize = action.limit,
+                        initialLoadSize = action.limit,
+                        maxSize = action.limit * 6,
+                        enablePlaceholders = true,
+                    ),
+                remoteMediator =
+                    PostRemoteMediator(
+                        action,
+                        db,
+                        booruApis,
+                        settings,
+                        forceRefresh,
+                        allowAutoRefresh,
+                    ),
+                initialKey = initialIndex.coerceAtLeast(0),
+            ) {
+                db.postDao()
+                    .getPosts(
+                        booruUid = action.booru.uid,
+                        query = action.query,
+                        safeOnly = action.isSafeMode,
+                    )
+            }
+            .flow
     }
 }

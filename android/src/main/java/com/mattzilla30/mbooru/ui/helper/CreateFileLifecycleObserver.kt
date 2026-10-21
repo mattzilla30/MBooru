@@ -24,17 +24,22 @@ import androidx.lifecycle.LifecycleOwner
 
 class CreateFileLifecycleObserver(
     private val registry: ActivityResultRegistry,
-    private val handleUriCallback: (Uri) -> Unit
+    private val handleUriCallback: (Uri) -> Unit,
 ) : DefaultLifecycleObserver {
 
     private lateinit var createFile: ActivityResultLauncher<String>
 
     override fun onCreate(owner: LifecycleOwner) {
-        createFile = registry.register("create_dcoument_file", owner, ActivityResultContracts.CreateDocument("*/*")) { uri ->
-            if (uri != null) {
-                handleUriCallback.invoke(uri)
+        createFile =
+            registry.register(
+                "create_dcoument_file",
+                owner,
+                ActivityResultContracts.CreateDocument("*/*"),
+            ) { uri ->
+                if (uri != null) {
+                    handleUriCallback.invoke(uri)
+                }
             }
-        }
     }
 
     fun createDocument(filename: String) {

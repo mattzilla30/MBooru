@@ -15,11 +15,30 @@
 
 package com.mattzilla30.mbooru.data.api
 
-class BooruApis {
-    val danApi by lazy { createApi<DanbooruApi>() }
-    val dan1Api by lazy { createApi<Danbooru1Api>() }
-    val moeApi by lazy { createApi<MoebooruApi>() }
-    val gelApi by lazy { createApi<GelbooruApi>() }
-    val sankakuApi by lazy { createApi<SankakuApi>() }
-    val shimmieApi by lazy { createApi<ShimmieApi>() }
+class BooruApis(private val transport: HttpTransport) {
+    val rule34 by lazy {
+        com.mattzilla30.mbooru.data.api.rule34.Rule34Adapter(
+            createApi<com.mattzilla30.mbooru.data.api.rule34.Rule34Api>(
+                transport
+                    .apiClient(false)
+                    .newBuilder()
+                    .followRedirects(false)
+                    .followSslRedirects(false)
+                    .build()
+            )
+        )
+    }
+
+    val cookies
+        get() = transport.cookies
+
+    val loginClient
+        get() = transport.apiClient(false)
+
+    val danApi by lazy { createApi<DanbooruApi>(transport.apiClient(false)) }
+    val dan1Api by lazy { createApi<Danbooru1Api>(transport.apiClient(false)) }
+    val moeApi by lazy { createApi<MoebooruApi>(transport.apiClient(false)) }
+    val gelApi by lazy { createApi<GelbooruApi>(transport.apiClient(false)) }
+    val sankakuApi by lazy { createApi<SankakuApi>(transport.apiClient(true)) }
+    val shimmieApi by lazy { createApi<ShimmieApi>(transport.apiClient(false)) }
 }

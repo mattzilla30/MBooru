@@ -1,0 +1,12 @@
+{
+  "master": "d46d3fc1050117951e310c8372e93d2e250cae8c",
+  "effectiveBase": "afed22ed54878bb522712cf5707cdc5f0094b007",
+  "m34": "9b993cb017211df9e9c50e99ba1e7ee18bcae88c",
+  "schema": 11,
+  "versionCode": 1379,
+  "tests": 107,
+  "failures": 0,
+  "baselineBuild": "passed",
+  "lint": "passed",
+  "copyingPolicy": "Independently authored Kotlin behavior; no unlicensed M34 Java copied."
+}

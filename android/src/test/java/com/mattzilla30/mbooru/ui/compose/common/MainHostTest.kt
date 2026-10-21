@@ -1,24 +1,33 @@
 package com.mattzilla30.mbooru.ui.compose.common
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
+import androidx.lifecycle.viewModelScope
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.App
 import com.mattzilla30.mbooru.ui.activity.MainActivity
-import org.junit.Before
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,103 +37,327 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [28], qualifiers = "en-rUS-notnight")
+@Config(application = SearchFixtureApp::class, sdk = [28], qualifiers = "en-rUS-notnight")
 @LooperMode(LooperMode.Mode.PAUSED)
 class MainHostTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
-    @Before fun selectFullCapabilitySite() {
+
+    @Before
+    fun selectFullCapabilitySite() {
+        kotlinx.coroutines.runBlocking {
+            org.koin.core.context.GlobalContext.get()
+                .get<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
+                .awaitReady()
+        }
         compose.runOnUiThread {
-            val dao = org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
-            val uid = dao.getAll().firstOrNull { it.type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE }?.uid
-                ?: dao.insert(com.mattzilla30.mbooru.data.model.common.Booru(
-                    name = "All tabs", scheme = "https", host = "moe.invalid",
-                    type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE))
-            com.mattzilla30.mbooru.app.Settings.activatedBooruUid = uid
-            compose.activity.forceShowNavBar()
-        }
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-    @After fun closeDependencies() { stopKoin() }
-    @Test fun `navigation view and drawer remain usable after recreation`() {
-        val description = compose.activity.getString(R.string.navigation_drawer_open)
-        compose.onNodeWithContentDescription(description).assertIsDisplayed()
-        compose.activityRule.scenario.recreate()
-        compose.onNodeWithContentDescription(description).assertIsDisplayed().performClick()
-        compose.onNodeWithText(compose.activity.getString(R.string.title_settings)).assertIsDisplayed()
-    }
-    @Test fun `tab search survives switching away and recreating the activity`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
-        compose.onNodeWithTag("browse-query-toggle").performClick()
-        compose.onNodeWithTag("browse-query-input").performTextReplacement("saved search")
-        compose.onNodeWithTag("browse-tab-pools").performClick().assertIsSelected()
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
-        compose.onNodeWithTag("browse-query-input").assertTextEquals("saved search")
-        compose.activityRule.scenario.recreate()
-        compose.onNodeWithTag("browse-tab-tags").assertIsSelected()
-        compose.onNodeWithTag("browse-query-input").assertTextEquals("saved search")
-    }
-
-    @Test fun `back from a secondary tab returns to posts`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
-        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithTag("browse-tab-posts").assertIsSelected()
-    }
-
-    @Test fun `switching to a posts-only site removes unsupported tabs and restores safely`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick().assertIsSelected()
-        compose.runOnUiThread {
-            val dao = org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
-            val uid = dao.insert(com.mattzilla30.mbooru.data.model.common.Booru(
-                name = "Posts only", scheme = "https", host = "shimmie.invalid",
-                type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE))
-            com.mattzilla30.mbooru.app.Settings.activatedBooruUid = uid
-        }
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isEmpty()
-        }
-        compose.onNodeWithTag("browse-tab-posts").assertIsSelected()
-        compose.activityRule.scenario.recreate()
-        compose.waitUntil(10000) {
-            compose.onAllNodesWithTag("browse-tab-tags").fetchSemanticsNodes().isEmpty()
-        }
-        compose.onNodeWithTag("browse-tab-posts").assertIsSelected()
-    }
-
-    @Test fun `paging view model is retained when switching tabs`() {
-        compose.onNodeWithTag("browse-tab-tags").performClick()
-        lateinit var original: com.mattzilla30.mbooru.ui.viewmodel.TagViewModel
-        compose.runOnIdle {
-            val owner = (compose.activity.activeBrowse as com.mattzilla30.mbooru.ui.compose.browse.BrowseController).owner
-            original = androidx.lifecycle.ViewModelProvider(owner)[com.mattzilla30.mbooru.ui.viewmodel.TagViewModel::class.java]
-        }
-        compose.onNodeWithTag("browse-tab-pools").performClick()
-        compose.onNodeWithTag("browse-tab-tags").performClick()
-        compose.runOnIdle {
-            val owner = (compose.activity.activeBrowse as com.mattzilla30.mbooru.ui.compose.browse.BrowseController).owner
-            org.junit.Assert.assertSame(original,
-                androidx.lifecycle.ViewModelProvider(owner)[com.mattzilla30.mbooru.ui.viewmodel.TagViewModel::class.java])
-        }
-    }
-
-    @Test fun `free drawer has no purchase action and can switch beyond three sites`() {
-        compose.onNodeWithContentDescription(compose.activity.getString(R.string.navigation_drawer_open)).performClick()
-        compose.onNodeWithText(compose.activity.getString(R.string.title_settings)).assertIsDisplayed()
-        compose.onNodeWithText("Remove ads & feature unlock").assertDoesNotExist()
-        compose.onNodeWithTag("main-drawer-profile").assertIsDisplayed()
-            .performSemanticsAction(SemanticsActions.OnClick) { it() }
-        compose.onNodeWithTag("main-drawer-list").performScrollToNode(hasText("Safebooru"))
-        compose.onNodeWithText("Safebooru")
-            .performSemanticsAction(SemanticsActions.OnClick) { it() }
-        compose.waitUntil(10000) {
-            com.mattzilla30.mbooru.app.Settings.activatedBooruUid.let { uid ->
-                org.koin.core.context.GlobalContext.get().get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
-                    .getBooruByUid(uid)?.host == "safebooru.org"
+            kotlinx.coroutines.runBlocking {
+                val dao =
+                    org.koin.core.context.GlobalContext.get()
+                        .get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
+                dao.insertMissing(com.mattzilla30.mbooru.data.database.BooruPresets.featured())
+                val uid =
+                    dao.getAll()
+                        .firstOrNull { it.type == com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE }
+                        ?.uid
+                        ?: dao.insert(
+                            com.mattzilla30.mbooru.data.model.common.Booru(
+                                name = "All tabs",
+                                scheme = "https",
+                                host = "moe.invalid",
+                                type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE,
+                            )
+                        )
+                compose.activity.settings.activatedBooruUid = uid
+                compose.activity.forceShowNavBar()
             }
         }
-        compose.onNodeWithTag("browse-tab-tags").assertIsDisplayed()
-        compose.onNodeWithTag("browse-tab-artists").assertDoesNotExist()
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithTag("unified-query").fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
+    private fun drawerText(text: String) =
+        compose.onNode(hasText(text) and hasAnyAncestor(hasTestTag("sphere-drawer-content")))
+
+    private fun explore(title: Int) {
+        val tab =
+            com.mattzilla30.mbooru.ui.compose.navigation
+                .browseTabs(com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE)
+                .first { it.title == title }
+        compose.onNodeWithTag("browse-tool-${tab.id}").performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("sphere-bottom-search").assertDoesNotExist()
+    }
+
+    @After
+    fun closeDependencies() {
+        val model =
+            androidx.lifecycle
+                .ViewModelProvider(compose.activity)[
+                    com.mattzilla30.mbooru.ui.viewmodel.BooruViewModel::class.java]
+        val job = model.viewModelScope.coroutineContext[kotlinx.coroutines.Job]
+        compose.activityRule.scenario.close()
+        kotlinx.coroutines.runBlocking { job?.join() }
+        stopKoin()
+    }
+
+    private fun destination(title: Int) {
+        compose.runOnIdle { compose.activity.openDrawer() }
+        compose
+            .onNode(
+                hasText(compose.activity.getString(title)) and
+                    hasAnyAncestor(hasTestTag("sphere-drawer-content"))
+            )
+            .performScrollTo()
+            .performClick()
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun `refresh resumes a cancelled cached query and makes a new request`() {
+        val fixture =
+            androidx.test.core.app.ApplicationProvider.getApplicationContext<SearchFixtureApp>()
+        compose.waitUntil(10000) { fixture.requests.any { it.encodedPath == "/post.json" } }
+        compose.onNodeWithTag("search-filters-toggle").performClick()
+        compose.onNodeWithText("Cancel").performClick()
+        val before = fixture.requests.count { it.encodedPath == "/post.json" }
+        compose.onNodeWithText("Refresh").performClick()
+        compose.waitUntil(10000) {
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            fixture.requests.count { it.encodedPath == "/post.json" } > before
+        }
+    }
+
+    @Test
+    fun `grid scroll and cached results survive tab switches and recreation without initial network reloads`() {
+        val fixture =
+            androidx.test.core.app.ApplicationProvider.getApplicationContext<SearchFixtureApp>()
+        fixture.catalogSize = 80
+        compose.onNodeWithText("Refresh").performClick()
+        val first = compose.activity.getString(R.string.post_accessibility, 10000)
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithContentDescription(first).fetchSemanticsNodes().isNotEmpty() &&
+                compose.onAllNodesWithTag("post_grid").fetchSemanticsNodes().size == 1
+        }
+        compose.onNodeWithTag("post_grid").performScrollToIndex(50)
+        val target = compose.activity.getString(R.string.post_accessibility, 10050)
+        compose.onNodeWithContentDescription(target).assertIsDisplayed()
+        compose.runOnIdle { compose.activity.settings.autoRefresh = true }
+        // End-of-cache append requests remain valid; returning to cached data must not refresh page
+        // 1.
+        val requests =
+            fixture.requests.count {
+                it.encodedPath == "/post.json" && it.queryParameter("page") == "1"
+            }
+        destination(R.string.sphere_favorites)
+        compose.onNodeWithText("All favorites").assertIsDisplayed()
+        compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.waitUntil(10000) {
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription(target).assertIsDisplayed()
+        compose.activityRule.scenario.recreate()
+        compose.waitUntil(10000) {
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            compose.onAllNodesWithContentDescription(target).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription(target).assertIsDisplayed()
+        org.junit.Assert.assertEquals(
+            requests,
+            fixture.requests.count {
+                it.encodedPath == "/post.json" && it.queryParameter("page") == "1"
+            },
+        )
+    }
+
+    @Test
+    fun `all primary destinations work and site search survives recreation`() {
+        compose.onNodeWithTag("home-toolbar").assertDoesNotExist()
+        compose
+            .onNodeWithContentDescription(
+                compose.activity.getString(R.string.navigation_drawer_open)
+            )
+            .assertDoesNotExist()
+        val query = compose.onNodeWithTag("unified-query").fetchSemanticsNode().boundsInRoot
+        org.junit.Assert.assertTrue(
+            "Search starts at the top safe area",
+            query.top < 32 * compose.density.density,
+        )
+        compose.onNodeWithTag("home-settings").assertDoesNotExist()
+        compose.onNodeWithTag("home-favorites").assertDoesNotExist()
+        val grid = compose.onNodeWithTag("post_grid").fetchSemanticsNode().boundsInRoot
+        org.junit.Assert.assertTrue(
+            "Compact controls leave room for media",
+            grid.top - query.bottom <= 64 * compose.density.density,
+        )
+        compose.onNodeWithTag("search-filters-toggle").performClick()
+        compose.onNodeWithText("Latest").assertIsDisplayed()
+        compose.onNodeWithTag("search-filters-toggle").performClick()
+        compose.onNodeWithText("Latest").assertDoesNotExist()
+        compose.onNodeWithTag("home-overflow").assertDoesNotExist()
+        compose.onNodeWithTag("sphere-bottom-search").assertDoesNotExist()
+        (0..4).forEach { compose.onNodeWithTag("home-tab-$it").assertDoesNotExist() }
+        compose.onNodeWithTag("unified-query").performTextReplacement("landscape -cloud")
+        compose.onNodeWithTag("unified-submit").performClick()
+        destination(R.string.sphere_favorites)
+        compose.onNodeWithText("All favorites").assertIsDisplayed()
+        compose.onNodeWithText("New collection").assertIsDisplayed()
+        compose.onNodeWithTag("home-tab-3").assertDoesNotExist()
+        compose.onNodeWithTag("home-tab-4").assertDoesNotExist()
+        destination(R.string.title_settings)
+        compose.onNodeWithTag("settings_list").assertExists()
+        val settingsList = compose.onNodeWithTag("settings_list")
+        settingsList.performScrollToNode(hasTestTag("settings-download-limit"))
+        compose.onNodeWithTag("settings-download-limit").assertIsDisplayed()
+        compose.onNodeWithTag("settings-category-${R.string.title_downloads}").assertIsDisplayed()
+        settingsList.performScrollToNode(
+            hasTestTag("settings-category-${R.string.sphere_interface}")
+        )
+        compose.onNodeWithTag("settings-side-panel").assertDoesNotExist()
+        compose.onNodeWithTag("settings-category-${R.string.sphere_interface}").assertIsDisplayed()
+        settingsList.performScrollToNode(hasTestTag("settings-app-lock"))
+        compose.onNodeWithTag("settings-app-lock").assertIsDisplayed()
+        compose.onNodeWithTag("settings-category-${R.string.settings_security}").assertIsDisplayed()
+        compose.onNodeWithTag("settings-download-limit").assertIsNotDisplayed()
+        settingsList.performScrollToIndex(0)
+        compose.onNodeWithTag("settings-app-lock").assertIsNotDisplayed()
+        settingsList.performScrollToNode(hasTestTag("settings-sites"))
+        compose.onNodeWithTag("settings-category-${R.string.sphere_servers}").assertIsDisplayed()
+        compose.onNodeWithTag("settings-sites").performClick()
+        compose.onNodeWithText("Add, remove, import or export sites").assertExists()
+        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        compose.onNodeWithTag("settings_list").assertExists()
+        compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
+        compose.activityRule.scenario.recreate()
+        compose.onNodeWithTag("unified-query").assert(hasText("landscape -cloud"))
+    }
+
+    @Test
+    fun `side panel swipe remains usable after recreation without top icons`() {
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
+        compose.activityRule.scenario.recreate()
+        compose.onRoot().performTouchInput { swipeRight(startX = 1f, endX = width * .8f) }
+        drawerText(compose.activity.getString(R.string.title_settings))
+            .performScrollTo()
+            .assertIsDisplayed()
+        drawerText(compose.activity.getString(R.string.sphere_add_server)).assertDoesNotExist()
+        drawerText(compose.activity.getString(R.string.sphere_explore)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `tab search survives switching away and recreating the activity`() {
+        explore(R.string.title_tags)
+        compose.onNodeWithTag("browse-query-toggle").performClick()
+        compose.onNodeWithTag("browse-query-input").performTextReplacement("saved search")
+        explore(R.string.title_pools)
+        explore(R.string.title_tags)
+        compose.onNodeWithTag("browse-query-input").assertTextEquals("saved search")
+        compose.activityRule.scenario.recreate()
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.TagScreenController
+        )
+        compose.onNodeWithTag("browse-query-input").assertTextEquals("saved search")
+    }
+
+    @Test
+    fun `back from a secondary tab returns to posts`() {
+        explore(R.string.title_tags)
+        compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.waitForIdle()
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
+    }
+
+    @Test
+    fun `switching to a posts-only site removes unsupported tabs and restores safely`() {
+        explore(R.string.title_tags)
+        compose.runOnUiThread {
+            kotlinx.coroutines.runBlocking {
+                val dao =
+                    org.koin.core.context.GlobalContext.get()
+                        .get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
+                val uid =
+                    dao.insert(
+                        com.mattzilla30.mbooru.data.model.common.Booru(
+                            name = "Posts only",
+                            scheme = "https",
+                            host = "shimmie.invalid",
+                            type = com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE,
+                        )
+                    )
+                compose.activity.settings.activatedBooruUid = uid
+            }
+        }
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithTag("unified-query").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
+        compose.activityRule.scenario.recreate()
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithTag("unified-query").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("unified-query").assertIsDisplayed()
+    }
+
+    @Test
+    fun `paging view model is retained when switching tabs`() {
+        explore(R.string.title_tags)
+        lateinit var original: com.mattzilla30.mbooru.ui.viewmodel.TagViewModel
+        compose.runOnIdle {
+            val owner =
+                (compose.activity.activeBrowse
+                        as com.mattzilla30.mbooru.ui.compose.browse.BrowseController)
+                    .owner
+            original =
+                androidx.lifecycle
+                    .ViewModelProvider(owner)[
+                        com.mattzilla30.mbooru.ui.viewmodel.TagViewModel::class.java]
+        }
+        explore(R.string.title_pools)
+        explore(R.string.title_tags)
+        compose.runOnIdle {
+            val owner =
+                (compose.activity.activeBrowse
+                        as com.mattzilla30.mbooru.ui.compose.browse.BrowseController)
+                    .owner
+            org.junit.Assert.assertSame(
+                original,
+                androidx.lifecycle
+                    .ViewModelProvider(owner)[
+                        com.mattzilla30.mbooru.ui.viewmodel.TagViewModel::class.java],
+            )
+        }
+    }
+
+    @Test
+    fun `free drawer has no purchase action and can switch beyond three sites`() {
+        compose.runOnIdle { compose.activity.openDrawer() }
+        drawerText(compose.activity.getString(R.string.title_settings))
+            .performScrollTo()
+            .assertIsDisplayed()
+        drawerText(compose.activity.getString(R.string.sphere_add_server)).assertDoesNotExist()
+        drawerText(compose.activity.getString(R.string.sphere_explore)).assertDoesNotExist()
+        compose.onNodeWithText("Remove ads & feature unlock").assertDoesNotExist()
+        compose.onNodeWithTag("main-drawer-list").performScrollToNode(hasText("Safebooru"))
+        compose.onNodeWithText("Safebooru").performSemanticsAction(SemanticsActions.OnClick) {
+            it()
+        }
+        compose.waitUntil(10000) {
+            kotlinx.coroutines.runBlocking {
+                compose.activity.settings.activatedBooruUid.let { uid ->
+                    org.koin.core.context.GlobalContext.get()
+                        .get<com.mattzilla30.mbooru.data.database.dao.BooruDao>()
+                        .getBooruByUid(uid)
+                        ?.host == "safebooru.org"
+                }
+            }
+        }
+        explore(R.string.title_tags)
+        org.junit.Assert.assertTrue(
+            compose.activity.activeBrowse
+                is com.mattzilla30.mbooru.ui.compose.browse.TagScreenController
+        )
+    }
 }

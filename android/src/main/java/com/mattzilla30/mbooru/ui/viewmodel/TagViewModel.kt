@@ -15,22 +15,22 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.repository.tag.TagRepository
+import kotlinx.coroutines.flow.*
 
-class TagViewModel(private val repository: TagRepository) : ScopeViewModel() {
+class TagViewModel(private val repository: TagRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionTag?>(null)
     val state = actions.asStateFlow()
-    val tags = actions.flatMapLatest { action ->
-        if (action == null) flowOf(PagingData.empty()) else repository.getTags(action)
-    }.cachedIn(viewModelScope)
+    val tags =
+        actions
+            .flatMapLatest { action ->
+                if (action == null) flowOf(PagingData.empty()) else repository.getTags(action)
+            }
+            .cachedIn(viewModelScope)
 
     fun show(action: ActionTag): Boolean {
         val snapshot = action.copy(booru = action.booru.copy())

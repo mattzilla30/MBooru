@@ -15,12 +15,12 @@
 
 package com.mattzilla30.mbooru.data.action
 
-import okhttp3.HttpUrl
 import com.mattzilla30.mbooru.data.model.common.Booru
+import okhttp3.HttpUrl
 
 data class ActionVote(
     var booru: Booru,
-    var postId: Int
+    var postId: Int,
 ) {
     fun getDan1AddFavUrl(): String =
         String.format("%s://%s/favorite/create.json", booru.scheme, booru.host)
@@ -70,8 +70,7 @@ data class ActionVote(
             .build()
     }
 
-    fun getMoeVoteUrl(): String =
-        String.format("%s://%s/post/vote.json", booru.scheme, booru.host)
+    fun getMoeVoteUrl(): String = String.format("%s://%s/post/vote.json", booru.scheme, booru.host)
 
     fun getSankakuFavUrl(): HttpUrl {
         return HttpUrl.Builder()

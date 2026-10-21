@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">Berdasarkan Flexbooru oleh onlymash dan para kontributor.</string>
+    <string name="action_to_top">Ke atas</string>
+    <string name="booru_add_featured">Tambahkan situs unggulan</string>
+    <string name="booru_config_save_failed">Tidak dapat menyimpan perubahan. Coba lagi.</string>
+    <string name="image_search_read_failed">Tidak dapat membaca gambar yang dipilih.</string>
+    <string name="navigation_drawer_open">Buka menu navigasi</string>
+    <string name="settings_cache_clear_failed">Tidak dapat menghapus cache. Coba lagi.</string>
+</resources>

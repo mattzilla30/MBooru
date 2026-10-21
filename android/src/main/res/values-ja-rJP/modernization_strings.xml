@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">結果がありません</string>
-  <string name="browse_offline">オフラインです。接続を確認して再試行してください。</string>
-  <string name="image_load_retry">画像を読み込めませんでした。タップして再試行してください。</string>
-  <string name="post_actions">投稿の操作</string>
-  <string name="post_accessibility">投稿 %1$d</string>
+    <string name="browse_empty">結果がありません</string>
+    <string name="browse_offline">オフラインです。接続を確認して再試行してください。</string>
+    <string name="image_load_retry">画像を読み込めませんでした。タップして再試行してください。</string>
+    <string name="post_actions">投稿の操作</string>
+    <string name="post_accessibility">投稿 %1$d</string>
+    <string name="booru_empty_message">おすすめのサイトか独自のサイトを追加して閲覧を始めましょう。</string>
+    <string name="title_downloads">ダウンロード</string>
+    <string name="download_resume_policy">サーバーとストレージが対応していれば再試行時に続きから再開し、非対応なら最初から開始します。Android がバックグラウンド転送を一時停止する場合があります。</string>
+    <string name="download_queue_empty">ダウンロードはまだありません。</string>
+    <string name="download_state_queued">待機中 · 転送待ち</string>
+    <string name="download_state_running">ダウンロード中</string>
+    <string name="download_state_completed">完了</string>
+    <string name="download_state_failed">失敗 · 接続、ログイン、フォルダーへのアクセスを確認してください</string>
+    <string name="download_state_cancelled">キャンセル済み</string>
+    <string name="download_bytes_unknown">%1$d バイト · 合計サイズ不明</string>
+    <string name="download_bytes_total">%1$d / %2$d バイト</string>
+    <string name="download_open_file">ファイルを開く</string>
+    <string name="settings_load_failed">設定を読み込めませんでした</string>
+    <string name="settings_load_recovery">設定は保持されています。再試行してください。MBooru が設定を自動的にリセットすることはありません。</string>
+    <string name="settings_write_failed">設定を保存できませんでした。アプリを閉じる前に再試行してください。</string>
 </resources>

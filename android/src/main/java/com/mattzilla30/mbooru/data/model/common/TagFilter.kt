@@ -17,20 +17,22 @@ package com.mattzilla30.mbooru.data.model.common
 
 import androidx.room.*
 
-@Entity(tableName = "tags_filter", indices = [(Index(value = ["booru_uid", "name"], unique = true))],
-    foreignKeys = [(ForeignKey(
-        entity = Booru::class,
-        parentColumns = ["uid"],
-        childColumns = ["booru_uid"],
-        onDelete = ForeignKey.CASCADE))])
+@Entity(
+    tableName = "tags_filter",
+    indices = [(Index(value = ["booru_uid", "name"], unique = true))],
+    foreignKeys =
+        [
+            (ForeignKey(
+                entity = Booru::class,
+                parentColumns = ["uid"],
+                childColumns = ["booru_uid"],
+                onDelete = ForeignKey.CASCADE,
+            ))
+        ],
+)
 data class TagFilter(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "uid")
-    var uid: Long = 0L,
-    @ColumnInfo(name = "booru_uid")
-    var booruUid: Long = -1L,
-    @ColumnInfo(name = "name")
-    var name: String,
-    @ColumnInfo(name = "type")
-    var type: Int = -1
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "uid") var uid: Long = 0L,
+    @ColumnInfo(name = "booru_uid") var booruUid: Long = -1L,
+    @ColumnInfo(name = "name") var name: String,
+    @ColumnInfo(name = "type") var type: Int = -1,
 )

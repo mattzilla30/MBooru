@@ -15,9 +15,9 @@
 
 package com.mattzilla30.mbooru.data.repository.tagfilter
 
-import androidx.lifecycle.LiveData
 import com.mattzilla30.mbooru.data.model.common.TagFilter
+import kotlinx.coroutines.flow.Flow
 
 interface TagFilterRepository {
-    fun loadTagsFilter(): LiveData<List<TagFilter>>
+    fun loadTagsFilter(): Flow<List<TagFilter>>
 }

@@ -9,16 +9,19 @@ import com.mattzilla30.mbooru.data.model.common.Tag
 
 class TagPagingSource(
     private val action: ActionTag,
-    private val booruApis: BooruApis
+    private val booruApis: BooruApis,
 ) : PagingSource<Int, Tag>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Tag> {
-        val page = params.key ?: return LoadResult.Page(
-            data = listOf(),
-            prevKey = null,
-            nextKey = null
-        )
+        val page =
+            params.key
+                ?: return LoadResult.Page(
+                    data = listOf(),
+                    prevKey = null,
+                    nextKey = null,
+                )
         return when (action.booru.type) {
+            Values.BOORU_TYPE_RULE34 -> getRule34Tags(action, page)
             Values.BOORU_TYPE_DAN -> getDanTags(action, page)
             Values.BOORU_TYPE_DAN1 -> getDan1Tags(action, page)
             Values.BOORU_TYPE_MOE -> getMoeTags(action, page)
@@ -28,77 +31,96 @@ class TagPagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Tag>): Int {
-        return if (action.booru.type == Values.BOORU_TYPE_GEL) 0 else 1
+        return if (action.booru.type in setOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_RULE34)) 0
+        else 1
     }
+
+    private suspend fun getRule34Tags(action: ActionTag, page: Int): LoadResult<Int, Tag> =
+        try {
+            val tags = booruApis.rule34.fetchTags(action, page)
+            LoadResult.Page(
+                tags,
+                if (page > 0) page - 1 else null,
+                if (tags.size == action.limit) page + 1 else null,
+            )
+        } catch (failure: java.io.IOException) {
+            LoadResult.Error(failure)
+        } catch (failure: retrofit2.HttpException) {
+            LoadResult.Error(failure)
+        }
 
     private suspend fun getDanTags(action: ActionTag, page: Int): LoadResult<Int, Tag> {
         return try {
-            val response =  booruApis.danApi.getTags(action.getDanTagsUrl(page))
+            val response = booruApis.danApi.getTags(action.getDanTagsUrl(page))
             if (response.isSuccessful) {
                 val tags = response.body()?.map { it.toTag() } ?: listOf()
                 LoadResult.Page(
                     data = tags,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (tags.size == action.limit) page + 1 else null
+                    nextKey = if (tags.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
 
     private suspend fun getDan1Tags(action: ActionTag, page: Int): LoadResult<Int, Tag> {
         return try {
-            val response =  booruApis.dan1Api.getTags(action.getDan1TagsUrl(page))
+            val response = booruApis.dan1Api.getTags(action.getDan1TagsUrl(page))
             if (response.isSuccessful) {
                 val tags = response.body()?.map { it.toTag() } ?: listOf()
                 LoadResult.Page(
                     data = tags,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (tags.size == action.limit) page + 1 else null
+                    nextKey = if (tags.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
 
     private suspend fun getMoeTags(action: ActionTag, page: Int): LoadResult<Int, Tag> {
         return try {
-            val response =  booruApis.moeApi.getTags(action.getMoeTagsUrl(page))
+            val response = booruApis.moeApi.getTags(action.getMoeTagsUrl(page))
             if (response.isSuccessful) {
                 val tags = response.body()?.map { it.toTag() } ?: listOf()
                 LoadResult.Page(
                     data = tags,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (tags.size == action.limit) page + 1 else null
+                    nextKey = if (tags.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
 
     private suspend fun getSankakuTags(action: ActionTag, page: Int): LoadResult<Int, Tag> {
         return try {
-            val response =  booruApis.sankakuApi.getTags(action.getSankakuTagsUrl(page))
+            val response = booruApis.sankakuApi.getTags(action.getSankakuTagsUrl(page))
             if (response.isSuccessful) {
                 val tags = response.body()?.map { it.toTag() } ?: listOf()
                 LoadResult.Page(
                     data = tags,
                     prevKey = if (page > 1) page - 1 else null,
-                    nextKey = if (tags.size == action.limit) page + 1 else null
+                    nextKey = if (tags.size == action.limit) page + 1 else null,
                 )
             } else {
                 LoadResult.Error(Throwable("code: ${response.code()}"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             LoadResult.Error(e)
         }
     }
@@ -106,34 +128,36 @@ class TagPagingSource(
     private suspend fun getGelTags(action: ActionTag, page: Int): LoadResult<Int, Tag> {
         return if (action.booru.type == Values.BOORU_TYPE_GEL_LEGACY) {
             try {
-                val response =  booruApis.gelApi.getTagsLegacy(action.getGelTagsUrl(page))
+                val response = booruApis.gelApi.getTagsLegacy(action.getGelTagsUrl(page))
                 if (response.isSuccessful) {
                     val tags = response.body()?.tags?.map { it.toTag() } ?: listOf()
                     LoadResult.Page(
                         data = tags,
                         prevKey = if (page > 0) page - 1 else null,
-                        nextKey = if (tags.size == action.limit) page + 1 else null
+                        nextKey = if (tags.size == action.limit) page + 1 else null,
                     )
                 } else {
                     LoadResult.Error(Throwable("code: ${response.code()}"))
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 LoadResult.Error(e)
             }
         } else {
             try {
-                val response =  booruApis.gelApi.getTags(action.getGelTagsUrl(page))
+                val response = booruApis.gelApi.getTags(action.getGelTagsUrl(page))
                 if (response.isSuccessful) {
                     val tags = response.body()?.tags?.map { it.toTag() } ?: listOf()
                     LoadResult.Page(
                         data = tags,
                         prevKey = if (page > 0) page - 1 else null,
-                        nextKey = if (tags.size == action.limit) page + 1 else null
+                        nextKey = if (tags.size == action.limit) page + 1 else null,
                     )
                 } else {
                     LoadResult.Error(Throwable("code: ${response.code()}"))
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 LoadResult.Error(e)
             }
         }

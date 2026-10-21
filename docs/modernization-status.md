@@ -1,3 +1,5 @@
+Current roadmap implementation: see [completion and evidence](modernization-completion.md). The earlier seven-stage record below is retained for history.
+
 # Modernization pass
 
 The existing design, Android 5 minimum (API 21), Android 15 target (API 35), package ID and signing-secret names are retained.

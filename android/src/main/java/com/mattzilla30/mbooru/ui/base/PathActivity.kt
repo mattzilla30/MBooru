@@ -17,8 +17,6 @@ package com.mattzilla30.mbooru.ui.base
 
 import android.content.Intent
 import android.os.Bundle
-import com.mattzilla30.mbooru.app.Settings
-import com.mattzilla30.mbooru.extension.toDecodedString
 import com.mattzilla30.mbooru.ui.helper.StorageFolderLifecycleObserver
 
 abstract class PathActivity : BaseActivity() {
@@ -27,25 +25,24 @@ abstract class PathActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        observer = StorageFolderLifecycleObserver(activityResultRegistry) { uri ->
-            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            try {
-                // Acquire the new grant before releasing any working destination.
-                contentResolver.takePersistableUriPermission(uri, flags)
-                val previous = contentResolver.persistedUriPermissions
-                Settings.downloadDirPath = uri.toDecodedString()
-                previous.filter { it.isWritePermission && it.uri != uri }.forEach { permission ->
-                    val oldFlags = (if (permission.isReadPermission) Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    try { contentResolver.releasePersistableUriPermission(permission.uri, oldFlags) }
-                    catch (_: SecurityException) { /* The provider may already have revoked it. */ }
+        observer =
+            StorageFolderLifecycleObserver(activityResultRegistry) { uri ->
+                val flags =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                try {
+                    // Acquire the new grant before releasing any working destination.
+                    contentResolver.takePersistableUriPermission(uri, flags)
+                    // Queue records and completed-file actions keep their original tree grant.
+                    settings.downloadDirPath = uri.toString()
+                } catch (_: SecurityException) {
+                    android.widget.Toast.makeText(
+                            this,
+                            com.mattzilla30.mbooru.R.string.msg_path_denied,
+                            android.widget.Toast.LENGTH_LONG,
+                        )
+                        .show()
                 }
-            } catch (_: SecurityException) {
-                android.widget.Toast.makeText(this, com.mattzilla30.mbooru.R.string.msg_path_denied,
-                    android.widget.Toast.LENGTH_LONG).show()
             }
-
-        }
         lifecycle.addObserver(observer)
     }
 

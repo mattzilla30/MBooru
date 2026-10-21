@@ -1,0 +1,11 @@
+{
+  "commit": "c9606e3",
+  "workflow": "https://github.com/mattzilla30/M34/actions/runs/39201339120",
+  "sha256": "607b918580e3735c7625bc2be27572b640b2c24ec1874904eb77f1f5039c012c",
+  "signer_sha256": "06f71793e8ac2fe1c1f85764c306fbd0dc4c356b220ab98c3b2aade82db99d36",
+  "same_signer_as_release_1": true,
+  "version_name": "2",
+  "version_code": 12,
+  "min_target_api": 37,
+  "device_export_executed": false
+}

@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Geen resultaten</string>
-  <string name="browse_offline">Je bent offline. Controleer je verbinding en probeer het opnieuw.</string>
-  <string name="image_load_retry">Afbeelding kon niet worden geladen. Tik om opnieuw te proberen.</string>
-  <string name="post_actions">Berichtacties</string>
-  <string name="post_accessibility">Bericht %1$d</string>
+    <string name="browse_empty">Geen resultaten</string>
+    <string name="browse_offline">Je bent offline. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="image_load_retry">Afbeelding kon niet worden geladen. Tik om opnieuw te proberen.</string>
+    <string name="post_actions">Berichtacties</string>
+    <string name="post_accessibility">Bericht %1$d</string>
+    <string name="booru_empty_message">Voeg een aanbevolen of eigen website toe om te beginnen.</string>
+    <string name="title_downloads">Downloads</string>
+    <string name="download_resume_policy">Opnieuw proberen hervat de download als de server en opslag dit ondersteunen; anders begint deze opnieuw. Android kan achtergrondoverdrachten pauzeren.</string>
+    <string name="download_queue_empty">Nog geen downloads.</string>
+    <string name="download_state_queued">In wachtrij · wacht op overdracht</string>
+    <string name="download_state_running">Downloaden</string>
+    <string name="download_state_completed">Voltooid</string>
+    <string name="download_state_failed">Mislukt · controleer verbinding, aanmelding en maptoegang</string>
+    <string name="download_state_cancelled">Geannuleerd</string>
+    <string name="download_bytes_unknown">%1$d bytes · totale grootte onbekend</string>
+    <string name="download_bytes_total">%1$d / %2$d bytes</string>
+    <string name="download_open_file">Bestand openen</string>
+    <string name="settings_load_failed">Instellingen konden niet worden geladen</string>
+    <string name="settings_load_recovery">Je instellingen zijn bewaard. Probeer opnieuw; MBooru stelt ze niet automatisch opnieuw in.</string>
+    <string name="settings_write_failed">Instellingen konden niet worden opgeslagen. Probeer opnieuw voordat je de app sluit.</string>
 </resources>

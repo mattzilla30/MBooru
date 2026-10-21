@@ -1,0 +1,318 @@
+{
+  "android": [
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.browse.BrowseStateTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.130Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.RequestHeaderTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.056Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.api.rule34.Rule34TransportTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:44.614Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.worker.DownloadCopyTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:08.181Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.settings.SettingsScreenTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:04.466Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.extension.WindowInsetsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:51.864Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.common.FragmentHostTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.240Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.common.MainHostTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:56.625Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.detail.RelatedPostsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:04.461Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.worker.DownloadStorageTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:08.367Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ShimmieApiTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:28.444Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.api.rule34.Rule34PagingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:41.044Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.browse.PostLayoutTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.166Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.booru.BooruValidationTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.125Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.utils.MediaUrlTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:50.525Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.MediaImageLoadingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:53.691Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.WafBoundaryTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.079Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.database.DatabaseMigrationTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:46.562Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.extension.SignExtTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:50.541Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.common.LoadingStateTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:56.513Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.database.BooruPresetsTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:45.275Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.database.LibraryTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:48.915Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.common.SearchResultsTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:03.890Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.worker.DownloadQueueTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:08.189Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.ApiResponseLimitsTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:53.535Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.settings.DataStorePreferencesTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:50.143Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.backup.SiteBackupsTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:44.867Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.DownloadProgressTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:53.688Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.settings.SettingsViewModelTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:04.967Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.DnsSettingsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:53.641Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.api.rule34.Rule34AdapterTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:40.919Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.TextExtUnitTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:37.469Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.api.EngineProtocolTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:37.482Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.ui.compose.theme.ThemeBridgeTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:16:05.111Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.DispatchersIOUnitTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:28.176Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.data.database.BooruCredentialsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:44.968Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.okhttp.MediaTransportTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T06:15:54.024Z"
+    }
+  ],
+  "core/model": [
+    {
+      "name": "com.mattzilla30.mbooru.core.model.ResumePolicyTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T04:47:54.498Z"
+    },
+    {
+      "name": "com.mattzilla30.mbooru.core.model.EngineCapabilitiesTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-19T04:47:54.468Z"
+    }
+  ]
+}

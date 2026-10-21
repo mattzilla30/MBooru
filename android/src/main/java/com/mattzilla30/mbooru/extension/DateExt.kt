@@ -41,6 +41,6 @@ fun Context.formatDate(millis: Long?): String? {
     return DateUtils.formatDateTime(
         this,
         millis,
-        DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR
+        DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR,
     )
 }

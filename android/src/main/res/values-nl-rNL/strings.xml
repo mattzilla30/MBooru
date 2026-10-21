@@ -27,13 +27,10 @@
     <string name="title_pools">Pools</string>
     <string name="title_tags">Tags</string>
     <string name="title_comments">Reacties</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Donkere modus</string>
     <string name="title_copyright">Auteursrecht</string>
     <string name="title_about">Over</string>
     <string name="title_tag_blacklist">Geblokkeerde tags</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">Welke Anime</string>
     <string name="title_history">Geschiedenis</string>
     <string name="history_clear_all">Alles wissen</string>
     <string name="history_clear_all_content">Alle geschiedenis zal worden gewist.</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">Je API-sleutel is verkeerd!</string>
     <string name="msg_cloudflare_challenges">Loading failed, please try again later</string>
     <string name="post_expand_or_clear">Uitklappen of wissen</string>
-    <string name="post_add_search_to_muzei">` %s` zijn opgeslagen in Muzei.</string>
     <string name="post_download">Download post</string>
     <string name="post_add_to_fav">Aan favorieten toevoegen</string>
-    <string name="post_search_by_sauce_nao">Zoeken in SauceNao</string>
     <string name="msg_download_must_enable">Download Manager is verplicht.</string>
     <string name="msg_path_denied">Opslaan mislukt! Geen toegang tot het huidige pad.</string>
     <string name="msg_download_failed">Download mislukt</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">Bypassing Cloudflare WAF</string>
     <string name="settings_safe_mode">Veilige modus</string>
     <string name="settings_page_limit">Paginalimiet</string>
-    <string name="settings_muzei_limit">Muzeilimiet</string>
-    <string name="settings_muzei_size">Muzeigrootte</string>
     <string name="settings_detail_size">Detailgrootte</string>
     <string name="settings_download_size">Downloadgrootte</string>
     <string name="settings_download_path">Downloadmap</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">Verwijder zoekgeschiedenis</string>
     <string name="settings_clear_history_summery">Verwijder alle zoekgeschiedenis.</string>
     <string name="settings_clear_history_dialog_content">Alle zoekgeschiedenis zal worden gewist.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Weergave</string>
     <string name="settings_options">Opties</string>
     <string name="settings_storage">Opslag</string>
@@ -255,15 +247,6 @@
     <string name="order">Volgorde</string>
     <string name="rating">Beoordeling</string>
     <string name="threshold">Drempelwaarde</string>
-    <string name="muzei_copy">Kopiëren</string>
-    <string name="muzei_delete">Verwijderen</string>
-    <string name="muzei_search">Zoeken</string>
-    <string name="muzei_search_hint">Tag toevoegen…</string>
-    <string name="muzei_fetch">Illustratie Ophalen</string>
-    <string name="muzei_input_cant_be_empty">Invoer mag niet leeg zijn.</string>
-    <string name="muzei_action_view_post">Post in MBooru weergeven</string>
-    <string name="muzei_action_search_posts">Posts zoeken op MBooru</string>
-    <string name="muzei_attribution">Post uit MBooru</string>
     <string name="tag_blacklist_copy">Kopiëren</string>
     <string name="tag_blacklist_delete">Verwijderen</string>
     <string name="tag_blacklist_add">Toevoegen</string>
@@ -275,15 +258,7 @@
     <string name="comment_hint">Typ een reactie</string>
     <string name="tab_start_date">Startdatum</string>
     <string name="tab_end_date">Einddatum</string>
-    <string name="sauce_nao_help">Help</string>
-    <string name="sauce_nao_change_api_key">Wijzig API-sleutel</string>
-    <string name="sauce_nao_get_api_key">API-sleutel verkrijgen</string>
-    <string name="sauce_nao_remaining_times_today">Resterend aantal keren vandaag: %01$d</string>
-    <string name="sauce_nao_api_key_unset">API-sleutel voor SauceNao is niet ingesteld.</string>
-    <string name="sauce_nao_image_url">Afbeeldings-URL</string>
-    <string name="sauce_nao_invalid_image_url">Ongeldige afbeeldings-URL.</string>
-    <string name="sauce_nao_source">Bron</string>
-    <string name="sauce_nao_search_from_url">URL</string>
-    <string name="sauce_nao_search_from_file">Bestand</string>
-    <string name="action_add_to_muzei">Toevoegen aan Muzei</string>
+    <string name="title_top_rated">Hoogst gewaardeerd</string>
+    <string name="title_pools_website">Pools (website)</string>
+    <string name="title_artists_website">Artiesten (website)</string>
 </resources>

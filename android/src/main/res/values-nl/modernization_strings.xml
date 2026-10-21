@@ -1,7 +1,0 @@
-<resources>
-  <string name="browse_empty">Geen resultaten</string>
-  <string name="browse_offline">Je bent offline. Controleer je verbinding en probeer het opnieuw.</string>
-  <string name="image_load_retry">Afbeelding kon niet worden geladen. Tik om opnieuw te proberen.</string>
-  <string name="post_actions">Berichtacties</string>
-  <string name="post_accessibility">Bericht %1$d</string>
-</resources>

@@ -27,13 +27,10 @@
     <string name="title_pools">Pools</string>
     <string name="title_tags">Label</string>
     <string name="title_comments">Komentar</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Mode Gelap</string>
     <string name="title_copyright">Hak Cipta</string>
     <string name="title_about">Informasi</string>
     <string name="title_tag_blacklist">Pengecualian Label</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">Cari Anime</string>
     <string name="title_history">Riwayat</string>
     <string name="history_clear_all">Hapus semua</string>
     <string name="history_clear_all_content">Semua riwayat akan dihapus.</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">Api Key anda salah!</string>
     <string name="msg_cloudflare_challenges">Loading failed, please try again later</string>
     <string name="post_expand_or_clear">Perluas atau hapus</string>
-    <string name="post_add_search_to_muzei">` %s ` berhasil disimpan ke Muzei</string>
     <string name="post_download">Unduh postingan</string>
     <string name="post_add_to_fav">Tambahkan ke Favorit</string>
-    <string name="post_search_by_sauce_nao">Telusuri dengan SauceNao</string>
     <string name="msg_download_must_enable">Manajer Unduhan dibutuhkan</string>
     <string name="msg_path_denied">Gagal disimpan! Tidak memiliki akses ke path</string>
     <string name="msg_download_failed">Unduhan gagal</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">Bypassing Cloudflare WAF</string>
     <string name="settings_safe_mode">Mode aman</string>
     <string name="settings_page_limit">Batas halaman</string>
-    <string name="settings_muzei_limit">Batas Muzei</string>
-    <string name="settings_muzei_size">Ukuran muzei</string>
     <string name="settings_detail_size">Ukuran detail</string>
     <string name="settings_download_size">Ukuran file unduhan</string>
     <string name="settings_download_path">Lokasi unduhan</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">Bersihkan riwayat pencarian</string>
     <string name="settings_clear_history_summery">Hapus semua riwayat pencarian.</string>
     <string name="settings_clear_history_dialog_content">Semua riwayat pencarian akan dihapus.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Tampilan</string>
     <string name="settings_options">Opsi</string>
     <string name="settings_storage">Penyimpanan</string>
@@ -255,15 +247,6 @@
     <string name="order">Atur</string>
     <string name="rating">Penilaian</string>
     <string name="threshold">Batas</string>
-    <string name="muzei_copy">Salin</string>
-    <string name="muzei_delete">Hapus</string>
-    <string name="muzei_search">Cari</string>
-    <string name="muzei_search_hint">Tambah tag…</string>
-    <string name="muzei_fetch">Ambil Postingan</string>
-    <string name="muzei_input_cant_be_empty">Masukan tidak boleh kosong.</string>
-    <string name="muzei_action_view_post">Lihat kiriman pada MBooru</string>
-    <string name="muzei_action_search_posts">Cari kiriman pada MBooru</string>
-    <string name="muzei_attribution">Kirim dari MBooru</string>
     <string name="tag_blacklist_copy">Salin</string>
     <string name="tag_blacklist_delete">Hapus</string>
     <string name="tag_blacklist_add">Tambah</string>
@@ -275,15 +258,7 @@
     <string name="comment_hint">Masukkan komentar</string>
     <string name="tab_start_date">Tanggal mulai</string>
     <string name="tab_end_date">Tanggal akhir</string>
-    <string name="sauce_nao_help">Bantuan</string>
-    <string name="sauce_nao_change_api_key">Ganti kunci api</string>
-    <string name="sauce_nao_get_api_key">Dapatkan kunci api</string>
-    <string name="sauce_nao_remaining_times_today">Sisa kesempatan hari ini: %01$d</string>
-    <string name="sauce_nao_api_key_unset">Kunci api SauceNao belum disetel.</string>
-    <string name="sauce_nao_image_url">Tautan gambar</string>
-    <string name="sauce_nao_invalid_image_url">Tautan gambar tidak valid.</string>
-    <string name="sauce_nao_source">Sumber</string>
-    <string name="sauce_nao_search_from_url">Url</string>
-    <string name="sauce_nao_search_from_file">Berkas</string>
-    <string name="action_add_to_muzei">Tambah ke Muzei</string>
+    <string name="title_top_rated">Nilai tertinggi</string>
+    <string name="title_pools_website">Pools (situs web)</string>
+    <string name="title_artists_website">Artis (situs web)</string>
 </resources>

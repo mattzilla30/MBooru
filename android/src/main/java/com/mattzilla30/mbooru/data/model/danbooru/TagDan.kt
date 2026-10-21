@@ -15,21 +15,17 @@
 
 package com.mattzilla30.mbooru.data.model.danbooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.data.model.common.Tag
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class TagDan(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("post_count")
-    val postCount: Int,
-    @SerialName("category")
-    val category: Int
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("post_count") val postCount: Int,
+    @SerialName("category") val category: Int,
 ) {
     fun toTag(): Tag {
         return Tag(
@@ -37,7 +33,7 @@ data class TagDan(
             id = id,
             name = name,
             category = category,
-            count = postCount
+            count = postCount,
         )
     }
 }

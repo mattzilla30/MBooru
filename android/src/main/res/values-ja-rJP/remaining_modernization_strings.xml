@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_upstream_credit">onlymash と協力者による Flexbooru を基にしています。</string>
+    <string name="action_to_top">先頭へ</string>
+    <string name="booru_add_featured">おすすめのサイトを追加</string>
+    <string name="booru_config_save_failed">変更を保存できませんでした。再試行してください。</string>
+    <string name="image_search_read_failed">選択した画像を読み込めませんでした。</string>
+    <string name="navigation_drawer_open">ナビゲーションメニューを開く</string>
+    <string name="settings_cache_clear_failed">キャッシュを削除できませんでした。再試行してください。</string>
+</resources>

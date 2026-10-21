@@ -16,12 +16,10 @@
 package com.mattzilla30.mbooru.ui.compose.browse
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mattzilla30.mbooru.R
-import com.mattzilla30.mbooru.app.Settings.pageLimit
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
@@ -32,6 +30,8 @@ import com.mattzilla30.mbooru.extension.copyText
 import com.mattzilla30.mbooru.extension.launchUrl
 import com.mattzilla30.mbooru.ui.activity.SearchActivity
 import com.mattzilla30.mbooru.ui.compose.browse.*
+import com.mattzilla30.mbooru.ui.compose.common.AppActionKey
+import com.mattzilla30.mbooru.ui.compose.common.AppMenu
 import com.mattzilla30.mbooru.ui.viewmodel.ArtistViewModel
 import com.mattzilla30.mbooru.ui.viewmodel.getArtistViewModel
 
@@ -83,9 +83,9 @@ class ArtistScreenController(
         ) { item ->
             ArtistRow(
                 item,
-                { SearchActivity.startSearch(requireContext(), item.name) },
-                { requireContext().copyText(item.name) },
-                { requireContext().launchUrl(it) },
+                { SearchActivity.startSearch(host, item.name) },
+                { host.copyText(item.name) },
+                { host.launchUrl(it) },
             )
         }
     }
@@ -106,8 +106,8 @@ class ArtistScreenController(
                 )
             setSearchBarMenu(
                 when (booru.type) {
-                    BOORU_TYPE_DAN -> R.menu.artist_dan
-                    else -> R.menu.artist_moe
+                    BOORU_TYPE_DAN -> AppMenu.ArtistDan
+                    else -> AppMenu.ArtistMoe
                 }
             )
         } else {
@@ -123,7 +123,7 @@ class ArtistScreenController(
         return when (booruType) {
             BOORU_TYPE_MOE,
             BOORU_TYPE_DAN1 -> 20
-            else -> pageLimit
+            else -> settings.pageLimit
         }
     }
 
@@ -139,10 +139,10 @@ class ArtistScreenController(
         artistViewModel.show(action)
     }
 
-    override fun onMenuItemClick(menuItem: MenuItem) {
-        super.onMenuItemClick(menuItem)
-        when (menuItem.itemId) {
-            R.id.action_artist_order_date -> {
+    override fun onMenuAction(menuItem: AppActionKey) {
+        super.onMenuAction(menuItem)
+        when (menuItem) {
+            AppActionKey.ArtistOrderDate -> {
                 action?.let {
                     it.order =
                         if (it.booru.type == BOORU_TYPE_DAN) {
@@ -153,18 +153,19 @@ class ArtistScreenController(
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_artist_order_name -> {
+            AppActionKey.ArtistOrderName -> {
                 action?.let {
                     it.order = ORDER_NAME
                     updateActionAndRefresh(it)
                 }
             }
-            R.id.action_artist_order_count -> {
+            AppActionKey.ArtistOrderCount -> {
                 action?.let {
                     it.order = ORDER_COUNT
                     updateActionAndRefresh(it)
                 }
             }
+            else -> Unit
         }
     }
 }

@@ -27,13 +27,10 @@
     <string name="title_pools">プール</string>
     <string name="title_tags">タグ</string>
     <string name="title_comments">コメント</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">夜間モード</string>
     <string name="title_copyright">コピーライト</string>
     <string name="title_about">バージョン情報</string>
     <string name="title_tag_blacklist">タグブラックリスト</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">What Anime</string>
     <string name="title_history">履歴</string>
     <string name="history_clear_all">全て消去</string>
     <string name="history_clear_all_content">全ての履歴がクリアされます。</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">Api Keyが違います</string>
     <string name="msg_cloudflare_challenges">読み込みに失敗しました、後でもう一度試してください。</string>
     <string name="post_expand_or_clear">展開またはクリア</string>
-    <string name="post_add_search_to_muzei">` %s ` がMuzeiに保存されました</string>
     <string name="post_download">Postをダウンロード</string>
     <string name="post_add_to_fav">お気に入りに追加</string>
-    <string name="post_search_by_sauce_nao">SauceNaoで検索</string>
     <string name="msg_download_must_enable">ダウンロードマネージャーが必要です</string>
     <string name="msg_path_denied">保存に失敗しました! このパスにアクセスできません</string>
     <string name="msg_download_failed">ダウンロードに失敗しました</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">CloudflareのWAFを回避する</string>
     <string name="settings_safe_mode">セーフモード</string>
     <string name="settings_page_limit">ページ制限</string>
-    <string name="settings_muzei_limit">Muzei制限</string>
-    <string name="settings_muzei_size">Muzeiサイズ</string>
     <string name="settings_detail_size">詳細サイズ</string>
     <string name="settings_download_size">ダウンロードサイズ</string>
     <string name="settings_download_path">ダウンロードパス</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">検索履歴を削除</string>
     <string name="settings_clear_history_summery">すべての検索履歴を削除する</string>
     <string name="settings_clear_history_dialog_content">全ての検索履歴がクリアされます。</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">ディスプレイ</string>
     <string name="settings_options">オプション</string>
     <string name="settings_storage">ストレージ</string>
@@ -255,15 +247,6 @@
     <string name="order">オーダー</string>
     <string name="rating">評価</string>
     <string name="threshold">限度</string>
-    <string name="muzei_copy">コピー</string>
-    <string name="muzei_delete">削除</string>
-    <string name="muzei_search">検索</string>
-    <string name="muzei_search_hint">タグを追加する…</string>
-    <string name="muzei_fetch">アートワークを取得する</string>
-    <string name="muzei_input_cant_be_empty">内容を入力してください。</string>
-    <string name="muzei_action_view_post">MBooruでpostを見ます</string>
-    <string name="muzei_action_search_posts">MBooruでpostを検索する</string>
-    <string name="muzei_attribution">MBooruからのpost</string>
     <string name="tag_blacklist_copy">コピー</string>
     <string name="tag_blacklist_delete">削除</string>
     <string name="tag_blacklist_add">追加</string>
@@ -275,15 +258,7 @@
     <string name="comment_hint">コメントを入力</string>
     <string name="tab_start_date">開始日</string>
     <string name="tab_end_date">終了日</string>
-    <string name="sauce_nao_help">ヘルプ</string>
-    <string name="sauce_nao_change_api_key">APIキーを変更する</string>
-    <string name="sauce_nao_get_api_key">APIキーを取得する</string>
-    <string name="sauce_nao_remaining_times_today">本日の残り時間: %01$d</string>
-    <string name="sauce_nao_api_key_unset">SauceNaoのApiキーが設定されていない。</string>
-    <string name="sauce_nao_image_url">画像URL</string>
-    <string name="sauce_nao_invalid_image_url">無効な画像URLです。</string>
-    <string name="sauce_nao_source">出典</string>
-    <string name="sauce_nao_search_from_url">Url</string>
-    <string name="sauce_nao_search_from_file">ファイル</string>
-    <string name="action_add_to_muzei">Muzeiに追加する</string>
+    <string name="title_top_rated">高評価</string>
+    <string name="title_pools_website">プール (ウェブサイト)</string>
+    <string name="title_artists_website">アーティスト (ウェブサイト)</string>
 </resources>

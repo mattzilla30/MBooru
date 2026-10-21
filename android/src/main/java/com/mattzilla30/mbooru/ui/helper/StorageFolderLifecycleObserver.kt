@@ -31,17 +31,22 @@ private const val EXTERNAL_STORAGE_PROVIDER_AUTHORITY = "com.android.externalsto
 
 class StorageFolderLifecycleObserver(
     private val registry: ActivityResultRegistry,
-    private val handleUriCallback: (Uri) -> Unit
+    private val handleUriCallback: (Uri) -> Unit,
 ) : DefaultLifecycleObserver {
 
-    private lateinit var getDocumentTree : ActivityResultLauncher<Uri?>
+    private lateinit var getDocumentTree: ActivityResultLauncher<Uri?>
 
     override fun onCreate(owner: LifecycleOwner) {
-        getDocumentTree = registry.register("open_document_tree", owner, ActivityResultContracts.OpenDocumentTree()) { uri ->
-            if (uri != null) {
-                handleUriCallback.invoke(uri)
+        getDocumentTree =
+            registry.register(
+                "open_document_tree",
+                owner,
+                ActivityResultContracts.OpenDocumentTree(),
+            ) { uri ->
+                if (uri != null) {
+                    handleUriCallback.invoke(uri)
+                }
             }
-        }
     }
 
     fun openDocumentTree(context: Context) {
@@ -51,12 +56,15 @@ class StorageFolderLifecycleObserver(
     private fun Context.getRootUri(): Uri? {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-                val sv = getSystemService(StorageManager::class.java)?.primaryStorageVolume ?: return null
-                val rootId = if (sv.isEmulated) {
-                    EXTERNAL_STORAGE_PRIMARY_EMULATED_ROOT_ID
-                } else {
-                    sv.uuid
-                } ?: return null
+                val sv =
+                    getSystemService(StorageManager::class.java)?.primaryStorageVolume
+                        ?: return null
+                val rootId =
+                    if (sv.isEmulated) {
+                        EXTERNAL_STORAGE_PRIMARY_EMULATED_ROOT_ID
+                    } else {
+                        sv.uuid
+                    } ?: return null
                 DocumentsContract.buildRootUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, rootId)
             }
             else -> null

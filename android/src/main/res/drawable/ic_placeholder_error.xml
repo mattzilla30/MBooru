@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Favicon bounds can be smaller than fixed insets. Keep positive child bounds on API 21. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:left="24dp"
-        android:right="24dp"
-        android:top="24dp"
-        android:bottom="24dp"
-        android:drawable="@drawable/ic_terrain_24dp"/>
+    <item android:drawable="@drawable/ic_terrain_24dp" />
 </layer-list>

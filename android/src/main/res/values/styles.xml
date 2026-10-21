@@ -25,7 +25,7 @@
     </style>
 
 
-    <style name="AlertDialog.DayNight" parent="Theme.Material3.DayNight.Dialog.Alert">
+    <style name="AlertDialog.DayNight" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="android:windowBackground">@drawable/background_dialog</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Button.TextButton.Dialog</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Button</item>
@@ -52,7 +52,7 @@
         <item name="cardBackgroundColor">@color/colorSearchBarBlack</item>
     </style>
 
-    <style name="TransparentBottomSheetDialogTheme" parent="Theme.Material3.Dark.BottomSheetDialog">
+    <style name="TransparentBottomSheetDialogTheme" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/TransparentBottomSheetStyle</item>
     </style>
 
@@ -63,7 +63,7 @@
 
 
 
-    <style name="PopupOverlay" parent="ThemeOverlay.Material3.Light"/>
+    <style name="PopupOverlay" parent="ThemeOverlay.Material3"/>
 
     <style name="Widget" parent="@android:style/Widget.Material"/>
 

@@ -41,6 +41,9 @@ class FixedImageView(context: Context, attrs: AttributeSet) : AppCompatImageView
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val width = this.measuredWidth
         val height = width * heightWeight / widthWeight
-        setMeasuredDimension(width + paddingLeft + paddingRight, height + paddingTop + paddingBottom)
+        setMeasuredDimension(
+            width + paddingLeft + paddingRight,
+            height + paddingTop + paddingBottom,
+        )
     }
 }

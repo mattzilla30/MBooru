@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Keine Ergebnisse</string>
-  <string name="browse_offline">Du bist offline. Prüfe deine Verbindung und versuche es erneut.</string>
-  <string name="image_load_retry">Bild konnte nicht geladen werden. Zum Wiederholen tippen.</string>
-  <string name="post_actions">Beitragsaktionen</string>
-  <string name="post_accessibility">Beitrag %1$d</string>
+    <string name="browse_empty">Keine Ergebnisse</string>
+    <string name="browse_offline">Du bist offline. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="image_load_retry">Bild konnte nicht geladen werden. Zum Wiederholen tippen.</string>
+    <string name="post_actions">Beitragsaktionen</string>
+    <string name="post_accessibility">Beitrag %1$d</string>
+    <string name="booru_empty_message">Füge eine vorgestellte oder eigene Website hinzu, um zu beginnen.</string>
+    <string name="title_downloads">Downloads</string>
+    <string name="download_resume_policy">Wiederholungen setzen den Download fort, wenn Server und Speicheranbieter dies unterstützen; andernfalls beginnt er neu. Android kann Hintergrundübertragungen pausieren.</string>
+    <string name="download_queue_empty">Noch keine Downloads.</string>
+    <string name="download_state_queued">In Warteschlange · wartet auf Übertragung</string>
+    <string name="download_state_running">Wird heruntergeladen</string>
+    <string name="download_state_completed">Abgeschlossen</string>
+    <string name="download_state_failed">Fehlgeschlagen · Verbindung, Anmeldung und Ordnerzugriff prüfen</string>
+    <string name="download_state_cancelled">Abgebrochen</string>
+    <string name="download_bytes_unknown">%1$d Bytes · Gesamtgröße unbekannt</string>
+    <string name="download_bytes_total">%1$d / %2$d Bytes</string>
+    <string name="download_open_file">Datei öffnen</string>
+    <string name="settings_load_failed">Einstellungen konnten nicht geladen werden</string>
+    <string name="settings_load_recovery">Deine Einstellungen bleiben erhalten. Versuche es erneut; MBooru setzt sie nicht automatisch zurück.</string>
+    <string name="settings_write_failed">Einstellungen konnten nicht gespeichert werden. Versuche es erneut, bevor du die App schließt.</string>
 </resources>

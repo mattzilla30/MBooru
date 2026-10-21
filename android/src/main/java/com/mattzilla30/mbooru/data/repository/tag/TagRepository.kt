@@ -16,9 +16,9 @@
 package com.mattzilla30.mbooru.data.repository.tag
 
 import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.model.common.Tag
+import kotlinx.coroutines.flow.Flow
 
 interface TagRepository {
     fun getTags(action: ActionTag): Flow<PagingData<Tag>>

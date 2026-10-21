@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Aucun résultat</string>
-  <string name="browse_offline">Vous êtes hors ligne. Vérifiez votre connexion et réessayez.</string>
-  <string name="image_load_retry">Impossible de charger l’image. Appuyez pour réessayer.</string>
-  <string name="post_actions">Actions de la publication</string>
-  <string name="post_accessibility">Publication %1$d</string>
+    <string name="browse_empty">Aucun résultat</string>
+    <string name="browse_offline">Vous êtes hors ligne. Vérifiez votre connexion et réessayez.</string>
+    <string name="image_load_retry">Impossible de charger l’image. Appuyez pour réessayer.</string>
+    <string name="post_actions">Actions de la publication</string>
+    <string name="post_accessibility">Publication %1$d</string>
+    <string name="booru_empty_message">Ajoutez un site proposé ou personnalisé pour commencer.</string>
+    <string name="title_downloads">Téléchargements</string>
+    <string name="download_resume_policy">Les reprises continuent si le serveur et le stockage le permettent ; sinon, le téléchargement recommence. Android peut suspendre les transferts en arrière-plan.</string>
+    <string name="download_queue_empty">Aucun téléchargement.</string>
+    <string name="download_state_queued">En attente de transfert</string>
+    <string name="download_state_running">Téléchargement en cours</string>
+    <string name="download_state_completed">Terminé</string>
+    <string name="download_state_failed">Échec · vérifiez la connexion, le compte et l’accès au dossier</string>
+    <string name="download_state_cancelled">Annulé</string>
+    <string name="download_bytes_unknown">%1$d octets · taille totale inconnue</string>
+    <string name="download_bytes_total">%1$d / %2$d octets</string>
+    <string name="download_open_file">Ouvrir le fichier</string>
+    <string name="settings_load_failed">Impossible de charger les paramètres</string>
+    <string name="settings_load_recovery">Vos paramètres sont conservés. Réessayez ; MBooru ne les réinitialisera pas automatiquement.</string>
+    <string name="settings_write_failed">Impossible d’enregistrer les paramètres. Réessayez avant de fermer l’application.</string>
 </resources>

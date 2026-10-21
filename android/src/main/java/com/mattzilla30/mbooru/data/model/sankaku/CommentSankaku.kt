@@ -18,9 +18,5 @@ package com.mattzilla30.mbooru.data.model.sankaku
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 @Serializable
-data class CommentSankaku(
-    @SerialName("comments")
-    val comments: List<CommentSankakuItem>,
-)
+data class CommentSankaku(@SerialName("comments") val comments: List<CommentSankakuItem>)

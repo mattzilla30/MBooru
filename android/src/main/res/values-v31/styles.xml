@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="ActionBarStyle" parent="Widget.Material3.ActionBar.Solid">
+        <item name="background">@color/colorBackground</item>
         <item name="elevation">0dp</item>
     </style>
     <style name="MyCardView.Searchbar">
-        <item name="cardBackgroundColor">?android:attr/colorBackground</item>
+        <item name="cardBackgroundColor">@color/colorSurface</item>
     </style>
 </resources>

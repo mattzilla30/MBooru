@@ -15,25 +15,29 @@
 
 package com.mattzilla30.mbooru.data.repository.tag
 
-
 import androidx.paging.*
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.model.common.Tag
+import kotlinx.coroutines.flow.Flow
 
 class TagRepositoryImpl(private val booruApis: BooruApis) : TagRepository {
 
     override fun getTags(action: ActionTag): Flow<PagingData<Tag>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = action.limit,
-                enablePlaceholders = true
-            ),
-            initialKey = if (action.booru.type == Values.BOORU_TYPE_GEL) 0 else 1
-        ) {
-            TagPagingSource(action, booruApis)
-        }.flow
+                config =
+                    PagingConfig(
+                        pageSize = action.limit,
+                        enablePlaceholders = true,
+                    ),
+                initialKey =
+                    if (action.booru.type in setOf(Values.BOORU_TYPE_GEL, Values.BOORU_TYPE_RULE34))
+                        0
+                    else 1,
+            ) {
+                TagPagingSource(action, booruApis)
+            }
+            .flow
     }
 }

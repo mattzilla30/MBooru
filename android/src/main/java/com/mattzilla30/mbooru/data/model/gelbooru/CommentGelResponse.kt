@@ -21,8 +21,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("comments")
 data class CommentGelResponse(
-    @SerialName("type")
-    val type: String,
-    @SerialName("comment")
-    val comments: List<CommentGel>?
+    @SerialName("type") val type: String,
+    @SerialName("comment") val comments: List<CommentGel>?,
 )

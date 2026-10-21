@@ -1,0 +1,4 @@
+# Existing style debt is recorded in the baseline; new findings fail CI.
+# Kotlin compiler integration is intentionally not used by this AST-based check.
+config:
+  validation: true

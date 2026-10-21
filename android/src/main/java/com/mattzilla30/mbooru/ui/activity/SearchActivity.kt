@@ -18,31 +18,41 @@ package com.mattzilla30.mbooru.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.mattzilla30.mbooru.ui.compose.navigation.MainBrowseNavHost
-import com.mattzilla30.mbooru.ui.compose.navigation.browseTabs
-import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE
-import com.mattzilla30.mbooru.R
 import com.mattzilla30.mbooru.app.Keys.POST_QUERY
-import com.mattzilla30.mbooru.app.Settings.activatedBooruUid
+import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE
 import com.mattzilla30.mbooru.data.database.HistoryManager
 import com.mattzilla30.mbooru.data.model.common.History
 import com.mattzilla30.mbooru.ui.base.PathActivity
+import com.mattzilla30.mbooru.ui.compose.common.setComposeContent
+import com.mattzilla30.mbooru.ui.compose.navigation.MainBrowseNavHost
+import com.mattzilla30.mbooru.ui.compose.navigation.browseTabs
+import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 
-class SearchActivity : PathActivity() {
+class SearchActivity : PathActivity(), org.koin.core.component.KoinComponent {
+    private val historyManager by inject<com.mattzilla30.mbooru.data.database.HistoryManager>()
 
     companion object {
         fun startSearch(context: Context, query: String) {
-            HistoryManager.createHistory(
-                History(booruUid = activatedBooruUid, query = query))
-            context.startActivity(Intent(context, SearchActivity::class.java)
-                .putExtra(POST_QUERY, query))
+            context.startActivity(
+                Intent(context, SearchActivity::class.java).putExtra(POST_QUERY, query)
+            )
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setComposeContent { MainBrowseNavHost(rememberNavController(), browseTabs(BOORU_TYPE_SHIMMIE)) }
+    override fun onSettingsReady(savedInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            historyManager.createHistory(
+                History(
+                    booruUid = settings.activatedBooruUid,
+                    query = intent.getStringExtra(POST_QUERY).orEmpty(),
+                )
+            )
+        }
+        setComposeContent {
+            MainBrowseNavHost(rememberNavController(), browseTabs(BOORU_TYPE_SHIMMIE))
+        }
     }
 }

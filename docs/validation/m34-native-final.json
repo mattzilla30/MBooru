@@ -1,0 +1,165 @@
+{
+  "source": "8c802bbbc849890e1423494e5268937a9073e3a6",
+  "apkSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+  "architecture": "x86_64",
+  "apis": [
+    {
+      "api": 21,
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39210406187",
+      "testSource": "561c24f6f3f6e9c44e7be74964a1c164f07577c6",
+      "tests": 13,
+      "failures": 0,
+      "skipped": 0,
+      "upgrades": [
+        {
+          "from": 1,
+          "report": {
+            "checkedAt": "2026-10-19T06:33:48.870528+00:00",
+            "baselineSha256": "c376506dc526b580ea180b5dd21bd40421fa8f68a2f866e28bf96df28270d808",
+            "candidateSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+            "signerUnchanged": true,
+            "installedWithReplace": true,
+            "baselineFirstFrameIssue": false,
+            "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+            "networkDisabledForFixture": true,
+            "customSiteRetained": true,
+            "historyFiltersRetained": true,
+            "retiredMuzeiTableRemoved": true,
+            "localFavoritesCreated": true,
+            "roomCredentialsMigratedToReferences": true,
+            "settingsMigratedAndRestarted": true,
+            "sauceKeyAbsentFromDataStorePlaintext": true,
+            "api": "21"
+          }
+        },
+        {
+          "from": 6,
+          "report": {
+            "checkedAt": "2026-10-19T06:34:17.227000+00:00",
+            "baselineSha256": "024c0e44f4e886fc5420a0ef650d1fd34ce939b4f54599aadecc80cee7f11e97",
+            "candidateSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+            "signerUnchanged": true,
+            "installedWithReplace": true,
+            "baselineFirstFrameIssue": true,
+            "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+            "networkDisabledForFixture": true,
+            "customSiteRetained": true,
+            "historyFiltersRetained": true,
+            "retiredMuzeiTableRemoved": true,
+            "localFavoritesCreated": true,
+            "roomCredentialsMigratedToReferences": true,
+            "settingsMigratedAndRestarted": true,
+            "sauceKeyAbsentFromDataStorePlaintext": true,
+            "api": "21"
+          }
+        }
+      ]
+    },
+    {
+      "api": 28,
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39209724790",
+      "testSource": "8c802bbbc849890e1423494e5268937a9073e3a6",
+      "tests": 13,
+      "failures": 0,
+      "skipped": 0,
+      "upgrades": [
+        {
+          "from": 1,
+          "report": {
+            "checkedAt": "2026-10-19T06:27:36.261712+00:00",
+            "baselineSha256": "c376506dc526b580ea180b5dd21bd40421fa8f68a2f866e28bf96df28270d808",
+            "candidateSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+            "signerUnchanged": true,
+            "installedWithReplace": true,
+            "baselineFirstFrameIssue": false,
+            "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+            "networkDisabledForFixture": true,
+            "customSiteRetained": true,
+            "historyFiltersRetained": true,
+            "retiredMuzeiTableRemoved": true,
+            "localFavoritesCreated": true,
+            "roomCredentialsMigratedToReferences": true,
+            "settingsMigratedAndRestarted": true,
+            "sauceKeyAbsentFromDataStorePlaintext": true,
+            "api": "28"
+          }
+        },
+        {
+          "from": 6,
+          "report": {
+            "checkedAt": "2026-10-19T06:28:06.949076+00:00",
+            "baselineSha256": "024c0e44f4e886fc5420a0ef650d1fd34ce939b4f54599aadecc80cee7f11e97",
+            "candidateSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+            "signerUnchanged": true,
+            "installedWithReplace": true,
+            "baselineFirstFrameIssue": false,
+            "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+            "networkDisabledForFixture": true,
+            "customSiteRetained": true,
+            "historyFiltersRetained": true,
+            "retiredMuzeiTableRemoved": true,
+            "localFavoritesCreated": true,
+            "roomCredentialsMigratedToReferences": true,
+            "settingsMigratedAndRestarted": true,
+            "sauceKeyAbsentFromDataStorePlaintext": true,
+            "api": "28"
+          }
+        }
+      ]
+    },
+    {
+      "api": 36,
+      "run": "https://github.com/mattzilla30/MBooru/actions/runs/39209724790",
+      "testSource": "8c802bbbc849890e1423494e5268937a9073e3a6",
+      "tests": 13,
+      "failures": 0,
+      "skipped": 0,
+      "upgrades": [
+        {
+          "from": 1,
+          "report": {
+            "checkedAt": "2026-10-19T06:27:03.316095+00:00",
+            "baselineSha256": "c376506dc526b580ea180b5dd21bd40421fa8f68a2f866e28bf96df28270d808",
+            "candidateSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+            "signerUnchanged": true,
+            "installedWithReplace": true,
+            "baselineFirstFrameIssue": false,
+            "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+            "networkDisabledForFixture": true,
+            "customSiteRetained": true,
+            "historyFiltersRetained": true,
+            "retiredMuzeiTableRemoved": true,
+            "localFavoritesCreated": true,
+            "roomCredentialsMigratedToReferences": true,
+            "settingsMigratedAndRestarted": true,
+            "sauceKeyAbsentFromDataStorePlaintext": true,
+            "api": "36"
+          }
+        },
+        {
+          "from": 6,
+          "report": {
+            "checkedAt": "2026-10-19T06:27:31.643324+00:00",
+            "baselineSha256": "024c0e44f4e886fc5420a0ef650d1fd34ce939b4f54599aadecc80cee7f11e97",
+            "candidateSha256": "624e511dce9def85cccb325e18a039bd92ffb71d7cb1a397ede4a0304a9add2c",
+            "signerUnchanged": true,
+            "installedWithReplace": true,
+            "baselineFirstFrameIssue": false,
+            "notificationPermissionPolicy": "Pregranted before first launch on API 33+; not applicable on older APIs",
+            "networkDisabledForFixture": true,
+            "customSiteRetained": true,
+            "historyFiltersRetained": true,
+            "retiredMuzeiTableRemoved": true,
+            "localFavoritesCreated": true,
+            "roomCredentialsMigratedToReferences": true,
+            "settingsMigratedAndRestarted": true,
+            "sauceKeyAbsentFromDataStorePlaintext": true,
+            "api": "36"
+          }
+        }
+      ]
+    }
+  ],
+  "liveServiceTests": false,
+  "physicalDeviceTests": false
+}

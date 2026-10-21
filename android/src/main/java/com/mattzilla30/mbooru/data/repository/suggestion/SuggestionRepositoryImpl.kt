@@ -15,8 +15,6 @@
 
 package com.mattzilla30.mbooru.data.repository.suggestion
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
@@ -25,12 +23,15 @@ import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_MOE
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.model.common.Tag
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRepository {
 
     override suspend fun fetchSuggestions(action: ActionTag): List<Tag>? {
         return when (action.booru.type) {
+            com.mattzilla30.mbooru.app.Values.BOORU_TYPE_RULE34,
+            com.mattzilla30.mbooru.app.Values.BOORU_TYPE_SHIMMIE -> emptyList()
             BOORU_TYPE_DAN -> getDanTags(action)
             BOORU_TYPE_DAN1 -> getDan1Tags(action)
             BOORU_TYPE_MOE -> getMoeTags(action)
@@ -44,7 +45,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.danApi.getTags(action.getDanTagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -54,7 +56,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.dan1Api.getTags(action.getDan1TagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -64,7 +67,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.moeApi.getTags(action.getMoeTagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -74,7 +78,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.gelApi.getTags(action.getGelTagsUrl(0)).body()?.tags?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -83,8 +88,11 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
     private suspend fun getGelTagsLegacy(action: ActionTag): List<Tag>? {
         return withContext(Dispatchers.IO) {
             try {
-                booruApis.gelApi.getTagsLegacy(action.getGelTagsUrl(0)).body()?.tags?.map { it.toTag() }
-            } catch (_: Exception) {
+                booruApis.gelApi.getTagsLegacy(action.getGelTagsUrl(0)).body()?.tags?.map {
+                    it.toTag()
+                }
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }
@@ -94,7 +102,8 @@ class SuggestionRepositoryImpl(private val booruApis: BooruApis) : SuggestionRep
         return withContext(Dispatchers.IO) {
             try {
                 booruApis.sankakuApi.getTags(action.getSankakuTagsUrl(1)).body()?.map { it.toTag() }
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
                 null
             }
         }

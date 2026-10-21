@@ -15,36 +15,63 @@
 
 package com.mattzilla30.mbooru.data.database
 
+import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.mattzilla30.mbooru.data.credentials.CredentialRepository
+import com.mattzilla30.mbooru.data.model.common.AuthCredential
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-/**
- * room database TypeConverter
- * */
-class MyConverters {
-
-    @TypeConverter
-    fun fromStringToStringList(value: String): List<String> =
-        Json.decodeFromString(value)
+/** room database TypeConverter */
+@ProvidedTypeConverter
+class MyConverters(private val credentials: CredentialRepository) {
 
     @TypeConverter
-    fun fromStringListToString(list: List<String>): String =
-        Json.encodeToString(list)
+    fun fromStringToStringList(value: String): List<String> = Json.decodeFromString(value)
 
+    @TypeConverter
+    fun fromStringListToString(list: List<String>): String = Json.encodeToString(list)
 
     @TypeConverter
     fun fromUserToString(user: User?): String? {
         if (user == null) return null
-        return Json.encodeToString(User.serializer(), user)
+        val payload = Json.encodeToString(User.serializer(), user)
+        // Public uploader metadata remains in Room; only actual account credentials use the vault.
+        if (user.token.isEmpty() && user.accessToken.isEmpty() && user.refreshToken.isEmpty())
+            return payload
+        user.credentialReference?.let { reference ->
+            if (credentials.read(reference) == payload) return reference
+        }
+        return credentials.store(payload).also { user.credentialReference = it }
     }
 
     @TypeConverter
     fun fromStringToUser(value: String?): User? {
         if (value == null) return null
-        return Json.decodeFromString(User.serializer(), value)
+        val referenced = credentials.isReference(value)
+        val payload = if (referenced) credentials.read(value) ?: return null else value
+        return Json.decodeFromString(User.serializer(), payload).also {
+            if (referenced) it.credentialReference = value
+        }
+    }
+
+    @TypeConverter
+    fun fromAuthToString(auth: AuthCredential?): String? = auth?.let {
+        val previous = it.credentialReference
+        if (previous != null && credentials.read(previous) == it.value) previous
+        else credentials.store(it.value).also { reference -> it.credentialReference = reference }
+    }
+
+    @TypeConverter
+    fun fromStringToAuth(value: String?): AuthCredential? {
+        if (value == null) return null
+        return AuthCredential(
+                if (credentials.isReference(value)) credentials.read(value) ?: return null
+                else value
+            )
+            .also { if (credentials.isReference(value)) it.credentialReference = value }
     }
 
     @TypeConverter
@@ -56,10 +83,7 @@ class MyConverters {
         Json.encodeToString(TagBase.serializer(), tagBase)
 
     @TypeConverter
-    fun formStringToTagBaseList(value: String): List<TagBase> =
-        Json.decodeFromString(value)
+    fun formStringToTagBaseList(value: String): List<TagBase> = Json.decodeFromString(value)
 
-    @TypeConverter
-    fun formTagBaseListToString(tags: List<TagBase>) =
-        Json.encodeToString(tags)
+    @TypeConverter fun formTagBaseListToString(tags: List<TagBase>) = Json.encodeToString(tags)
 }

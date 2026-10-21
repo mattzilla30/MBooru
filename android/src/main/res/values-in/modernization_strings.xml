@@ -1,7 +1,0 @@
-<resources>
-  <string name="browse_empty">Tidak ada hasil</string>
-  <string name="browse_offline">Anda offline. Periksa koneksi dan coba lagi.</string>
-  <string name="image_load_retry">Gambar tidak dapat dimuat. Ketuk untuk mencoba lagi.</string>
-  <string name="post_actions">Tindakan postingan</string>
-  <string name="post_accessibility">Postingan %1$d</string>
-</resources>

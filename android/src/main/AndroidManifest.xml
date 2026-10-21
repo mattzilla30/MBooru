@@ -50,17 +50,13 @@
         android:localeConfig="@xml/locales_config"
         android:enableOnBackInvokedCallback="true"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+        <activity android:name=".ui.activity.LicensesActivity" android:exported="false" />
+        <activity android:name=".ui.activity.DesignLicenseActivity" android:exported="false" />
+        <activity android:name=".ui.activity.FavoritesActivity" android:exported="false" />
+        <activity android:name=".ui.activity.DownloadsActivity" android:exported="false" />
         <activity
             android:windowSoftInputMode="adjustResize"
             android:name=".ui.activity.HistoryActivity"
-            android:theme="@style/AppTheme.ScrimNavBar.Animation"/>
-        <activity
-            android:windowSoftInputMode="adjustResize"
-            android:name=".ui.activity.WhatAnimeActivity"
-            android:theme="@style/AppTheme.ScrimNavBar.Animation"/>
-        <activity
-            android:windowSoftInputMode="adjustResize"
-            android:name=".ui.activity.SauceNaoActivity"
             android:theme="@style/AppTheme.ScrimNavBar.Animation"/>
         <activity
             android:windowSoftInputMode="adjustResize"
@@ -73,11 +69,6 @@
         <activity
             android:windowSoftInputMode="adjustResize"
             android:name=".ui.activity.CopyrightActivity"
-            android:theme="@style/AppTheme.ScrimNavBar.Animation"/>
-        <activity
-            android:windowSoftInputMode="adjustResize"
-            android:name=".ui.activity.MuzeiActivity"
-            android:exported="true"
             android:theme="@style/AppTheme.ScrimNavBar.Animation"/>
         <activity
             android:windowSoftInputMode="adjustResize"
@@ -144,22 +135,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".content.MuzeiProvider"
-            android:authorities="${applicationId}.muzei"
-            android:description="@string/app_description"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="settingsActivity"
-                android:value="com.mattzilla30.mbooru.ui.activity.MuzeiActivity"/>
-
-        </provider>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

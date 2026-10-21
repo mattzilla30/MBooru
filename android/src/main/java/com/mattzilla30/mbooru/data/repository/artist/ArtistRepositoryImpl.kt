@@ -18,22 +18,24 @@ package com.mattzilla30.mbooru.data.repository.artist
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionArtist
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.model.common.Artist
+import kotlinx.coroutines.flow.Flow
 
 class ArtistRepositoryImpl(private val booruApis: BooruApis) : ArtistRepository {
 
     override fun getArtists(action: ActionArtist): Flow<PagingData<Artist>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = action.limit,
-                enablePlaceholders = true
-            ),
-            initialKey = 1
-        ) {
-            ArtistPagingSource(action, booruApis)
-        }.flow
+                config =
+                    PagingConfig(
+                        pageSize = action.limit,
+                        enablePlaceholders = true,
+                    ),
+                initialKey = 1,
+            ) {
+                ArtistPagingSource(action, booruApis)
+            }
+            .flow
     }
 }

@@ -15,31 +15,19 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
+import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepository
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
-import com.mattzilla30.mbooru.data.model.common.TagFilter
-import com.mattzilla30.mbooru.data.repository.tagfilter.TagFilterRepository
 
-class TagFilterViewModel(private val repo: TagFilterRepository) : ScopeViewModel() {
+class TagFilterViewModel(private val repo: TagFilterRepository) : androidx.lifecycle.ViewModel() {
 
-    private val _tagsFilter: MediatorLiveData<List<TagFilter>> = MediatorLiveData()
+    val tags =
+        repo
+            .loadTagsFilter()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val tags = _tagsFilter.asFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    fun loadTags(): LiveData<List<TagFilter>> {
-        viewModelScope.launch {
-            val data = withContext(Dispatchers.IO) {
-                repo.loadTagsFilter()
-            }
-            _tagsFilter.addSource(data) {
-                _tagsFilter.postValue(it ?: listOf())
-            }
-        }
-        return _tagsFilter
-    }
+    // Collection starts with the screen lifecycle; no accumulating observer sources.
+    fun loadTags() = Unit
 }

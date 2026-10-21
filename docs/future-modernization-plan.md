@@ -2,6 +2,8 @@
 
 Prepared 2026-10-17 for mattzilla30 <mattzilla30@gmail.com>.
 
+Status: implementation delivered in the 2026-10-18 one-pass modernization branch. See the [completion/evidence matrix](modernization-completion.md) for executed checks and explicit physical-device acceptance limits. The original proposal below is retained as the requirements record; its starting stack describes the pre-migration app.
+
 This is the next implementation plan, not a claim that these migrations have already shipped. The current appearance, colors, typography, navigation choices, app ID, signing identity, six site presets and free feature access remain product requirements. Modernization should preserve those choices and users' accounts, history, filters and saved configuration.
 
 ## Starting point

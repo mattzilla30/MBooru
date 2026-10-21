@@ -16,9 +16,9 @@
 package com.mattzilla30.mbooru.data.repository.pool
 
 import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import com.mattzilla30.mbooru.data.action.ActionPool
 import com.mattzilla30.mbooru.data.model.common.Pool
+import kotlinx.coroutines.flow.Flow
 
 interface PoolRepository {
     fun getPools(action: ActionPool): Flow<PagingData<Pool>>

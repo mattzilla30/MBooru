@@ -15,28 +15,21 @@
 
 package com.mattzilla30.mbooru.data.model.danbooru1
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_DAN1
 import com.mattzilla30.mbooru.data.model.common.Date
 import com.mattzilla30.mbooru.data.model.common.Pool
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PoolDan1(
-    @SerialName("user_id")
-    val userId: Int,
-    @SerialName("is_public")
-    val isPublic: Boolean,
-    @SerialName("post_count")
-    val postCount: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("updated_at")
-    val updatedAt: Date,
-    @SerialName("id")
-    val id: Int,
-    @SerialName("created_at")
-    val createdAt: Date
+    @SerialName("user_id") val userId: Int,
+    @SerialName("is_public") val isPublic: Boolean,
+    @SerialName("post_count") val postCount: Int,
+    @SerialName("name") val name: String,
+    @SerialName("updated_at") val updatedAt: Date,
+    @SerialName("id") val id: Int,
+    @SerialName("created_at") val createdAt: Date,
 ) {
     fun toPool(scheme: String, host: String): Pool {
         return Pool(
@@ -48,7 +41,7 @@ data class PoolDan1(
             count = postCount,
             time = updatedAt.s * 1000L,
             description = "",
-            creatorId = userId
+            creatorId = userId,
         )
     }
 }

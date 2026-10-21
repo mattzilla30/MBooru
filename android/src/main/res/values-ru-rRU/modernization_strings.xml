@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Нет результатов</string>
-  <string name="browse_offline">Нет подключения к сети. Проверьте соединение и повторите попытку.</string>
-  <string name="image_load_retry">Не удалось загрузить изображение. Нажмите для повтора.</string>
-  <string name="post_actions">Действия с публикацией</string>
-  <string name="post_accessibility">Публикация %1$d</string>
+    <string name="browse_empty">Нет результатов</string>
+    <string name="browse_offline">Нет подключения к сети. Проверьте соединение и повторите попытку.</string>
+    <string name="image_load_retry">Не удалось загрузить изображение. Нажмите для повтора.</string>
+    <string name="post_actions">Действия с публикацией</string>
+    <string name="post_accessibility">Публикация %1$d</string>
+    <string name="booru_empty_message">Добавьте рекомендуемый или свой сайт, чтобы начать просмотр.</string>
+    <string name="title_downloads">Загрузки</string>
+    <string name="download_resume_policy">Повторная попытка продолжает загрузку, если сервер и хранилище это поддерживают; иначе она начинается заново. Android может приостанавливать фоновые передачи.</string>
+    <string name="download_queue_empty">Загрузок пока нет.</string>
+    <string name="download_state_queued">В очереди · ожидание передачи</string>
+    <string name="download_state_running">Загрузка</string>
+    <string name="download_state_completed">Завершено</string>
+    <string name="download_state_failed">Ошибка · проверьте соединение, вход и доступ к папке</string>
+    <string name="download_state_cancelled">Отменено</string>
+    <string name="download_bytes_unknown">%1$d байт · общий размер неизвестен</string>
+    <string name="download_bytes_total">%1$d / %2$d байт</string>
+    <string name="download_open_file">Открыть файл</string>
+    <string name="settings_load_failed">Не удалось загрузить настройки</string>
+    <string name="settings_load_recovery">Ваши настройки сохранены. Повторите попытку; MBooru не сбросит их автоматически.</string>
+    <string name="settings_write_failed">Не удалось сохранить настройки. Повторите попытку перед закрытием приложения.</string>
 </resources>

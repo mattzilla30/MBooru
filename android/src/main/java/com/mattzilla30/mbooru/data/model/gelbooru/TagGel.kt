@@ -15,27 +15,19 @@
 
 package com.mattzilla30.mbooru.data.model.gelbooru
 
+import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
+import com.mattzilla30.mbooru.data.model.common.Tag
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
-import com.mattzilla30.mbooru.app.Values.BOORU_TYPE_GEL
-import com.mattzilla30.mbooru.data.model.common.Tag
 
 @Serializable
 @SerialName("tag")
 data class TagGel(
-    @SerialName("id")
-    @XmlElement(true)
-    val id: Int,
-    @SerialName("name")
-    @XmlElement(true)
-    val name: String,
-    @SerialName("count")
-    @XmlElement(true)
-    val count: Int,
-    @SerialName("type")
-    @XmlElement(true)
-    val type: Int
+    @SerialName("id") @XmlElement(true) val id: Int,
+    @SerialName("name") @XmlElement(true) val name: String,
+    @SerialName("count") @XmlElement(true) val count: Int,
+    @SerialName("type") @XmlElement(true) val type: Int,
 ) {
     fun toTag(): Tag {
         return Tag(
@@ -43,7 +35,7 @@ data class TagGel(
             id = id,
             name = name,
             category = type,
-            count = count
+            count = count,
         )
     }
 }

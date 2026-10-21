@@ -14,6 +14,7 @@
  */
 
 package com.mattzilla30.mbooru.data.repository.suggestion
+
 import com.mattzilla30.mbooru.data.action.ActionTag
 import com.mattzilla30.mbooru.data.model.common.Tag
 

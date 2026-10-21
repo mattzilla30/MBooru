@@ -15,71 +15,44 @@
 
 package com.mattzilla30.mbooru.data.model.moebooru
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.mattzilla30.mbooru.app.Values
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.utils.toSafeUrl
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PostMoe(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("tags")
-    val tags: String?,
-    @SerialName("created_at")
-    val createdAt: Int,
-    @SerialName("creator_id")
-    val creatorId: Int? = -1,
-    @SerialName("author")
-    val author: String,
-    @SerialName("source")
-    val source: String?,
-    @SerialName("score")
-    val score: Int,
-    @SerialName("file_size")
-    val fileSize: Int?,
-    @SerialName("file_url")
-    val fileUrl: String? = null,
-    @SerialName("preview_url")
-    val previewUrl: String,
-    @SerialName("preview_width")
-    val previewWidth: Int,
-    @SerialName("preview_height")
-    val previewHeight: Int,
-    @SerialName("sample_url")
-    val sampleUrl: String? = null,
-    @SerialName("sample_width")
-    val sampleWidth: Int,
-    @SerialName("sample_height")
-    val sampleHeight: Int,
-    @SerialName("sample_file_size")
-    val sampleFileSize: Int?,
-    @SerialName("jpeg_url")
-    val jpegUrl: String? = null,
-    @SerialName("jpeg_width")
-    val jpegWidth: Int?,
-    @SerialName("jpeg_height")
-    val jpegHeight: Int?,
-    @SerialName("jpeg_file_size")
-    val jpegFileSize: Int?,
-    @SerialName("rating")
-    val rating: String,
-    @SerialName("has_children")
-    val hasChildren: Boolean,
-    @SerialName("parent_id")
-    val parentId: Int?,
-    @SerialName("status")
-    val status: String,
-    @SerialName("width")
-    val width: Int,
-    @SerialName("height")
-    val height: Int
+    @SerialName("id") val id: Int,
+    @SerialName("tags") val tags: String?,
+    @SerialName("created_at") val createdAt: Int,
+    @SerialName("creator_id") val creatorId: Int? = -1,
+    @SerialName("author") val author: String,
+    @SerialName("source") val source: String?,
+    @SerialName("score") val score: Int,
+    @SerialName("file_size") val fileSize: Int?,
+    @SerialName("file_url") val fileUrl: String? = null,
+    @SerialName("preview_url") val previewUrl: String,
+    @SerialName("preview_width") val previewWidth: Int,
+    @SerialName("preview_height") val previewHeight: Int,
+    @SerialName("sample_url") val sampleUrl: String? = null,
+    @SerialName("sample_width") val sampleWidth: Int,
+    @SerialName("sample_height") val sampleHeight: Int,
+    @SerialName("sample_file_size") val sampleFileSize: Int?,
+    @SerialName("jpeg_url") val jpegUrl: String? = null,
+    @SerialName("jpeg_width") val jpegWidth: Int?,
+    @SerialName("jpeg_height") val jpegHeight: Int?,
+    @SerialName("jpeg_file_size") val jpegFileSize: Int?,
+    @SerialName("rating") val rating: String,
+    @SerialName("has_children") val hasChildren: Boolean,
+    @SerialName("parent_id") val parentId: Int?,
+    @SerialName("status") val status: String,
+    @SerialName("width") val width: Int,
+    @SerialName("height") val height: Int,
 ) {
-    private fun previewUrl(scheme: String, host: String) =
-        previewUrl.toSafeUrl(scheme, host)
+    private fun previewUrl(scheme: String, host: String) = previewUrl.toSafeUrl(scheme, host)
 
     private fun sampleUrl(scheme: String, host: String) =
         sampleUrl?.toSafeUrl(scheme, host) ?: previewUrl(scheme, host)
@@ -92,15 +65,16 @@ data class PostMoe(
 
     private fun String.getTags(tagTypes: Map<String, String>): List<TagBase> =
         trim().split(" ").map { name ->
-            val type = when(tagTypes[name]) {
-                "general" -> Values.Tags.TYPE_GENERAL
-                "artist" -> Values.Tags.TYPE_ARTIST
-                "copyright" -> Values.Tags.TYPE_COPYRIGHT
-                "character" -> Values.Tags.TYPE_CHARACTER
-                "circle" -> Values.Tags.TYPE_CIRCLE
-                "faults" -> Values.Tags.TYPE_FAULTS
-                else -> Values.Tags.TYPE_ALL
-            }
+            val type =
+                when (tagTypes[name]) {
+                    "general" -> Values.Tags.TYPE_GENERAL
+                    "artist" -> Values.Tags.TYPE_ARTIST
+                    "copyright" -> Values.Tags.TYPE_COPYRIGHT
+                    "character" -> Values.Tags.TYPE_CHARACTER
+                    "circle" -> Values.Tags.TYPE_CIRCLE
+                    "faults" -> Values.Tags.TYPE_FAULTS
+                    else -> Values.Tags.TYPE_ALL
+                }
             TagBase(name, type)
         }
 
@@ -108,7 +82,15 @@ data class PostMoe(
         return votes[id.toString()] == 3
     }
 
-    fun toPost(booruUid: Long, query: String, scheme: String, host: String, index: Int, tagTypes: Map<String, String>, votes: Map<String, Int>): Post {
+    fun toPost(
+        booruUid: Long,
+        query: String,
+        scheme: String,
+        host: String,
+        index: Int,
+        tagTypes: Map<String, String>,
+        votes: Map<String, Int>,
+    ): Post {
         return Post(
             booruUid = booruUid,
             query = query,
@@ -127,7 +109,7 @@ data class PostMoe(
             origin = originUrl(scheme, host),
             source = source,
             uploader = User(id = creatorId ?: -1, name = author),
-            isFavored = isFavored(votes)
+            isFavored = isFavored(votes),
         )
     }
 }

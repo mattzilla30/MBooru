@@ -27,13 +27,10 @@
     <string name="title_pools">畫集</string>
     <string name="title_tags">標籤</string>
     <string name="title_comments">留言</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">夜間模式</string>
     <string name="title_copyright">版權</string>
     <string name="title_about">關於</string>
     <string name="title_tag_blacklist">標籤黑名單</string>
-    <string name="title_sauce_nao">SauceNAO</string>
-    <string name="title_what_anime">What Anime</string>
     <string name="title_history">記錄</string>
     <string name="history_clear_all">全部清除</string>
     <string name="history_clear_all_content">所有記錄將會被清除。</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">您的 API Key 是錯誤的！</string>
     <string name="msg_cloudflare_challenges">載入失敗，請稍後再試</string>
     <string name="post_expand_or_clear">展開或清除</string>
-    <string name="post_add_search_to_muzei">` %s ` 已被儲存到 Muzei。</string>
     <string name="post_download">下載帖子</string>
     <string name="post_add_to_fav">新增到收藏</string>
-    <string name="post_search_by_sauce_nao">透過 SauceNAO 搜尋</string>
     <string name="msg_download_must_enable">需要下載管理員。</string>
     <string name="msg_path_denied">儲存失敗！沒有存取目前路徑的權限。</string>
     <string name="msg_download_failed">下載失敗</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">略過 Cloudflare WAF</string>
     <string name="settings_safe_mode">安全模式</string>
     <string name="settings_page_limit">每頁限制</string>
-    <string name="settings_muzei_limit">Muzei 限制</string>
-    <string name="settings_muzei_size">Muzei 大小</string>
     <string name="settings_detail_size">詳細大小</string>
     <string name="settings_download_size">下載大小</string>
     <string name="settings_download_path">下載路徑</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">清除搜尋記錄</string>
     <string name="settings_clear_history_summery">清除所有搜尋記錄。</string>
     <string name="settings_clear_history_dialog_content">所有搜尋記錄將會被清除。</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">顯示</string>
     <string name="settings_options">選項</string>
     <string name="settings_storage">儲存</string>
@@ -255,15 +247,6 @@
     <string name="order">排序</string>
     <string name="rating">評級</string>
     <string name="threshold">閾值</string>
-    <string name="muzei_copy">複製</string>
-    <string name="muzei_delete">刪除</string>
-    <string name="muzei_search">搜尋</string>
-    <string name="muzei_search_hint">新增標籤...</string>
-    <string name="muzei_fetch">取得 Artwork</string>
-    <string name="muzei_input_cant_be_empty">輸入不能為空白。</string>
-    <string name="muzei_action_view_post">在 MBooru 查看帖子</string>
-    <string name="muzei_action_search_posts">在 MBooru 搜尋帖子</string>
-    <string name="muzei_attribution">在 MBooru 的帖子</string>
     <string name="tag_blacklist_copy">複製</string>
     <string name="tag_blacklist_delete">刪除</string>
     <string name="tag_blacklist_add">新增</string>
@@ -275,15 +258,7 @@
     <string name="comment_hint">輸入留言</string>
     <string name="tab_start_date">開始日期</string>
     <string name="tab_end_date">結束日期</string>
-    <string name="sauce_nao_help">幫助</string>
-    <string name="sauce_nao_change_api_key">更改 API Key</string>
-    <string name="sauce_nao_get_api_key">取得 API Key</string>
-    <string name="sauce_nao_remaining_times_today">今天的剩餘次數: %01$d</string>
-    <string name="sauce_nao_api_key_unset">SauceNAO 的 API Key 還未設定。</string>
-    <string name="sauce_nao_image_url">圖片連結</string>
-    <string name="sauce_nao_invalid_image_url">無效的圖片連結。</string>
-    <string name="sauce_nao_source">來源</string>
-    <string name="sauce_nao_search_from_url">連結</string>
-    <string name="sauce_nao_search_from_file">檔案</string>
-    <string name="action_add_to_muzei">釘選到 Muzei</string>
+    <string name="title_top_rated">最高評分</string>
+    <string name="title_pools_website">畫集 (網站)</string>
+    <string name="title_artists_website">畫師 (網站)</string>
 </resources>

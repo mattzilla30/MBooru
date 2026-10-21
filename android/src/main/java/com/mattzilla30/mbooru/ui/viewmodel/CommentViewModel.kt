@@ -15,21 +15,19 @@
 
 package com.mattzilla30.mbooru.ui.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import com.mattzilla30.mbooru.data.action.ActionComment
 import com.mattzilla30.mbooru.data.repository.comment.CommentRepository
 import com.mattzilla30.mbooru.extension.NetResult
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 data class CommentReply(val postId: Int, val text: String)
 
-class CommentViewModel(private val repository: CommentRepository) : ScopeViewModel() {
+class CommentViewModel(private val repository: CommentRepository) : androidx.lifecycle.ViewModel() {
     private val actions = MutableStateFlow<ActionComment?>(null)
     val action = actions.asStateFlow()
     private val refresh = MutableStateFlow(0)
@@ -37,17 +35,32 @@ class CommentViewModel(private val repository: CommentRepository) : ScopeViewMod
     val mutationResults = results.receiveAsFlow()
     private val replyState = MutableStateFlow<CommentReply?>(null)
     val reply = replyState.asStateFlow()
-    val comments = combine(actions, refresh) { action, _ -> action }.flatMapLatest { action ->
-        if (action == null) flowOf(PagingData.empty()) else repository.getComments(action)
-    }.cachedIn(viewModelScope)
+    val comments =
+        combine(actions, refresh) { action, _ -> action }
+            .flatMapLatest { action ->
+                if (action == null) flowOf(PagingData.empty()) else repository.getComments(action)
+            }
+            .cachedIn(viewModelScope)
+
     fun show(action: ActionComment): Boolean {
         val snapshot = action.copy(booru = action.booru.copy())
         if (actions.value == snapshot) return false
-        actions.value = snapshot; return true
+        actions.value = snapshot
+        return true
     }
-    fun reply(postId: Int, text: String = "") { replyState.value = CommentReply(postId, text) }
-    fun editReply(text: String) { replyState.update { it?.copy(text = text) } }
-    fun dismissReply() { replyState.value = null }
+
+    fun reply(postId: Int, text: String = "") {
+        replyState.value = CommentReply(postId, text)
+    }
+
+    fun editReply(text: String) {
+        replyState.update { it?.copy(text = text) }
+    }
+
+    fun dismissReply() {
+        replyState.value = null
+    }
+
     fun sendReply() {
         val draft = reply.value ?: return
         val action = actions.value ?: return
@@ -55,6 +68,7 @@ class CommentViewModel(private val repository: CommentRepository) : ScopeViewMod
         createCommment(action.copy(postId = draft.postId, body = draft.text.trim()))
         dismissReply()
     }
+
     fun createCommment(action: ActionComment) {
         viewModelScope.launch {
             val result = repository.createComment(action)
@@ -62,6 +76,7 @@ class CommentViewModel(private val repository: CommentRepository) : ScopeViewMod
             results.send(result)
         }
     }
+
     fun deleteComment(action: ActionComment) {
         viewModelScope.launch {
             val result = repository.destroyComment(action)

@@ -19,20 +19,23 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import coil.executeBlocking
-import coil.imageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.asDrawable
+import coil3.executeBlocking
+import coil3.imageLoader
+import coil3.request.*
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
 
 class CustomDecoder : ImageDecoder {
     override fun decode(context: Context, uri: Uri): Bitmap {
-        val request = ImageRequest.Builder(context)
-            .data(uri)
-            .allowConversionToBitmap(true)
-            .allowHardware(false)
-            .build()
+        val request =
+            ImageRequest.Builder(context)
+                .data(uri)
+                .allowConversionToBitmap(true)
+                .allowHardware(false)
+                .build()
         val result = context.imageLoader.executeBlocking(request) as SuccessResult
-        return (result.drawable as BitmapDrawable).bitmap
+        return (result.image.asDrawable(context.resources) as BitmapDrawable).bitmap
     }
 }

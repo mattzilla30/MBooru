@@ -15,21 +15,64 @@
 
 package com.mattzilla30.mbooru.app
 
-import android.content.Context
 import com.mattzilla30.mbooru.data.api.BooruApis
 import com.mattzilla30.mbooru.data.database.MyDatabase
+import kotlinx.coroutines.cancel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
-
+import org.koin.dsl.onClose
 
 val appModules = module {
-    single { androidApplication().getSharedPreferences("${androidApplication().packageName}_preferences", Context.MODE_PRIVATE) }
-    single { MyDatabase(androidApplication()) }
+    single {
+        kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO
+        )
+    } onClose { it?.cancel() }
+    single {
+        com.mattzilla30.mbooru.data.settings.DataStorePreferences(
+            androidApplication(),
+            get(),
+            get(),
+        )
+    }
+    single<android.content.SharedPreferences> {
+        get<com.mattzilla30.mbooru.data.settings.DataStorePreferences>()
+    }
+    single<com.mattzilla30.mbooru.data.credentials.CredentialRepository> {
+        com.mattzilla30.mbooru.data.credentials.DeviceCredentialRepository(
+            androidApplication(),
+            com.mattzilla30.mbooru.data.credentials.AndroidCredentialCipher(androidApplication()),
+        )
+    }
+    single { MyDatabase.create(androidApplication(), get()) } onClose { it?.close() }
     single { get<MyDatabase>().booruDao() }
+    single { get<MyDatabase>().downloadDao() }
     single { get<MyDatabase>().postDao() }
+    single { get<MyDatabase>().savedPostDao() }
+    single { get<MyDatabase>().libraryDao() }
     single { get<MyDatabase>().tagFilterDao() }
-    single { get<MyDatabase>().muzeiDao() }
     single { get<MyDatabase>().historyDao() }
     single { get<MyDatabase>().nextDao() }
-    single { BooruApis() }
+    single { SettingsRepository(get()) }
+    single { com.mattzilla30.mbooru.okhttp.AndroidCookieJar(androidApplication()) }
+    single {
+        com.mattzilla30.mbooru.data.api.HttpTransport(androidApplication(), get(), get())
+    } onClose { it?.close() }
+    single { BooruApis(get()) }
+    single { com.mattzilla30.mbooru.player.MediaResources(androidApplication(), get()) } onClose
+        {
+            it?.close()
+        }
+    single { com.mattzilla30.mbooru.data.api.AppUpdaterRepository(get(), get()) }
+    single {
+        com.mattzilla30.mbooru.data.repository.download.DownloadQueueRepository(
+            androidApplication(),
+            get(),
+            get(),
+        )
+    }
+    single { com.mattzilla30.mbooru.data.database.BooruManager(get(), get(), get()) }
+    single { com.mattzilla30.mbooru.data.database.HistoryManager(get()) }
+    single { com.mattzilla30.mbooru.data.database.TagFilterManager(get()) }
+    single { com.mattzilla30.mbooru.data.database.NextManager(get()) }
 }

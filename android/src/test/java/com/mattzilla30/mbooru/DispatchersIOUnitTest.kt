@@ -15,13 +15,12 @@
 
 package com.mattzilla30.mbooru
 
+import java.util.concurrent.Executor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import org.junit.Test
-
 import org.junit.Assert.*
 import org.junit.Before
-import java.util.concurrent.Executor
+import org.junit.Test
 
 class DispatchersIOUnitTest {
 

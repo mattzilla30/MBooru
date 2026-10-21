@@ -1,7 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="browse_empty">Sonuç yok</string>
-  <string name="browse_offline">Çevrimdışısınız. Bağlantınızı kontrol edip yeniden deneyin.</string>
-  <string name="image_load_retry">Görüntü yüklenemedi. Yeniden denemek için dokunun.</string>
-  <string name="post_actions">Gönderi işlemleri</string>
-  <string name="post_accessibility">Gönderi %1$d</string>
+    <string name="browse_empty">Sonuç yok</string>
+    <string name="browse_offline">Çevrimdışısınız. Bağlantınızı kontrol edip yeniden deneyin.</string>
+    <string name="image_load_retry">Görüntü yüklenemedi. Yeniden denemek için dokunun.</string>
+    <string name="post_actions">Gönderi işlemleri</string>
+    <string name="post_accessibility">Gönderi %1$d</string>
+    <string name="booru_empty_message">Gezinmeye başlamak için önerilen veya özel bir site ekleyin.</string>
+    <string name="title_downloads">İndirilenler</string>
+    <string name="download_resume_policy">Sunucu ve depolama destekliyorsa yeniden deneme indirmeyi sürdürür; aksi halde baştan başlar. Android arka plan aktarımlarını duraklatabilir.</string>
+    <string name="download_queue_empty">Henüz indirme yok.</string>
+    <string name="download_state_queued">Sırada · aktarım bekleniyor</string>
+    <string name="download_state_running">İndiriliyor</string>
+    <string name="download_state_completed">Tamamlandı</string>
+    <string name="download_state_failed">Başarısız · bağlantıyı, oturumu ve klasör erişimini kontrol edin</string>
+    <string name="download_state_cancelled">İptal edildi</string>
+    <string name="download_bytes_unknown">%1$d bayt · toplam boyut bilinmiyor</string>
+    <string name="download_bytes_total">%1$d / %2$d bayt</string>
+    <string name="download_open_file">Dosyayı aç</string>
+    <string name="settings_load_failed">Ayarlar yüklenemedi</string>
+    <string name="settings_load_recovery">Ayarlarınız korundu. Yeniden deneyin; MBooru bunları otomatik olarak sıfırlamaz.</string>
+    <string name="settings_write_failed">Ayarlar kaydedilemedi. Uygulamayı kapatmadan önce yeniden deneyin.</string>
 </resources>

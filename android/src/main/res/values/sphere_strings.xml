@@ -1,0 +1,32 @@
+<!-- New labels deliberately fall back to English until reviewed locale translations exist.
+     Existing translated controls continue to use their localized resources. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sphere_theme">Change theme</string>
+    <string name="sphere_server_options">Server options</string>
+    <string name="sphere_manage_servers">Manage servers</string>
+    <string name="sphere_add_server">Add new server</string>
+    <string name="sphere_explore">Explore server</string>
+    <string name="sphere_favorites">Favorites</string>
+    <string name="sphere_exit_message">Close MBooru?</string>
+    <string name="sphere_filters">Search filters</string>
+    <string name="sphere_clear">Clear</string>
+    <string name="sphere_rating_all">All ratings</string>
+    <string name="sphere_ui_credit">Interface design</string>
+    <string name="sphere_ui_credit_summary">Boorusphere by Chaldeaprjkt, azrim and contributors (BSD 3-Clause)</string>
+    <string name="sphere_license">Boorusphere license</string>
+    <string name="sphere_empty_favorites">No favorites yet</string>
+    <string name="sphere_empty_favorites_hint">Tap the heart on a post to save it here. No account needed.</string>
+    <string name="sphere_saved">Favorite updated</string>
+    <string name="sphere_anonymous_servers">Ready to browse without an account</string>
+    <string name="sphere_retired_server">This server is not included in MBooru.</string>
+    <string name="sphere_interface">Interface</string>
+    <string name="sphere_content">Content</string>
+    <string name="sphere_servers">Servers</string>
+    <string name="sphere_miscellaneous">Miscellaneous</string>
+    <string name="sphere_edit">Edit</string>
+    <string name="sphere_remove">Remove</string>
+    <string name="sphere_select_server">Select server</string>
+    <string name="sphere_all_downloads">All</string>
+    <string name="sphere_related">Find related posts</string>
+    <string name="settings_security">Security</string>
+</resources>

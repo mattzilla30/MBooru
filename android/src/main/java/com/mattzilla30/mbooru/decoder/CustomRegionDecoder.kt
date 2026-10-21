@@ -33,28 +33,29 @@ class CustomRegionDecoder : ImageRegionDecoder {
 
     override fun init(context: Context?, uri: Uri): Point {
         val inputStream = FileInputStream(uri.toFile())
-        decoder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            BitmapRegionDecoder.newInstance(inputStream)
-        else
-            @Suppress("DEPRECATION")
-            BitmapRegionDecoder.newInstance(inputStream, false)
+        decoder =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                BitmapRegionDecoder.newInstance(inputStream)
+            else @Suppress("DEPRECATION") BitmapRegionDecoder.newInstance(inputStream, false)
         inputStream.close()
         return Point(decoder!!.width, decoder!!.height)
     }
 
     override fun decodeRegion(sRect: Rect, sampleSize: Int): Bitmap {
         synchronized(decoderLock) {
-            val options = BitmapFactory.Options().apply {
-                inSampleSize = sampleSize
-                inPreferredConfig = Bitmap.Config.ARGB_8888
-            }
+            val options =
+                BitmapFactory.Options().apply {
+                    inSampleSize = sampleSize
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                }
             return decoder?.decodeRegion(sRect, options)
-                ?: throw RuntimeException("Region decoder returned null bitmap - image format may not be supported")
+                ?: throw RuntimeException(
+                    "Region decoder returned null bitmap - image format may not be supported"
+                )
         }
     }
 
     override fun recycle() {
         decoder?.recycle()
     }
-
 }

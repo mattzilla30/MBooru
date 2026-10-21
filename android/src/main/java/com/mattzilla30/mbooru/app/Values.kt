@@ -37,6 +37,7 @@ object Values {
     const val BOORU_TYPE_GEL_LEGACY = 6
     const val BOORU_TYPE_SANKAKU = 4
     const val BOORU_TYPE_SHIMMIE = 5
+    const val BOORU_TYPE_RULE34 = 7
     const val BOORU_TYPE_UNKNOWN = -1
 
     const val PAGE_TYPE_POSTS = 0
@@ -44,8 +45,10 @@ object Values {
 
     const val HASH_SALT_CONTAINED = "your-password"
 
-    const val PC_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    val MOBILE_USER_AGENT: String = "Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; ${Build.MODEL}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+    const val PC_USER_AGENT =
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    val MOBILE_USER_AGENT: String =
+        "Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; ${Build.MODEL}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
 
     const val SANKAKU_REFERER = "https://sankaku.app/"
     const val SANKAKU_ORIGIN = "https://sankaku.app"

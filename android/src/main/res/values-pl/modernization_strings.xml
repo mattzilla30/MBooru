@@ -1,7 +1,0 @@
-<resources>
-  <string name="browse_empty">Brak wyników</string>
-  <string name="browse_offline">Jesteś offline. Sprawdź połączenie i spróbuj ponownie.</string>
-  <string name="image_load_retry">Nie można wczytać obrazu. Dotknij, aby ponowić.</string>
-  <string name="post_actions">Działania wpisu</string>
-  <string name="post_accessibility">Wpis %1$d</string>
-</resources>

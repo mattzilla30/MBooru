@@ -28,9 +28,9 @@ The workflow is `.github/workflows/android-release.yml`. Set repository secrets 
 
 The upstream Firebase configuration has been removed. To enable Analytics and Crashlytics, register `com.mattzilla30.mbooru` in your own Firebase project and put its downloaded configuration at `android/google-services.json`. Without that file, the Google Services and Crashlytics build plugins are not applied. Do not edit another app's Firebase identifiers to imitate a new registration.
 
-MBooru is completely free: no ads, purchases, site-count limits, or paid feature checks. Backups, pool downloads, SauceNAO and trace.moe searches are available to everyone. External sites may require their own account or API key.
+MBooru is completely free: no ads, purchases, site-count limits, or paid feature checks. Backups, pool downloads and local favorites are available to everyone. Accounts are optional for the included servers. Muzei, SauceNAO and WhatAnime integrations have been removed.
 
-Six presets are added once on first launch or upgrade: Danbooru, Yande.re, Konachan, Gelbooru, Safebooru, and Sankaku. Existing configurations and credentials are preserved, except for the retired factory “Sample” entry at `moe.fiepi.com`. Use **Manage boorus → Add booru → Featured sites** to restore an individually deleted preset. These are configured endpoints; their current availability and account requirements depend on each site.
+Three presets are added once on first launch or upgrade: **Yande.re, Konachan, and Safebooru**. They support anonymous browsing through their configured endpoints. Optional accounts remain available. Danbooru, Gelbooru, Sankaku, and the factory Sample entry are removed on upgrade. Settings, credentials and dependent records for retained servers are preserved. Use **Add server → Add booru → Featured sites** to restore an individually deleted preset.
 
 Copyright © 2026 mattzilla30 <mattzilla30@gmail.com> for MBooru modifications. Based on Flexbooru by onlymash and contributors; original notices and GPL licensing are retained. See [attribution](NOTICE.md).
 
@@ -43,3 +43,9 @@ See the [seven-area modernization status](docs/modernization-status.md) for impl
 See the [full modernization roadmap](docs/future-modernization-plan.md) for platform support, asynchronous persistence, state/navigation, networking/authentication, durable downloads, media performance, adaptive accessibility, modules and release maintenance. This is a staged future plan; the current app keeps its existing visual design.
 
 Releases use plain integer names/tags, starting with `1`. Android version codes remain separate monotonic integers (`1374` for release `1`) so existing installations can upgrade. Source provenance is recorded by the release tag; embedded VCS metadata is disabled for release APKs to avoid recording a base commit from a working-tree build.
+
+UI design credit: [Boorusphere](https://github.com/azrim/boorusphere), copyright 2021 Chaldeaprjkt (BSD-3-Clause). See [adaptation details and bundled license](docs/boorusphere-ui.md).
+
+## M34 integration
+
+The integrated Rule34 connection, direct navigation, local likes, named collections and versioned library transfer are documented in [the M34 integration guide](docs/integration/m34.md). Android API 21 compatibility and the existing MBooru package/signing identity are preserved. See [release 15 Rule34 browsing](docs/releases/15.md), [release 7 integration notes](docs/releases/7.md) and [the integration validation report](docs/validation/m34-integration.md) for signed upgrades, executed tests and remaining device/service checks.

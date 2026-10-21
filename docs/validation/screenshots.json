@@ -1,0 +1,11 @@
+{
+  "run": "https://github.com/mattzilla30/MBooru/actions/runs/39095789577",
+  "api": 28,
+  "review": "All four actual PNGs inspected; accepted as first regression baselines. Comparison rerun required.",
+  "sha256": {
+    "settings-large-text-rtl.png": "af10ecf7b101b902cf18103959d3385044abea774afbc7e782345e0fd23fd0bb",
+    "settings-phone-dark.png": "66a57bbb39d80e768c56107cc254af28d7b600856fb96e5fdcfe595603da6f58",
+    "settings-phone-light.png": "6adb985a0593bec87d15eb3554b7d21810c515c07a83bd266b77136f4babf033",
+    "settings-tablet.png": "cfff167d4dd70f3383682cef276fe68802a636f0a3c4e77d998aa0fe75054b95"
+  }
+}

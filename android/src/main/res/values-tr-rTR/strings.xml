@@ -27,13 +27,10 @@
     <string name="title_pools">Havuz</string>
     <string name="title_tags">Etiketler</string>
     <string name="title_comments">Yorumlar</string>
-    <string name="title_muzei">Muzei</string>
     <string name="title_night_mode">Gece modu</string>
     <string name="title_copyright">Telif hakkı</string>
     <string name="title_about">Hakkında</string>
     <string name="title_tag_blacklist">Etiket karalistesi</string>
-    <string name="title_sauce_nao">SauceNao</string>
-    <string name="title_what_anime">What Anime</string>
     <string name="title_history">Geçmiş</string>
     <string name="history_clear_all">Hepsini sil</string>
     <string name="history_clear_all_content">Tüm geçmiş silinecek.</string>
@@ -62,10 +59,8 @@
     <string name="msg_your_api_key_is_wrong">API anahtarınız (key) yanlış!</string>
     <string name="msg_cloudflare_challenges">Yükleme başarısız oldu, lütfen daha sonra tekrar deneyin</string>
     <string name="post_expand_or_clear">Genişlet veya temizle</string>
-    <string name="post_add_search_to_muzei">` %s ` Muzei\'ye kaydedildi.</string>
     <string name="post_download">Gönderiyi indir</string>
     <string name="post_add_to_fav">Favorilere ekle</string>
-    <string name="post_search_by_sauce_nao">SauceNao ile ara</string>
     <string name="msg_download_must_enable">İndirme Yöneticisi gerekli.</string>
     <string name="msg_path_denied">Kaydedilemedi! Mevcut yere erişim yok.</string>
     <string name="msg_download_failed">İndirilemedi</string>
@@ -177,8 +172,6 @@
     <string name="settings_bypass_waf_summary">Cloudflare WAF\'ı bypass etme</string>
     <string name="settings_safe_mode">Güvenli mod</string>
     <string name="settings_page_limit">Sayfa sınırı</string>
-    <string name="settings_muzei_limit">Muzei sınırı</string>
-    <string name="settings_muzei_size">Muzei boyutu</string>
     <string name="settings_detail_size">Detay boyutu</string>
     <string name="settings_download_size">İndirme boyutu</string>
     <string name="settings_download_path">İndirme dizini</string>
@@ -205,7 +198,6 @@
     <string name="settings_clear_history">Arama geçmişini temizle</string>
     <string name="settings_clear_history_summery">Tüm arama geçmişini temizle.</string>
     <string name="settings_clear_history_dialog_content">Tüm arama geçmişi temizlenecektir.</string>
-    <string name="settings_muzei">Muzei</string>
     <string name="settings_display">Görünüm</string>
     <string name="settings_options">Seçenekler</string>
     <string name="settings_storage">Depolama</string>
@@ -255,15 +247,6 @@
     <string name="order">Sıralama</string>
     <string name="rating">Derecelendirme</string>
     <string name="threshold">Eşik</string>
-    <string name="muzei_copy">Kopyala</string>
-    <string name="muzei_delete">Sil</string>
-    <string name="muzei_search">Ara</string>
-    <string name="muzei_search_hint">Etiket ekle…</string>
-    <string name="muzei_fetch">Sanat Eserini Çek</string>
-    <string name="muzei_input_cant_be_empty">Girdi boş bırakılamaz.</string>
-    <string name="muzei_action_view_post">Gönderiyi MBooru üzerinde görüntüle</string>
-    <string name="muzei_action_search_posts">MBooru üzerinde gönderi ara</string>
-    <string name="muzei_attribution">MBooru\'dan gönderi</string>
     <string name="tag_blacklist_copy">Kopyala</string>
     <string name="tag_blacklist_delete">Sil</string>
     <string name="tag_blacklist_add">Ekle</string>
@@ -275,15 +258,7 @@
     <string name="comment_hint">Yorum girdisi</string>
     <string name="tab_start_date">Başlangıç tarihi</string>
     <string name="tab_end_date">Bitiş tarihi</string>
-    <string name="sauce_nao_help">Yardım</string>
-    <string name="sauce_nao_change_api_key">API anahtarını değiştir</string>
-    <string name="sauce_nao_get_api_key">API anahtarı edinin</string>
-    <string name="sauce_nao_remaining_times_today">Bugün kalan kullanımınız: %01$d</string>
-    <string name="sauce_nao_api_key_unset">SauceNao\'s API anahtarı ayarlanmamış.</string>
-    <string name="sauce_nao_image_url">Resim URL\'si</string>
-    <string name="sauce_nao_invalid_image_url">Geçersiz resim URL\'si</string>
-    <string name="sauce_nao_source">Kaynak</string>
-    <string name="sauce_nao_search_from_url">URL</string>
-    <string name="sauce_nao_search_from_file">Dosya</string>
-    <string name="action_add_to_muzei">Muzei\'ye ekle</string>
+    <string name="title_top_rated">En yüksek puanlı</string>
+    <string name="title_pools_website">Havuz (web sitesi)</string>
+    <string name="title_artists_website">Sanatçılar (web sitesi)</string>
 </resources>

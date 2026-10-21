@@ -14,110 +14,81 @@
  */
 
 package com.mattzilla30.mbooru.data.model.danbooru
-import kotlinx.serialization.Serializable
 
-import kotlinx.serialization.SerialName
 import com.mattzilla30.mbooru.data.model.common.Post
 import com.mattzilla30.mbooru.data.model.common.TagBase
 import com.mattzilla30.mbooru.data.model.common.User
 import com.mattzilla30.mbooru.data.utils.getDanDateMillis
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class PostDanE621(
-    @SerialName("created_at")
-    val createdAt: String?,
-    @SerialName("description")
-    val description: String,
-    @SerialName("fav_count")
-    val favCount: Int,
-    @SerialName("file")
-    val file: FileInfo,
-    @SerialName("id")
-    val id: Int,
-    @SerialName("is_favorited")
-    val isFavorited: Boolean,
-    @SerialName("preview")
-    val preview: FileInfo,
-    @SerialName("rating")
-    val rating: String,
-    @SerialName("sample")
-    val sample: FileInfo,
-    @SerialName("score")
-    val score: Score,
-    @SerialName("sources")
-    val sources: List<String>,
-    @SerialName("tags")
-    val tags: Tags,
-    @SerialName("updated_at")
-    val updatedAt: String?,
-    @SerialName("uploader_id")
-    val uploaderId: Int
+    @SerialName("created_at") val createdAt: String?,
+    @SerialName("description") val description: String,
+    @SerialName("fav_count") val favCount: Int,
+    @SerialName("file") val file: FileInfo,
+    @SerialName("id") val id: Int,
+    @SerialName("is_favorited") val isFavorited: Boolean,
+    @SerialName("preview") val preview: FileInfo,
+    @SerialName("rating") val rating: String,
+    @SerialName("sample") val sample: FileInfo,
+    @SerialName("score") val score: Score,
+    @SerialName("sources") val sources: List<String>,
+    @SerialName("tags") val tags: Tags,
+    @SerialName("updated_at") val updatedAt: String?,
+    @SerialName("uploader_id") val uploaderId: Int,
 ) {
     @Serializable
     data class FileInfo(
-        @SerialName("url")
-        val url: String?,
-        @SerialName("width")
-        val width: Int,
-        @SerialName("height")
-        val height: Int,
-        @SerialName("size")
-        val size: Int = 0,
-        @SerialName("ext")
-        val ext: String? = null
+        @SerialName("url") val url: String?,
+        @SerialName("width") val width: Int,
+        @SerialName("height") val height: Int,
+        @SerialName("size") val size: Int = 0,
+        @SerialName("ext") val ext: String? = null,
     )
 
     @Serializable
     data class Score(
-        @SerialName("down")
-        val down: Int,
-        @SerialName("total")
-        val total: Int,
-        @SerialName("up")
-        val up: Int
+        @SerialName("down") val down: Int,
+        @SerialName("total") val total: Int,
+        @SerialName("up") val up: Int,
     )
 
     @Serializable
     data class Tags(
-        @SerialName("artist")
-        val artist: List<String>,
-        @SerialName("character")
-        val character: List<String>,
-        @SerialName("copyright")
-        val copyright: List<String>,
-        @SerialName("general")
-        val general: List<String>,
-        @SerialName("invalid")
-        val invalid: List<String>,
-        @SerialName("lore")
-        val lore: List<String>,
-        @SerialName("meta")
-        val meta: List<String>,
-        @SerialName("species")
-        val species: List<String>
+        @SerialName("artist") val artist: List<String>,
+        @SerialName("character") val character: List<String>,
+        @SerialName("copyright") val copyright: List<String>,
+        @SerialName("general") val general: List<String>,
+        @SerialName("invalid") val invalid: List<String>,
+        @SerialName("lore") val lore: List<String>,
+        @SerialName("meta") val meta: List<String>,
+        @SerialName("species") val species: List<String>,
     )
 
-    fun toPost(booruUid: Long, query: String, index: Int) = Post(
-        booruUid = booruUid,
-        query = query,
-        index = index,
-        id = id,
-        width = file.width,
-        height = file.height,
-        size = file.size,
-        score = score.total,
-        rating = rating,
-        isFavored = isFavorited,
-        time = createdAt?.getDanDateMillis(),
-        tags = getTags(),
-        preview = preview.url ?: "",
-        sample = sample.url ?: "",
-        medium = sample.url ?: "",
-        origin = file.url ?: "",
-        pixivId = -1,
-        source = sources.toString(),
-        uploader = User(id = uploaderId, name = "null")
-    )
+    fun toPost(booruUid: Long, query: String, index: Int) =
+        Post(
+            booruUid = booruUid,
+            query = query,
+            index = index,
+            id = id,
+            width = file.width,
+            height = file.height,
+            size = file.size,
+            score = score.total,
+            rating = rating,
+            isFavored = isFavorited,
+            time = createdAt?.getDanDateMillis(),
+            tags = getTags(),
+            preview = preview.url ?: "",
+            sample = sample.url ?: "",
+            medium = sample.url ?: "",
+            origin = file.url ?: "",
+            pixivId = -1,
+            source = sources.toString(),
+            uploader = User(id = uploaderId, name = "null"),
+        )
 
     private fun getTags(): List<TagBase> {
         val tagsGeneral = tags.general.map { TagBase(name = it, category = 0) }
@@ -128,7 +99,13 @@ data class PostDanE621(
         val tagsLore = tags.lore.map { TagBase(name = it, category = 5) }
         val tagsSpecies = tags.species.map { TagBase(name = it, category = 6) }
         val tagsInvalid = tags.invalid.map { TagBase(name = it, category = 7) }
-        return tagsArtist + tagsMeta + tagsCopyright + tagsCharacter +
-                tagsGeneral + tagsLore + tagsSpecies + tagsInvalid
+        return tagsArtist +
+            tagsMeta +
+            tagsCopyright +
+            tagsCharacter +
+            tagsGeneral +
+            tagsLore +
+            tagsSpecies +
+            tagsInvalid
     }
 }
